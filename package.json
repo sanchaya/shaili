@@ -25,6 +25,8 @@
   "dependencies": {
     "@adminjs/design-system": "^4.0.3",
     "@adminjs/express": "^6.0.0",
+    "@adminjs/import-export": "^3.0.0",
+    "@adminjs/logger": "^5.0.1",
     "@adminjs/sequelize": "^4.0.0",
     "@types/sequelize": "^4.28.15",
     "adminjs": "^7.2.1",

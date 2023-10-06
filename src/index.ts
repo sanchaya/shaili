@@ -1,11 +1,13 @@
 import express from "express";
-import { Users } from "./db/models/Users.ts";
-import { sequelize } from "./db/config/config.ts";
+import { Users } from "./db/models/Users.js";
+import { sequelize } from "./db/config/config.js";
 import * as session from "express-session";
 import "dotenv/config";
 import MySQLStore from "express-mysql-session";
-import { Adminresource } from "./resources/AdminResource.ts";
-import { componentLoader } from "./components.ts";
+import { Adminresource } from "./resources/AdminResource.js";
+import { componentLoader } from "./components.js";
+import { LetterResource } from "./resources/LettersResource.js";
+
 
 const PORT = 8000;
 
@@ -40,7 +42,7 @@ const start = async () => {
   });
 
   const admin = new AdminJS({
-    resources: [Adminresource],
+    resources: [Adminresource,LetterResource],
     componentLoader,
     dashboard: {
       component: "Dashboard",
