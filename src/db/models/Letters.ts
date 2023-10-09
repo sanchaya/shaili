@@ -1,8 +1,8 @@
 import { DataTypes, Model } from "sequelize";
 
-import { sequelize } from "../config/config.js";
-import { LetterType } from "./LetterType.js";
-import { Users } from "./Users.js";
+import { sequelize } from "../config/config.ts";
+import { LetterType } from "./LetterType.ts";
+import { Users } from "./Users.ts";
 
 interface ILetters {
   id: number;

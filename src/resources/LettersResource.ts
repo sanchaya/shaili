@@ -1,7 +1,7 @@
-import { Letters } from '../db/models/Letters.js'
+import { Letters } from '../db/models/Letters.ts'
 import importExportFeature from "@adminjs/import-export";
-import { componentLoader } from '../components.js';
-import { LetterType } from '../db/models/LetterType.js';
+import { componentLoader } from '../components.ts';
+import { LetterType } from '../db/models/LetterType.ts';
 
 let types = await LetterType.findAll({ attributes: ["id", "type"] });
 const availableRoles = types.map((role) => ({

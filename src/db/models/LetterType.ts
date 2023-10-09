@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../config/config.js";
+import { sequelize } from "../config/config.ts";
 
 interface ILetterType {
   id: number;
