@@ -1,9 +1,9 @@
 import React from "react";
-import styled, { createGlobalStyle } from "styled-components";
-import { useSelector } from "react-redux";
+import { styled } from "@adminjs/design-system/styled-components";
 import {
   theme,
   Box,
+  BoxProps,
   H5,
   H2,
   Label,
@@ -13,33 +13,29 @@ import {
   Button,
   Text,
   MessageBox,
-  MadeWithLove,
-  themeGet,
 } from "@adminjs/design-system";
-import { useTranslation, ReduxState } from "adminjs";
-import { ThemeProvider } from "styled-components";
+import { useTranslation } from "adminjs";
+import { ThemeProvider } from "@adminjs/design-system/styled-components";
 
-const GlobalStyle = createGlobalStyle`
-  html, body, #app {
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-`;
-
-const Wrapper = styled(Box)`
+const Wrapper = styled(Box)<BoxProps>`
   align-items: center;
   justify-content: center;
   flex-direction: column;
   height: 100%;
 `;
 
-const StyledLogo = styled.img`
-  max-width: 200px;
-  margin: ${themeGet("space", "md")} 0;
+const IllustrationsWrapper = styled(Box)<BoxProps>`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  & svg [stroke="#3B3552"] {
+    stroke: rgba(255, 255, 255, 0.5);
+  }
+  & svg [fill="#3040D6"] {
+    fill: rgba(255, 255, 255, 1);
+  }
 `;
-
 export type LoginProps = {
   message?: string;
   action: string;
@@ -53,11 +49,9 @@ export const Login: React.FC<LoginProps> = (props) => {
     translateProperty,
     translateMessage,
   } = useTranslation();
-  const branding = useSelector((state: ReduxState) => state.branding);
 
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyle />
       <Wrapper flex variant="grey">
         <Box
           bg="white"
@@ -75,11 +69,11 @@ export const Login: React.FC<LoginProps> = (props) => {
             display={["none", "none", "block"]}
             position="relative"
           >
-            <H2 fontWeight="lighter">{translateLabel("loginWelcome")}</H2>
+            <H2 fontWeight="lighter">{translateLabel("Welcome")}</H2>
             <Text fontWeight="lighter" mt="default">
-              {translateMessage("loginWelcome")}
+              {translateMessage("Login to your account")}
             </Text>
-            <Text textAlign="center" p="xxl">
+            <IllustrationsWrapper p="xxl">
               <Box display="inline" mr="default">
                 <Illustration variant="Planet" width={82} height={91} />
               </Box>
@@ -89,7 +83,7 @@ export const Login: React.FC<LoginProps> = (props) => {
               <Box display="inline" position="relative" top="-20px">
                 <Illustration variant="FlagInCog" width={82} height={91} />
               </Box>
-            </Text>
+            </IllustrationsWrapper>
           </Box>
           <Box
             as="form"
@@ -99,13 +93,7 @@ export const Login: React.FC<LoginProps> = (props) => {
             flexGrow={1}
             width={["100%", "100%", "480px"]}
           >
-            <H5 marginBottom="xxl">
-              {branding.logo ? (
-                <StyledLogo src={branding.logo} alt={branding.companyName} />
-              ) : (
-                branding.companyName
-              )}
-            </H5>
+            <H5 marginBottom="xxl">Type Extract</H5>
             {message && (
               <MessageBox
                 my="lg"
@@ -134,18 +122,12 @@ export const Login: React.FC<LoginProps> = (props) => {
               <Button variant="primary">{translateButton("login")}</Button>
             </Text>
             <Text mt="lg" textAlign="center">
-              {translateMessage("forgotPasswordQuestion")}{" "}
-              <a href="/forgot-password">
-                {translateMessage("forgotPassword")}
+              <a href="/admin/forgot-password">
+                {translateMessage("Forgot Password?")}
               </a>
             </Text>
           </Box>
         </Box>
-        {branding.withMadeWithLove ? (
-          <Box mt="xxl">
-            <MadeWithLove />
-          </Box>
-        ) : null}
       </Wrapper>
     </ThemeProvider>
   );
