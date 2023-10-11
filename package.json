@@ -9,7 +9,8 @@
     "start": "ts-node ./src/index.ts",
     "dev": "nodemon --exec node --loader ts-node/esm src/index.ts",
     "migrate:up": "npx sequelize-cli db:migrate",
-    "migrate:undo": "npx sequelize-cli db:migrate:undo"
+    "migrate:undo": "npx sequelize-cli db:migrate:undo",
+    "seed:up": "npx sequelize-cli db:seed"
   },
   "keywords": [],
   "author": "",

@@ -40,7 +40,6 @@ export const AdminResource = {
   actions: {
     new: {
       before: async (request: { payload: { newPassword: string } }) => {
-        console.log(request);
         if (request.payload?.newPassword) {
           request.payload.newPassword = await argon2.hash(
             request.payload.newPassword
