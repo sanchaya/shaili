@@ -2,11 +2,13 @@ import express from "express";
 import * as session from "express-session";
 import "dotenv/config";
 import MySQLStore from "express-mysql-session";
+import { LetterResource } from "./backend/resources/LettersResource.ts";
 import { componentLoader } from "./frontend/components.ts";
 import { sequelize } from "./backend/db/config/config.ts";
 import Users from "./backend/db/models/Users.ts";
 import NonAdminRouter from "./backend/routers/NonAdminRouters.ts";
 import { AdminResource } from "./backend/resources/AdminResource.ts";
+
 
 const PORT = 8000;
 
@@ -41,7 +43,7 @@ const start = async () => {
     branding: {
       companyName: "Type Extract",
     },
-    resources: [AdminResource],
+    resources: [AdminResource, LetterResource],
     componentLoader,
     dashboard: {
       component: "Dashboard",
