@@ -12,16 +12,16 @@ export const renderResetPasswordForm = async (req: Request, res: Response) => {
   });
 
   if (!passwordReset) {
-    const html = await edge.render("ResetPassword", { notFound: true });
+    const html = await edge.render("Pages::ResetPassword", { notFound: true });
     res.send(html);
   } else if (Number(expires) < currentTime) {
-    const html = await edge.render("ResetPassword", {
+    const html = await edge.render("Pages::ResetPassword", {
       notFound: false,
       expired: true,
     });
     res.send(html);
   } else {
-    const html = await edge.render("ResetPassword", {
+    const html = await edge.render("Pages::ResetPassword", {
       notFound: false,
       expired: false,
       valid: true,

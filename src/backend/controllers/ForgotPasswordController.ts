@@ -9,7 +9,7 @@ export const renderForgotPasswordForm = async (
   _req: Request,
   res: Response
 ) => {
-  const html = await edge.render("ForgotPassword");
+  const html = await edge.render("Pages::ForgotPassword");
   res.send(html);
 };
 
@@ -47,7 +47,7 @@ export const handleForgotPasswordSubmission = async (
       await PasswordResetTokens.create({ email, token });
     }
 
-    const mailHtml = await edge.render("ForgotPasswordEmail", {
+    const mailHtml = await edge.render("Emails::ForgotPasswordEmail", {
       email: user.email,
       url: url,
     });
