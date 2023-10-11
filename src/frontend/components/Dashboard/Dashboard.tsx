@@ -1,17 +1,17 @@
 import React from "react";
-import styled from "styled-components";
+import { styled } from "@adminjs/design-system/styled-components";
 
 const DashboardContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
-  height: 100vh; /* Optional: Adjust the height as needed */
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 `;
 
 const DashboardItem = styled.div`
-  width: calc(33.33% - 10px); /* 10px is the margin between items */
-  height: 20vh; /* Adjust the height as needed */
+  width: calc(33.33% - 10px);
+  height: 20vh;
   background-color: #f0f0f0;
   margin-bottom: 10px;
   box-sizing: border-box;
