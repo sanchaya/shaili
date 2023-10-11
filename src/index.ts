@@ -6,6 +6,7 @@ import "dotenv/config";
 import MySQLStore from "express-mysql-session";
 import { Adminresource } from "./resources/AdminResource.ts";
 import { componentLoader } from "./components.ts";
+import { BookResource } from "./resources/BookResource.js";
 
 const PORT = 8000;
 
@@ -40,7 +41,7 @@ const start = async () => {
   });
 
   const admin = new AdminJS({
-    resources: [Adminresource],
+    resources: [Adminresource,BookResource],
     componentLoader,
     dashboard: {
       component: "Dashboard",
