@@ -1,42 +1,29 @@
 import { DataTypes, Model } from "sequelize";
-
 import { sequelize } from "../config/config.ts";
 
-interface ICategory {
+interface ILetterType {
   id: number;
-  name: string;
-  email: string;
-  password: string;
+  type: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
-export class Users extends Model<ICategory> {
+export class LetterType extends Model<ILetterType> {
   declare id: number;
-  declare name: string;
-  declare email: string;
-  declare password: string;
+  declare type: string;
   declare createdAt: Date;
   declare updatedAt: Date;
 }
 
-Users.init(
+LetterType.init(
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    name: {
+    type: {
       type: new DataTypes.STRING(128),
-      allowNull: false,
-    },
-    email: {
-      type: new DataTypes.STRING(),
-      allowNull: false,
-    },
-    password: {
-      type: new DataTypes.STRING(),
       allowNull: false,
     },
     createdAt: {
@@ -48,7 +35,7 @@ Users.init(
   },
   {
     sequelize,
-    tableName: "admin",
-    modelName: "admin",
+    tableName: "letterType",
+    modelName: "letterType",
   }
 );

@@ -1,6 +1,6 @@
 import importExportFeature from '@adminjs/import-export';
-import { componentLoader, Components } from '../components.js';
-import { Books } from "../db/models/Books.js";
+import { componentLoader } from '../../frontend/components.ts'
+import { Books } from "../db/models/Books.ts";
 
 
 export const BookResource = {
