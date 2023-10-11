@@ -2,7 +2,7 @@ import { DataTypes, Model } from "sequelize";
 
 import { sequelize } from "../config/config.ts";
 import { LetterType } from "./LetterType.ts";
-import { Users } from "./Users.ts";
+import Users from "./Users.ts";
 
 interface ILetters {
   id: number;
@@ -33,7 +33,6 @@ export class Letters extends Model<ILetters> {
   }
 }
 
-
 Letters.init(
   {
     id: {
@@ -48,7 +47,6 @@ Letters.init(
     letterType: {
       type: new DataTypes.INTEGER(),
       allowNull: false,
-     
     },
     createdBy: {
       type: new DataTypes.STRING(),
@@ -61,27 +59,23 @@ Letters.init(
     sequelize,
     tableName: "letter",
     modelName: "letter",
-    timestamps : true
+    timestamps: true,
   }
 );
 
 Letters.beforeCreate(async (letter, options) => {
- 
-  const currentUser = await Users.findOne({ where: { } });
+  const currentUser = await Users.findOne({ where: {} });
 
   if (currentUser) {
     letter.createdBy = currentUser.name;
     letter.updatedBy = currentUser.name;
   }
-
 });
 
 Letters.beforeUpdate(async (letter, options) => {
-  
-  const currentUser = await Users.findOne({ where: { } });
+  const currentUser = await Users.findOne({ where: {} });
 
   if (currentUser) {
     letter.updatedBy = currentUser.name;
   }
- 
 });

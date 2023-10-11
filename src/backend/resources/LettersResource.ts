@@ -1,23 +1,25 @@
-import { Letters } from '../db/models/Letters.ts'
+import { Letters } from "../db/models/Letters.ts";
 import importExportFeature from "@adminjs/import-export";
-import { componentLoader } from '../components.ts';
-import { LetterType } from '../db/models/LetterType.ts';
+import { componentLoader } from "../../frontend/components.ts";
+import { LetterType } from "../db/models/LetterType.ts";
+import { menu } from "../../common/menu.ts";
 
 let types = await LetterType.findAll({ attributes: ["id", "type"] });
 const availableRoles = types.map((role) => ({
   value: role.id,
-  label: role.type
+  label: role.type,
 }));
 
 export const LetterResource = {
   resource: Letters,
   options: {
-    editProperties: ['letter', 'letterType'],
-    listProperties: ['letter', 'letterType','createdBy',],
-    timestamps: true, 
+    navigation: menu.Letters,
+    editProperties: ["letter", "letterType"],
+    listProperties: ["letter", "letterType", "createdBy"],
+    timestamps: true,
     actions: {
       new: {
-        isAccessible: false, 
+        isAccessible: false,
       },
     },
     properties: {
@@ -30,10 +32,9 @@ export const LetterResource = {
       },
     },
   },
-  features: [importExportFeature({
-    componentLoader,
-  }),
-],
-
-}
-
+  features: [
+    importExportFeature({
+      componentLoader,
+    }),
+  ],
+};

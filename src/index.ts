@@ -1,23 +1,22 @@
 import express from "express";
-import { Users } from "./db/models/Users.ts";
-import { sequelize } from "./db/config/config.ts";
 import * as session from "express-session";
 import "dotenv/config";
 import MySQLStore from "express-mysql-session";
-import { Adminresource } from "./resources/AdminResource.ts";
-import { componentLoader } from "./components.ts";
-import { LetterResource } from "./resources/LettersResource.ts";
+import { LetterResource } from "./backend/resources/LettersResource.ts";
+import { componentLoader } from "./frontend/components.ts";
+import { sequelize } from "./backend/db/config/config.ts";
+import Users from "./backend/db/models/Users.ts";
+import NonAdminRouter from "./backend/routers/NonAdminRouters.ts";
+import { AdminResource } from "./backend/resources/AdminResource.ts";
 
 
 const PORT = 8000;
 
 const authenticate = async (email: string, password: string) => {
   const user = await Users.findOne({ where: { email } });
-
-  if (user && user.password === password) {
+  if (user && (await user.comparePassword(user?.password, password))) {
     return user;
   }
-
   return null;
 };
 
@@ -26,7 +25,6 @@ const start = async () => {
 
   try {
     await sequelize.authenticate();
-    await sequelize.sync();
     console.log("Connected Successfully");
   } catch {
     console.log("error");
@@ -42,7 +40,10 @@ const start = async () => {
   });
 
   const admin = new AdminJS({
-    resources: [Adminresource,LetterResource],
+    branding: {
+      companyName: "Type Extract",
+    },
+    resources: [AdminResource, LetterResource],
     componentLoader,
     dashboard: {
       component: "Dashboard",
@@ -82,6 +83,8 @@ const start = async () => {
   );
 
   admin.watch();
+  app.use(express.json());
+  app.use("/admin", NonAdminRouter);
   app.use(admin.options.rootPath, adminRouter);
 
   app.listen(PORT, () => {
