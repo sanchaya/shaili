@@ -1,21 +1,21 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/config.ts";
 
-interface ILetterType {
+interface ILetterTypes {
   id: number;
   type: string;
-  createdAt: Date;
-  updatedAt: Date;
+  created_at: Date;
+  updated_at: Date;
 }
 
-export class LetterType extends Model<ILetterType> {
+export class LetterTypes extends Model<ILetterTypes> {
   declare id: number;
   declare type: string;
-  declare createdAt: Date;
-  declare updatedAt: Date;
+  declare created_at: Date;
+  declare updated_at: Date;
 }
 
-LetterType.init(
+LetterTypes.init(
   {
     id: {
       type: DataTypes.INTEGER,
@@ -26,16 +26,17 @@ LetterType.init(
       type: new DataTypes.STRING(128),
       allowNull: false,
     },
-    createdAt: {
+    created_at: {
       type: DataTypes.DATE,
     },
-    updatedAt: {
+    updated_at: {
       type: DataTypes.DATE,
     },
   },
   {
     sequelize,
-    tableName: "letterType",
-    modelName: "letterType",
+    tableName: "letter_types",
+    modelName: "LetterTypes",
+    underscored: true,
   }
 );
