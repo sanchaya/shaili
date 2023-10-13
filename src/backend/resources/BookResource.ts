@@ -17,8 +17,8 @@ export const BookResource = {
   resource: Books,
   options: {
     navigation: bookNavigation,
-    editProperties: ["name", "publisherName", "publishedYear", "url"],
-    listProperties: ["name", "publisherName", "publishedYear"],
+    editProperties: ["name", "publisher_name", "published_year", "url"],
+    listProperties: ["name", "publisher_name", "published_year"],
     timestamps: true,
     actions: {
       new: {

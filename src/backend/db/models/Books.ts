@@ -4,16 +4,16 @@ import { sequelize } from "../config/config.ts";
 interface IBook {
   id: number;
   name: string;
-  publisherName: string;
-  publishedYear: string;
+  publisher_name: string;
+  published_year: string;
   url: string;
 }
 
 export class Books extends Model<IBook> {
   declare id: number;
   declare name: string;
-  declare publisherName: string;
-  declare publishedYear: string;
+  declare publisher_name: string;
+  declare published_year: string;
   declare url: string;
 }
 
@@ -28,11 +28,11 @@ Books.init(
       type: new DataTypes.STRING(128),
       allowNull: false,
     },
-    publisherName: {
+    publisher_name: {
       type: new DataTypes.STRING(),
       allowNull: false,
     },
-    publishedYear: {
+    published_year: {
         type: new DataTypes.STRING() ,
         allowNull: false,
       },
