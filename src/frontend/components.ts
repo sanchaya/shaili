@@ -12,6 +12,7 @@ const Components = {
     "SidebarResourceSection",
     "./components/SidebarResources/SidebarResources"
   ),
+  ViewBook: componentLoader.add("ViewBook", "./components/ViewBook/ViewBook"),
 };
 
 export { componentLoader, Components };

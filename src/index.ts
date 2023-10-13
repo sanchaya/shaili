@@ -2,6 +2,7 @@ import express from "express";
 import * as session from "express-session";
 import "dotenv/config";
 import MySQLStore from "express-mysql-session";
+import { BookResource } from "./backend/resources/BookResource.ts";
 import { LetterResource } from "./backend/resources/LettersResource.ts";
 import { componentLoader } from "./frontend/components.ts";
 import { sequelize } from "./backend/db/config/config.ts";
@@ -47,7 +48,7 @@ const start = async () => {
       logo: "/images/logo.png",
       withMadeWithLove: false,
     },
-    resources: [AdminResource, LetterResource],
+    resources: [AdminResource, LetterResource, BookResource],
     componentLoader,
     dashboard: {
       component: "Dashboard",
