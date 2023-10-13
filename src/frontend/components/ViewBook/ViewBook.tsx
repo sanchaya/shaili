@@ -1,17 +1,4 @@
 import React from "react";
-import { styled } from "@adminjs/design-system/styled-components";
-
-const ViewBookLink = styled.a`
-  color: #fff;
-  background-color: #337ab7;
-  border-color: #2e6da4;
-  margin-bottom: 0;
-  font-weight: 400;
-  padding: 7px 10px;
-  border-radius: 7px;
-  text-decoration: none;
-  border: none;
-`;
 
 interface ViewBookProps {
   record: {

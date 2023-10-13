@@ -43,6 +43,7 @@ Books.init(
   },
   {
     sequelize,
+    underscored:true,
     tableName: "books",
     modelName: "books",
   }
