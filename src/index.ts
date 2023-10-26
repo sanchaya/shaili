@@ -9,6 +9,7 @@ import { sequelize } from "./backend/db/config/config.ts";
 import Users from "./backend/db/models/Users.ts";
 import NonAdminRouter from "./backend/routers/NonAdminRouters.ts";
 import { AdminResource } from "./backend/resources/AdminResource.ts";
+import AdminRouter from "./backend/routers/AdminRouters.js";
 
 const PORT = 8000;
 
@@ -85,6 +86,7 @@ const start = async () => {
   admin.watch();
   app.use(express.json());
   app.use("/admin", NonAdminRouter);
+  app.use("/admin", AdminRouter);
   app.use(admin.options.rootPath, adminRouter);
 
   app.listen(PORT, () => {
