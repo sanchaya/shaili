@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
 import { TaggedLetters } from "../../../backend/db/models/TaggedLetters";
-import Axios from "axios";
-import { config } from '../../config';
+import axios from "axios";
 
 const Content = styled.div`
   display: flex;
@@ -122,7 +121,7 @@ const ViewBook: React.FC<ViewBookProps> = ({ record }) => {
       lettertype: 3,
     },
   ];
-
+  const BASE_URL = (window as any).AdminJS.env.BASE_URL;
   const url = record.params.url;
   const book_id = record.params.id;
   const [activeTab, setActiveTab] = useState("recent");
@@ -150,8 +149,8 @@ const ViewBook: React.FC<ViewBookProps> = ({ record }) => {
   useEffect(() => {
     const fetchTaggedLetters = async () => {
       try {
-        const response = await Axios.get(
-          `http://localhost:8000/admin/tagged-letter?bookId=` + book_id
+        const response = await axios.get(
+          `${BASE_URL}/admin/tagged-letter?bookId=` + book_id
         );
         if (response.data) {
           const recentDate = response.data.filter((recentItem: TaggedLetters) => {

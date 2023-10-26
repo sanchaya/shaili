@@ -49,6 +49,9 @@ const start = async () => {
     dashboard: {
       component: "Dashboard",
     },
+    env: {
+      BASE_URL: process.env.BASE_URL || "",
+    },
   });
 
   const ConnectSession = MySQLStore(session);
