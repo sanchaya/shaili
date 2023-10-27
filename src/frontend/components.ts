@@ -8,6 +8,10 @@ const Components = {
     "./components/Dashboard/Dashboard"
   ),
   Login: componentLoader.override("Login", "./components/Login/Login"),
+  SidebarResourceSection: componentLoader.override(
+    "SidebarResourceSection",
+    "./components/SidebarResources/SidebarResources"
+  ),
   ViewBook: componentLoader.add("ViewBook", "./components/ViewBook/ViewBook"),
 };
 

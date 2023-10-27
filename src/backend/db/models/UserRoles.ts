@@ -30,6 +30,7 @@ UserRoles.init(
   },
   {
     sequelize,
+    underscored: true,
     modelName: "UserRoles",
     tableName: "user_roles",
     timestamps: true,
