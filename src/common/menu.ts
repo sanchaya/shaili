@@ -1,4 +1,5 @@
 export const menu = {
   Users: { icon: "User" },
-  Letters: { icon: "Letter" }
+  Books: { icon: "Book" },
+  Letters: { icon: "Feather" },
 };

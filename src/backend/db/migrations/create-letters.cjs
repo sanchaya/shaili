@@ -3,13 +3,13 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("book_status", {
+    await queryInterface.createTable("letter_types", {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      status: {
+      type: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -20,36 +20,29 @@ module.exports = {
         type: Sequelize.DATE,
       },
     });
-    await queryInterface.createTable("books", {
+    await queryInterface.createTable("letters", {
       id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
-      name: {
+      letter: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      publisher_name: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      published_year: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      url: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      status: {
+      letter_type: {
         type: Sequelize.INTEGER,
-        allowNull: true,
-        defaultValue: 1,
+        allowNull: false,
         references: {
-          model: "book_status",
+          model: "letter_types",
           key: "id",
         },
+      },
+      created_by: {
+        type: new Sequelize.STRING(),
+      },
+      updated_by: {
+        type: new Sequelize.STRING(),
       },
       created_at: {
         type: Sequelize.DATE,
@@ -61,6 +54,7 @@ module.exports = {
   },
 
   async down(queryInterface, _Sequelize) {
-    await queryInterface.dropTable("books");
+    await queryInterface.dropTable("letter_types");
+    await queryInterface.dropTable("letters");
   },
 };

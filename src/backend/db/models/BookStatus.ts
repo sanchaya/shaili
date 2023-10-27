@@ -1,29 +1,29 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/config.ts";
 
-interface IUserRoleAttributes {
+interface IBookStatusAttributes {
   id: number;
-  role: number;
+  status: string;
 }
 
-type UserRoleModelCreationAttributes = Optional<IUserRoleAttributes, "id">;
+type BookStatusModelCreationAttributes = Optional<IBookStatusAttributes, "id">;
 
-class UserRoles extends Model<
-  IUserRoleAttributes,
-  UserRoleModelCreationAttributes
+class BookStatus extends Model<
+  IBookStatusAttributes,
+  BookStatusModelCreationAttributes
 > {
   declare id: number;
-  declare role: string;
+  declare status: string;
 }
 
-UserRoles.init(
+BookStatus.init(
   {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
     },
-    role: {
+    status: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -31,10 +31,10 @@ UserRoles.init(
   {
     sequelize,
     underscored: true,
-    modelName: "UserRoles",
-    tableName: "user_roles",
+    modelName: "BookStatus",
+    tableName: "book_status",
     timestamps: true,
   }
 );
 
-export default UserRoles;
+export default BookStatus;

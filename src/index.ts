@@ -10,6 +10,7 @@ import Users from "./backend/db/models/Users.ts";
 import NonAdminRouter from "./backend/routers/NonAdminRouters.ts";
 import { AdminResource } from "./backend/resources/AdminResource.ts";
 import AdminRouter from "./backend/routers/AdminRouters.js";
+import * as url from "url";
 
 const PORT = 8000;
 
@@ -34,6 +35,8 @@ const start = async () => {
   const { default: AdminJS } = await import("adminjs");
   const { default: AdminJSExpress } = await import("@adminjs/express");
   const { default: AdminJSSequelize } = await import("@adminjs/sequelize");
+  const { default: path } = await import("node:path");
+  const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
 
   AdminJS.registerAdapter({
     Resource: AdminJSSequelize.Resource,
@@ -43,6 +46,8 @@ const start = async () => {
   const admin = new AdminJS({
     branding: {
       companyName: "Type Extract",
+      logo: "/images/logo.png",
+      withMadeWithLove: false,
     },
     resources: [AdminResource, LetterResource, BookResource],
     componentLoader,
@@ -87,6 +92,7 @@ const start = async () => {
   );
 
   admin.watch();
+  app.use(express.static(path.join(__dirname, "./public")));
   app.use(express.json());
   app.use("/admin", NonAdminRouter);
   app.use("/admin", AdminRouter);

@@ -7,6 +7,7 @@ interface IBook {
   publisher_name: string;
   published_year: string;
   url: string;
+  status: string;
 }
 
 export class Books extends Model<IBook> {
@@ -15,6 +16,13 @@ export class Books extends Model<IBook> {
   declare publisher_name: string;
   declare published_year: string;
   declare url: string;
+  declare status: string;
+
+  static associate(models: any) {
+    Books.belongsTo(models.BookStatus, {
+      foreignKey: "status",
+    });
+  }
 }
 
 Books.init(
@@ -33,17 +41,21 @@ Books.init(
       allowNull: false,
     },
     published_year: {
-        type: new DataTypes.STRING() ,
-        allowNull: false,
-      },
-      url:{
-        type: new DataTypes.STRING(),
-        allowNull:false,
-      },
+      type: new DataTypes.STRING(),
+      allowNull: false,
+    },
+    url: {
+      type: new DataTypes.STRING(),
+      allowNull: false,
+    },
+    status: {
+      type: new DataTypes.STRING(),
+      allowNull: true,
+    },
   },
   {
     sequelize,
-    underscored:true,
+    underscored: true,
     tableName: "books",
     modelName: "books",
   }

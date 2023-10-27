@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { Letters } from "../db/models/Letters.js";
 import { TaggedLetters } from "../db/models/TaggedLetters.js";
 
-export const getTaggedLetter = async (req: Request, res: Response) => {
+const getTaggedLetter = async (req: Request, res: Response) => {
   const bookId = req.query.bookId; 
    
     try {
@@ -12,7 +12,7 @@ export const getTaggedLetter = async (req: Request, res: Response) => {
             {
               model: Letters,
               as: 'letter', 
-              attributes: ['letter','letterType']
+              attributes: ['letter','letter_type']
             },
           
           });

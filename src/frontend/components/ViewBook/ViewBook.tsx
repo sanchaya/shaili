@@ -106,19 +106,19 @@ const ViewBook: React.FC<ViewBookProps> = ({ record }) => {
       id: "1",
       title: "Vowels",
       expanded: false,
-      lettertype: 1,
+      letterType: 1,
     },
     {
       id: "2",
       title: "Consonants",
       expanded: false,
-      lettertype: 2,
+      letterType: 2,
     },
     {
       id: "3",
       title: "Numerals",
       expanded: false,
-      lettertype: 3,
+      letterType: 3,
     },
   ];
   const BASE_URL = (window as any).AdminJS.env.BASE_URL;
@@ -229,7 +229,7 @@ const ViewBook: React.FC<ViewBookProps> = ({ record }) => {
                 className={accordion.expanded ? "active" : "inactive"}>
                 {taggedLetters.filter(
                   (taggedLetter: TaggedLetters) =>
-                    taggedLetter.letter.letterType === accordion.lettertype
+                    taggedLetter.letter.letter_type === accordion.letterType
                 ).length === 0 ? (
                   <p style={{ background: "#eee", padding: "20px" }}>No data available</p>
                 ) : (
@@ -237,8 +237,8 @@ const ViewBook: React.FC<ViewBookProps> = ({ record }) => {
                     {taggedLetters
                       .filter(
                         (taggedLetter: TaggedLetters) =>
-                          taggedLetter.letter.letterType ===
-                          accordion.lettertype
+                          taggedLetter.letter.letter_type ===
+                          accordion.letterType
                       )
                       .map((taggedLetter: TaggedLetters) => (
                         <AccordionContentList>

@@ -3,22 +3,28 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, _Sequelize) {
-    return queryInterface.bulkInsert("user_roles", [
+    return queryInterface.bulkInsert("book_status", [
       {
         id: "1",
-        role: "Admin",
+        status: "New",
         created_at: new Date(),
         updated_at: new Date(),
       },
       {
         id: "2",
-        role: "Reviewer",
+        status: "In Progress",
         created_at: new Date(),
         updated_at: new Date(),
       },
       {
         id: "3",
-        role: "User",
+        status: "Needs Review",
+        created_at: new Date(),
+        updated_at: new Date(),
+      },
+      {
+        id: "4",
+        status: "Completed",
         created_at: new Date(),
         updated_at: new Date(),
       },
@@ -26,6 +32,6 @@ module.exports = {
   },
 
   async down(queryInterface, _Sequelize) {
-    await queryInterface.bulkDelete("user_roles", null, {});
+    await queryInterface.bulkDelete("book_status", null, {});
   },
 };
