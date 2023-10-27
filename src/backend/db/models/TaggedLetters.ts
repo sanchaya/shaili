@@ -6,7 +6,7 @@ interface ITaggedLetters {
   id: number;
   book_id: number;
   letter_id: number;
-  cropped_image:string;
+  cropped_image:Buffer;
   tagged_by: string;
   created_at:Date;
   updated_at:Date;
@@ -16,7 +16,7 @@ export class TaggedLetters extends Model<ITaggedLetters> {
     declare id: number;
     declare book_id: number;
     declare letter_id: number;
-    declare cropped_image: string;
+    declare cropped_image: Buffer;
     declare tagged_by: string;
     declare letter: Letters;
     declare created_at:Date;
@@ -39,7 +39,7 @@ TaggedLetters.init(
       allowNull: false,
     },
     cropped_image: {
-      type: new DataTypes.STRING(),
+      type: new DataTypes.BLOB(),
       allowNull: false,
     },
     tagged_by: {
