@@ -7,20 +7,20 @@ module.exports = {
       {
         id: "1",
         role: "Admin",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
       },
       {
         id: "2",
         role: "Reviewer",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
       },
       {
         id: "3",
         role: "User",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        created_at: new Date(),
+        updated_at: new Date(),
       },
     ]);
   },

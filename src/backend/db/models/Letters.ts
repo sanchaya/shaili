@@ -1,34 +1,34 @@
 import { DataTypes, Model } from "sequelize";
 
 import { sequelize } from "../config/config.ts";
-import { LetterType } from "./LetterType.ts";
+import { LetterTypes } from "./LetterTypes.ts";
 import Users from "./Users.ts";
 
 interface ILetters {
   id: number;
   letter: string;
-  letterType: string;
-  createdBy: string;
-  updatedBy: string;
+  letter_type: string;
+  created_by: string;
+  updated_by: string;
 }
 
 export class Letters extends Model<ILetters> {
   declare id: number;
   declare letter: string;
-  declare letterType: string;
-  declare createdBy: string;
-  declare updatedBy: string;
+  declare letter_type: string;
+  declare created_by: string;
+  declare updated_by: string;
 
   static associate(models: any) {
-    Letters.belongsTo(LetterType, {
-      foreignKey: "letterType",
+    Letters.belongsTo(LetterTypes, {
+      foreignKey: "letter_type",
     });
     Letters.belongsTo(models.Users, {
-      foreignKey: "createdBy",
+      foreignKey: "created_by",
     });
 
     Letters.belongsTo(models.Users, {
-      foreignKey: "createdBy",
+      foreignKey: "created_by",
     });
   }
 }
@@ -44,38 +44,39 @@ Letters.init(
       type: new DataTypes.STRING(),
       allowNull: false,
     },
-    letterType: {
+    letter_type: {
       type: new DataTypes.INTEGER(),
       allowNull: false,
     },
-    createdBy: {
+    created_by: {
       type: new DataTypes.STRING(),
     },
-    updatedBy: {
+    updated_by: {
       type: new DataTypes.STRING(),
     },
   },
   {
     sequelize,
-    tableName: "letter",
-    modelName: "letter",
+    tableName: "letters",
+    modelName: "Letters",
+    underscored: true,
     timestamps: true,
   }
 );
 
-Letters.beforeCreate(async (letter, options) => {
+Letters.beforeCreate(async (letters, options) => {
   const currentUser = await Users.findOne({ where: {} });
 
   if (currentUser) {
-    letter.createdBy = currentUser.name;
-    letter.updatedBy = currentUser.name;
+    letters.created_by = currentUser.name;
+    letters.updated_by = currentUser.name;
   }
 });
 
-Letters.beforeUpdate(async (letter, options) => {
+Letters.beforeUpdate(async (letters, options) => {
   const currentUser = await Users.findOne({ where: {} });
 
   if (currentUser) {
-    letter.updatedBy = currentUser.name;
+    letters.updated_by = currentUser.name;
   }
 });
