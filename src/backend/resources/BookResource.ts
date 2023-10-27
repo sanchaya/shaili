@@ -1,28 +1,67 @@
 import importExportFeature from "@adminjs/import-export";
 import {
+  ActionContext,
   ActionRequest,
   ActionResponse,
   BaseRecord,
   CurrentAdmin,
 } from "adminjs";
-import { Components } from "../../frontend/components.js";
-import { componentLoader } from "../../frontend/components.ts";
+import { Components, componentLoader } from "../../frontend/components.js";
 import { Books } from "../db/models/Books.ts";
+import BookStatus from "../db/models/BookStatus.ts";
+import { menu } from "../../common/menu.ts";
 
-const bookNavigation = {
-  icon: "Book",
+const isAccessible = (context: ActionContext, role: number[]) => {
+  const { currentAdmin } = context;
+  return role.includes(currentAdmin?.role);
 };
 
 export const BookResource = {
   resource: Books,
   options: {
-    navigation: bookNavigation,
-    editProperties: ["name", "publisher_name", "published_year", "url"],
-    listProperties: ["name", "publisher_name", "published_year"],
+    navigation: menu.Books,
+    editProperties: [
+      "name",
+      "publisher_name",
+      "published_year",
+      "url",
+      "status",
+    ],
+    listProperties: ["name", "publisher_name", "published_year", "status"],
     timestamps: true,
+    properties: {
+      status: {
+        position: 1,
+        availableValues: [
+          { value: "", label: "Select a status", placeholder: true },
+          ...(await BookStatus.findAll({ attributes: ["id", "status"] })).map(
+            (status) => ({
+              value: status.id,
+              label: status.status,
+            })
+          ),
+        ],
+      },
+    },
     actions: {
-      new: {
-        isAccessible: false,
+      new: { isAccessible: false },
+      edit: {
+        isAccessible: (context: ActionContext) => isAccessible(context, [1, 2]),
+      },
+      show: {
+        isAccessible: (context: ActionContext) => isAccessible(context, [1]),
+      },
+      delete: {
+        isAccessible: (context: ActionContext) => isAccessible(context, [1]),
+      },
+      import: {
+        isAccessible: (context: ActionContext) => isAccessible(context, [1]),
+      },
+      export: {
+        isAccessible: (context: ActionContext) => isAccessible(context, [1]),
+      },
+      bulkDelete: {
+        isAccessible: (context: ActionContext) => isAccessible(context, [1]),
       },
       ViewBook: {
         actionType: "record",
@@ -44,9 +83,5 @@ export const BookResource = {
       },
     },
   },
-  features: [
-    importExportFeature({
-      componentLoader,
-    }),
-  ],
+  features: [importExportFeature({ componentLoader })],
 };
