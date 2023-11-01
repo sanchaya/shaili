@@ -15,7 +15,7 @@ import {
   MessageBox,
 } from "@adminjs/design-system";
 import { useTranslation } from "adminjs";
-import { ThemeProvider } from "@adminjs/design-system/styled-components";
+import { ThemeProvider } from 'styled-components'
 
 const Wrapper = styled(Box)<BoxProps>`
   align-items: center;

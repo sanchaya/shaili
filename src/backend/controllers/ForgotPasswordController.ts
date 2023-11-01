@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import * as crypto from "crypto";
-import Users from "../db/models/Users.ts";
-import PasswordResetTokens from "../db/models/PasswordResetTokens.ts";
-import edge from "../../common/EdgeConfig.ts";
-import MailerService from "../../common/MailerService.ts";
+import Users from "../db/models/Users.js";
+import PasswordResetTokens from "../db/models/PasswordResetTokens.js";
+import edge from "../../common/EdgeConfig.js";
+import MailerService from "../../common/MailerService.js";
 
 export const renderForgotPasswordForm = async (
   _req: Request,

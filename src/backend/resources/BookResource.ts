@@ -7,9 +7,9 @@ import {
   CurrentAdmin,
 } from "adminjs";
 import { Components, componentLoader } from "../../frontend/components.js";
-import { Books } from "../db/models/Books.ts";
-import BookStatus from "../db/models/BookStatus.ts";
-import { menu } from "../../common/menu.ts";
+import { Books } from "../db/models/Books.js";
+import BookStatus from "../db/models/BookStatus.js";
+import { menu } from "../../common/menu.js";
 
 const isAccessible = (context: ActionContext, role: number[]) => {
   const { currentAdmin } = context;
