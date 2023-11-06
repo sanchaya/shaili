@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node ./src/index.ts",
+    "start": "ts-node dist/index.js",
+    "build": "pnpm clean && tsc && pnpm copy-files && pnpm copy-env",
+    "clean": "rm -rf ./dist",
+    "copy-files": "cp -r ./src/public/ ./dist/ && cp -r ./src/frontend/views/ ./dist/frontend/ && cp -r ./src/backend/templates/ ./dist/backend/",
+    "copy-env": "cp .env ./dist/",
     "dev": "nodemon --exec node --loader ts-node/esm src/index.ts",
     "migrate:up": "npx sequelize-cli db:migrate",
     "migrate:undo": "npx sequelize-cli db:migrate:undo",
@@ -20,6 +24,7 @@
     "@types/express-mysql-session": "^3.0.0",
     "@types/express-session": "^1.17.7",
     "@types/nodemailer": "^6.4.11",
+    "@types/styled-components": "^5.1.29",
     "sequelize-cli": "6.6.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.2.2"
@@ -53,6 +58,7 @@
     "react-router": "^6.16.0",
     "react-router-dom": "^6.16.0",
     "sequelize": "^6.33.0",
+    "styled-components": "^6.1.0",
     "tslib": "^2.6.2"
   }
 }

@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { sequelize } from "../config/config.ts";
+import { sequelize } from "../config/config.js";
 
 interface IBookStatusAttributes {
   id: number;

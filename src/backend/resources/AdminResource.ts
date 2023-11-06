@@ -1,9 +1,9 @@
-import UserRoles from "../../backend/db/models/UserRoles.ts";
-import Users from "../../backend/db/models/Users.ts";
-import { menu } from "../../common/menu.ts";
+import UserRoles from "../../backend/db/models/UserRoles.js";
+import Users from "../../backend/db/models/Users.js";
+import { menu } from "../../common/menu.js";
 import * as argon2 from "argon2";
 import passwordsFeature from "@adminjs/passwords";
-import { componentLoader } from "../../frontend/components.ts";
+import { componentLoader } from "../../frontend/components.js";
 import { ActionContext } from "adminjs";
 
 const isAccessible = (context: ActionContext, role: number) => {

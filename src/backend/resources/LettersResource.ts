@@ -1,9 +1,9 @@
-import { Letters } from "../db/models/Letters.ts";
+import { Letters } from "../db/models/Letters.js";
 import importExportFeature from "@adminjs/import-export";
-import { componentLoader } from "../../frontend/components.ts";
-import { menu } from "../../common/menu.ts";
+import { componentLoader } from "../../frontend/components.js";
+import { menu } from "../../common/menu.js";
 import { ActionContext } from "adminjs";
-import { LetterTypes } from "../db/models/LetterTypes.ts";
+import { LetterTypes } from "../db/models/LetterTypes.js";
 
 const isAccessible = (context: ActionContext, role: number) => {
   const { currentAdmin } = context;

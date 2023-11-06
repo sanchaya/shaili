@@ -1,6 +1,6 @@
 import express from "express";
-import PasswordResetController from "../controllers/ForgotPasswordController.ts";
-import ResetPasswordController from "../controllers/ResetPasswordController.ts";
+import PasswordResetController from "../controllers/ForgotPasswordController.js";
+import ResetPasswordController from "../controllers/ResetPasswordController.js";
 
 const NonAdminRouter = express.Router();
 
