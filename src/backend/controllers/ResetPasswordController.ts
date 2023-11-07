@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import PasswordResetTokens from "../db/models/PasswordResetTokens.ts";
-import edge from "../../common/EdgeConfig.ts";
-import Users from "../db/models/Users.ts";
+import PasswordResetTokens from "../db/models/PasswordResetTokens.js";
+import edge from "../../common/EdgeConfig.js";
+import Users from "../db/models/Users.js";
 import { hash } from "argon2";
 
 export const renderResetPasswordForm = async (req: Request, res: Response) => {

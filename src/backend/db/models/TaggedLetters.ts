@@ -1,73 +1,81 @@
-import { DataTypes, Model } from "sequelize";
-import { sequelize } from "../config/config.ts";
-import { Letters } from "./Letters.ts";
+import { DataTypes, Model, Optional } from "sequelize";
+import { sequelize } from "../config/config.js";
+import { Letters } from "./Letters.js";
 
 interface ITaggedLetters {
-  id: number;
-  book_id: number;
-  letter_id: number;
-  cropped_image:Buffer;
-  tagged_by: string;
-  created_at:Date;
-  updated_at:Date;
+    id: number;
+    book_id: number;
+    letter_id: number;
+    cropped_image: string;
+    tagged_by: string;
+    created_at: Date;
+    updated_at: Date;
 }
 
-export class TaggedLetters extends Model<ITaggedLetters> {
+type TaggedLetterModelCreationAttributes = Optional<
+    ITaggedLetters,
+    "id" | "created_at" | "updated_at"
+>;
+
+export class TaggedLetters extends Model<
+    ITaggedLetters,
+    TaggedLetterModelCreationAttributes
+> {
     declare id: number;
     declare book_id: number;
     declare letter_id: number;
-    declare cropped_image: Buffer;
+    declare cropped_image: string;
     declare tagged_by: string;
     declare letter: Letters;
-    declare created_at:Date;
-    declare updated_at:Date;
+    declare created_at: Date;
+    declare updated_at: Date;
 }
 
 TaggedLetters.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
+    {
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
+        book_id: {
+            type: DataTypes.INTEGER(),
+            allowNull: false,
+        },
+        letter_id: {
+            type: DataTypes.INTEGER(),
+            allowNull: false,
+        },
+        cropped_image: {
+            type: DataTypes.TEXT("long"),
+            allowNull: false,
+        },
+        tagged_by: {
+            type: DataTypes.INTEGER(),
+            allowNull: false,
+        },
+        created_at: {
+            type: DataTypes.DATE(),
+        },
+        updated_at: {
+            type: DataTypes.DATE(),
+        },
     },
-    book_id: {
-      type: new DataTypes.INTEGER,
-      allowNull: false,
-    },
-    letter_id: {
-      type: new DataTypes.INTEGER,
-      allowNull: false,
-    },
-    cropped_image: {
-      type: new DataTypes.BLOB(),
-      allowNull: false,
-    },
-    tagged_by: {
-      type: new DataTypes.STRING(),
-      allowNull: false,
-    },
-    created_at: {
-      type: new DataTypes.DATE(),
-    },
-    updated_at: {
-      type: new DataTypes.DATE(),
-    },
-  },
-  {
-    sequelize,
-    underscored:true,
-    tableName: "tagged_letters",
-    modelName: "TaggedLetters",
-  }
+    {
+        sequelize,
+        underscored: true,
+        paranoid: true,
+        tableName: "tagged_letters",
+        modelName: "TaggedLetters",
+    }
 );
 
 TaggedLetters.belongsTo(Letters, {
-  foreignKey: 'letter_id', 
-  as: 'letter', 
+    foreignKey: "letter_id",
+    as: "letter",
 });
 
-
 Letters.hasMany(TaggedLetters, {
-  foreignKey: 'letter_id',
-  as: 'taggedLetters',
+    foreignKey: "letter_id",
+    as: "taggedLetters",
 });

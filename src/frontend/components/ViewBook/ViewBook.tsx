@@ -1,259 +1,293 @@
 import React, { useEffect, useState } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
-import { TaggedLetters } from "../../../backend/db/models/TaggedLetters";
+import { Input, Button, Icon } from "@adminjs/design-system";
+import RightSideBar from "../RightSideBar/RightSideBar.js";
 import axios from "axios";
+import LetterTagProvider from "../../context/LetterTagContext.js";
+import { BookImage } from "../BookImage/BookImage.js";
+import ScreenCapture from "react-screen-capture-v2";
+import AddTagModal from "../AddTagModal/AddTagModal.js";
 
 const Content = styled.div`
-  display: flex;
-  justify-content: space-between;
+    display: flex;
+    justify-content: space-between;
+    @media (max-width: 800px) {
+        flex-flow: column wrap;
+        width: 98%;
+        margin: 0 auto;
+    }
 `;
 
 const LeftSide = styled.div`
-  flex: 2;
-  width: 80%;
+    flex: 2;
+    width: 70%;
+    @media (max-width: 800px) {
+        width: 100%;
+    }
 `;
 
 const RightSide = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column; 
-  background: #fff;
-  box-shadow: 0px 2px 2px 1px #ccc;
-  margin-left: 34px;
-  width: 150px; 
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    box-shadow: 0px 2px 2px 1px #ccc;
+    margin-left: 34px;
+    width: 200px;
+    @media (max-width: 800px) {
+        width: 100%;
+        margin: 20px auto 0 auto;
+    }
+`;
+const NavigationArrows = styled.div`
+    display: flex;
+    flex: 2 1 0%;
+    align-items: center;
+    gap: 15px;
+    width: 70%;
+    justify-content: flex-end;
+    margin-bottom: 10px;
 `;
 
-const MenuItems = styled.div`
-  display: flex;
-  flex-direction: row; 
-  gap: 10px;
-  padding: 1px 8px;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
+const GoToPage = styled.div`
+    display: flex;
+    flex: 2 1 0%;
+    align-items: center;
+    gap: 15px;
+    width: 70%;
+    margin-bottom: 10px;
 `;
 
-const MenuItem = styled.a`
-  text-decoration: none;
-  color: #333;
-  padding: 10px;
-  border: 1px solid transparent;
-  margin-bottom: 10px;
-  transition: background-color 0.2s, color 0.2s;
-
-  /* Hover styles */
-  &:hover {
-    border-bottom: 2px solid #3747d7;
-  }
-  &.active {
-    border-bottom: 2px solid #3747d7;
-  }
+const NavWrap = styled.div`
+    display: flex;
+    @media (max-width: 500px) {
+        gap: 10px;
+        flex-wrap: wrap;
+    }
 `;
 
-const TabContent = styled.div`
-  display: none;
+const ImageWrap = styled.div`
+    width: auto;
+    height: 720px;
+    position: relative;
+    overflow: hidden;
+    @media (max-width: 800px) {
+        height: auto;
+    }
 `;
 
-const AccordionItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  cursor: pointer;
-  padding: 10px;
-  border-bottom: 1px solid #ccc;
-`;
-
-const AccordionArrow = styled.div`
-  font-size: 24px; 
-  line-height: 1;
-`;
-
-const AccordionContent = styled.div`
-  display: block;
-  &.inactive {
-    display: none;
-  }
-`;
-
-const AccordionContentUI = styled.ul`
-  background: #eee;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr); 
-  gap: 20px;
-  font-size: 14px;
-  background: #eee;
-  padding: 20px;
-`;
-
-const AccordionContentList = styled.li`
-  background: #007bff;
-  padding: 10px;
-  color: #fff;
-  text-align:center
-`;
-
-interface ViewBookProps {
-  record: {
-    params: {
-      id: string;
-      url: string;
+interface IViewBookProps {
+    record: {
+        params: {
+            id: number;
+            url: string;
+        };
     };
-  };
 }
 
-const ViewBook: React.FC<ViewBookProps> = ({ record }) => {
+interface ILetterTypes {
+    id: number;
+    title: string;
+    expanded: boolean;
+    letterType: number;
+}
 
-  const initialAccordionState = [
-    {
-      id: "1",
-      title: "Vowels",
-      expanded: false,
-      letterType: 1,
-    },
-    {
-      id: "2",
-      title: "Consonants",
-      expanded: false,
-      letterType: 2,
-    },
-    {
-      id: "3",
-      title: "Numerals",
-      expanded: false,
-      letterType: 3,
-    },
-  ];
-  const BASE_URL = (window as any).AdminJS.env.BASE_URL;
-  const url = record.params.url;
-  const book_id = record.params.id;
-  const [activeTab, setActiveTab] = useState("recent");
-  const [taggedLetters, setTaggedLetters] = useState([]);
-  const [recentTaggedLetters, setRecentTaggedLetters] = useState([]);
+const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
+    const url = record.params.url;
+    const parts = url.split("/");
+    const bookIdentifier = parts[parts.length - 1];
+    const BASE_URL = (window as any).AdminJS.env.BASE_URL;
+    const bookId = record.params.id;
+    const [loading, setLoading] = useState(true);
+    const [capturing, setCapturing] = useState(false);
+    const [img, setImg] = useState<string>("");
+    const [tag, setTag] = useState<string>("");
+    const [totalPages, setTotalPages] = useState<number>(0);
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const [goToPage, setGoToPage] = useState<number>(1);
+    const [letterTypes, setLetterTypes] = useState<ILetterTypes[]>([]);
 
-  const [accordionStates, setAccordionStates] = useState(initialAccordionState);
+    useEffect(() => {
+        axios
+            .get(`${BASE_URL}/total-pages`, {
+                params: { identifier: bookIdentifier },
+            })
+            .then((response) => {
+                setTotalPages(response.data + 1);
+                loadImage(currentPage);
+            });
+        getLetterTypes();
+    }, [loading]);
 
-  const handleAccordionClick = (accordionId) => {
-    const updatedAccordionStates = accordionStates.map((state) =>
-      state.id === accordionId ? { ...state, expanded: !state.expanded } : state
-    );
-    setAccordionStates(updatedAccordionStates);
-  };
-
-  const handleTabClick = (tabId: string) => {
-    setActiveTab(tabId);
-  };
-
-  //Get last 20 days date
-  const currentDate = new Date();
-  currentDate.setDate(currentDate.getDate() - 20);
-
-  //Get the TaggedLetters
-  useEffect(() => {
-    const fetchTaggedLetters = async () => {
-      try {
-        const response = await axios.get(
-          `${BASE_URL}/admin/tagged-letter?bookId=` + book_id
-        );
-        if (response.data) {
-          const recentDate = response.data.filter((recentItem: TaggedLetters) => {
-            const taggedDate = new Date(recentItem.updated_at);
-            return taggedDate >= currentDate;
-          })
-          setRecentTaggedLetters(recentDate);
-          setTaggedLetters(response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching tagged letters:", error);
-      }
+    const loadImage = (page: number) => {
+        axios
+            .get(`${BASE_URL}/fetch-page`, {
+                responseType: "blob",
+                params: { page: page - 1, identifier: bookIdentifier },
+            })
+            .then(function (response) {
+                var reader = new window.FileReader();
+                reader.readAsDataURL(response.data);
+                reader.onload = function () {
+                    var imageDataUrl = reader.result;
+                    setImg(imageDataUrl as string);
+                    setLoading(false);
+                };
+            });
     };
-    fetchTaggedLetters();
-  }, [book_id]);
 
+    const getLetterTypes = () => {
+        axios.get(`${BASE_URL}/get-lettertypes`).then((response) => {
+            const letterTypesRes = response.data.map(
+                (item: { id: number; type: string }) => ({
+                    id: item.id,
+                    title: item.type,
+                    expanded: false,
+                    letterType: item.id,
+                })
+            );
+            setLetterTypes(letterTypesRes);
+        });
+    };
 
-  return (
-    <Content>
-      <LeftSide>
-        <iframe
-          src={url}
-          width="100%"
-          height="500"
-          allowFullScreen={true}
-        ></iframe>
-      </LeftSide>
-      <RightSide>
-        <MenuItems>
-          <MenuItem
-            className={activeTab === "recent" ? "active" : ""}
-            onClick={() => handleTabClick("recent")}>
-            Recent
-          </MenuItem>
-          <MenuItem
-            className={activeTab === "all" ? "active" : ""}
-            onClick={() => handleTabClick("all")}>
-            All
-          </MenuItem>
-        </MenuItems>
+    const handleNext = () => {
+        if (currentPage < totalPages) {
+            setImg("");
+            setCurrentPage(currentPage + 1);
+            loadImage(currentPage + 1);
+        }
+    };
 
-        {/* Recent Tagged Letters */}
-        <TabContent
-          style={{ display: activeTab === "recent" ? "block" : "none" }}
-          id="recent"
-          className="tabcontent">
-          <div>
-            {taggedLetters.length === 0 ? (
-              <p style={{ padding: "20px" }}>No data available</p>
-            ) : (
-              <AccordionContentUI style={{ background: "none" }}>
-                {recentTaggedLetters.map((taggedLetter: TaggedLetters) => (
-                  <AccordionContentList >
-                    {taggedLetter.letter.letter}
-                  </AccordionContentList>
-                ))}
-              </AccordionContentUI>
-            )}
-          </div>
-        </TabContent>
+    const handlePrev = () => {
+        if (currentPage > 0) {
+            setImg("");
+            setCurrentPage(currentPage - 1);
+            loadImage(currentPage - 1);
+        }
+    };
 
-        {/* All Tagged Letters */}
-        <TabContent
-          style={{ display: activeTab === "all" ? "block" : "none" }}
-          id="all"
-          className="tabcontent">
-          {accordionStates.map((accordion) => (
-            <div key={accordion.id}>
-              <AccordionItem onClick={() => handleAccordionClick(accordion.id)}>
-                <span>{accordion.title}</span>
-                <AccordionArrow>
-                  {accordion.expanded ? "-" : "+"}
-                </AccordionArrow>
-              </AccordionItem>
-              <AccordionContent
-                className={accordion.expanded ? "active" : "inactive"}>
-                {taggedLetters.filter(
-                  (taggedLetter: TaggedLetters) =>
-                    taggedLetter.letter.letter_type === accordion.letterType
-                ).length === 0 ? (
-                  <p style={{ background: "#eee", padding: "20px" }}>No data available</p>
-                ) : (
-                  <AccordionContentUI>
-                    {taggedLetters
-                      .filter(
-                        (taggedLetter: TaggedLetters) =>
-                          taggedLetter.letter.letter_type ===
-                          accordion.letterType
-                      )
-                      .map((taggedLetter: TaggedLetters) => (
-                        <AccordionContentList>
-                          {taggedLetter.letter.letter}
-                        </AccordionContentList>
-                      ))}
-                  </AccordionContentUI>
+    const handleGoToChange = (page: number) => {
+        setGoToPage(page);
+    };
+
+    const handleGoToPage = () => {
+        setImg("");
+        setCurrentPage(goToPage);
+        loadImage(goToPage);
+    };
+
+    return (
+        <>
+            <LetterTagProvider>
+                <Content>
+                    <LeftSide>
+                        <NavWrap>
+                            <GoToPage>
+                                <Input
+                                    style={{ width: "200px" }}
+                                    max={totalPages}
+                                    min={1}
+                                    type="number"
+                                    placeholder="Go to page number..."
+                                    onChange={(e: {
+                                        target: { value: number };
+                                    }) =>
+                                        handleGoToChange(Number(e.target.value))
+                                    }
+                                />
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={handleGoToPage}
+                                    size="icon"
+                                    disabled={
+                                        goToPage > totalPages ||
+                                        goToPage < 0 ||
+                                        goToPage === currentPage ||
+                                        !img
+                                    }
+                                    title={!img ? "Loading..." : ""}
+                                >
+                                    Go
+                                </Button>
+                            </GoToPage>
+                            <NavigationArrows>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={handlePrev}
+                                    size="icon"
+                                    disabled={currentPage === 1 || !img}
+                                    title={!img ? "Loading..." : ""}
+                                >
+                                    <Icon
+                                        icon="ChevronLeft"
+                                        style={{
+                                            height: "100%",
+                                            width: "100%",
+                                        }}
+                                    />
+                                </Button>
+                                {totalPages ? (
+                                    <p>
+                                        Page {currentPage} of {totalPages}
+                                    </p>
+                                ) : (
+                                    <Icon icon="Loader" spin />
+                                )}
+
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={handleNext}
+                                    size="icon"
+                                    disabled={
+                                        currentPage === totalPages || !img
+                                    }
+                                    title={!img ? "Loading..." : ""}
+                                >
+                                    <Icon
+                                        icon="ChevronRight"
+                                        style={{
+                                            height: "100%",
+                                            width: "100%",
+                                        }}
+                                    />
+                                </Button>
+                            </NavigationArrows>
+                        </NavWrap>
+                        <ImageWrap>
+                            <ScreenCapture
+                                on={capturing}
+                                onEndCapture={(b64: string) => {
+                                    setTag(b64);
+                                    setCapturing(false);
+                                }}
+                            >
+                                <BookImage
+                                    image={img}
+                                    setCapturing={setCapturing}
+                                    capturing={capturing}
+                                    loading={loading}
+                                />
+                            </ScreenCapture>
+                        </ImageWrap>
+                    </LeftSide>
+                    <RightSide>
+                        <RightSideBar
+                            bookId={bookId}
+                            loading={loading}
+                            letterTypes={letterTypes}
+                            setLetterTypes={setLetterTypes}
+                        />
+                    </RightSide>
+                </Content>
+                {tag && (
+                    <AddTagModal setTag={setTag} tag={tag} bookId={bookId} />
                 )}
-              </AccordionContent>
-            </div>
-          ))}
-        </TabContent>
-      </RightSide>
-    </Content>
-  );
+            </LetterTagProvider>
+        </>
+    );
 };
 
 export default ViewBook;
