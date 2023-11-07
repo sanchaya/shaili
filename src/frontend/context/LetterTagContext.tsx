@@ -39,6 +39,11 @@ const filterRecentLetters = (
     );
 };
 
+const sortByCreatedAt = (
+    a: { created_at: string | number | Date },
+    b: { created_at: string | number | Date }
+) => Number(new Date(b.created_at)) - Number(new Date(a.created_at));
+
 const LetterTagContext = createContext<
     | {
           tags: ITags;
@@ -63,6 +68,9 @@ const letterTagReducer = (tags: ITags, action: Action): ITags => {
                 ...tags.taggedLetters,
                 action.payload.tag,
             ];
+
+            newTaggedLetters.sort(sortByCreatedAt);
+
             const newRecentLetters = filterRecentLetters(
                 newTaggedLetters,
                 20,
@@ -77,6 +85,7 @@ const letterTagReducer = (tags: ITags, action: Action): ITags => {
             const filteredTaggedLetters = tags.taggedLetters.filter(
                 (letter) => letter.id !== action.payload.letterId
             );
+            filteredTaggedLetters.sort(sortByCreatedAt);
             const filteredRecentLetters = filterRecentLetters(
                 filteredTaggedLetters,
                 20,
@@ -125,9 +134,12 @@ const LetterTagProvider = ({ children }: Props) => {
                     20,
                     Number(currentAdmin?.id)
                 );
+                const all = response.data.sort(sortByCreatedAt);
+                const recent = recentTags.sort(sortByCreatedAt);
+
                 dispatch({
                     type: "FETCH_TAGS",
-                    payload: { allTags: response.data, recentTags: recentTags },
+                    payload: { allTags: all, recentTags: recent },
                 });
             }
         } catch (error) {
