@@ -54,6 +54,9 @@ const start = async () => {
         dashboard: {
             component: "Dashboard",
         },
+        assets: {
+            styles: ["/css/cropper.styles.css"],
+        },
         env: {
             BASE_URL: process.env.BASE_URL || "",
         },
@@ -95,7 +98,7 @@ const start = async () => {
 
     admin.watch();
     app.use(express.static(path.join(__dirname, "./public")));
-    app.use(express.json());
+    app.use(express.json({ limit: "50mb" }));
     app.use("/admin", NonAdminRouter);
     app.use("/admin", AdminRouter);
     app.use(admin.options.rootPath, adminRouter);

@@ -9,7 +9,7 @@ const TagsWrap = styled.div`
     padding: 1em;
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 17px;
 `;
 
 const AllTagsWrap = styled.div`
@@ -19,11 +19,11 @@ const AllTagsWrap = styled.div`
 
 const AccordionItem = styled.div`
     display: flex;
-    justify-content: space-between;
     cursor: pointer;
     padding: 10px;
     border-bottom: 1px solid #ccc;
     align-items: center;
+    justify-content: space-between;
 `;
 
 const AccordionArrow = styled.div`
@@ -51,124 +51,128 @@ const RightSideBar = ({ bookId, loading, letterTypes, setLetterTypes }) => {
         );
         setLetterTypes(updatedAccordionStates);
     };
-
     useEffect(() => {
         fetchTag(bookId);
     }, [bookId]);
 
     return (
-        <Tabs currentTab={selectedTab} onChange={setSelectedTab}>
-            <Tab id="recent" label="Recent">
-                {loading ? (
-                    <Loader />
-                ) : tags.recentLetters.length != 0 ? (
-                    <TagsWrap>
-                        {tags.recentLetters.map(
-                            (
-                                recentTaggedLetter: TaggedLetters,
-                                index: number
-                            ) => (
-                                <TagImage
-                                    taggedBy={recentTaggedLetter.tagged_by}
-                                    key={index}
-                                    tagId={recentTaggedLetter.id}
-                                    image={recentTaggedLetter.cropped_image}
-                                    letter={recentTaggedLetter.letter.letter}
-                                />
-                            )
-                        )}
-                    </TagsWrap>
-                ) : (
-                    <p style={{ padding: "20px" }}>
-                        Your recently tagged letters will be shown here
-                    </p>
-                )}
-            </Tab>
-            <Tab id="all" label="All">
-                {loading ? (
-                    <Loader />
-                ) : (
-                    <AllTagsWrap>
-                        {letterTypes.map((accordion: any) => (
-                            <div key={accordion.id}>
-                                <AccordionItem
-                                    onClick={() =>
-                                        handleAccordionClick(accordion.id)
-                                    }
-                                >
-                                    <span>{accordion.title}</span>
-                                    <AccordionArrow>
-                                        {accordion.expanded ? (
-                                            <Icon icon="Minus" />
+        <div>
+            <Tabs currentTab={selectedTab} onChange={setSelectedTab}>
+                <Tab id="recent" label="Recent">
+                    {loading ? (
+                        <Loader />
+                    ) : tags.recentLetters.length != 0 ? (
+                        <TagsWrap className="custom-scrollbar">
+                            {tags.recentLetters.map(
+                                (
+                                    recentTaggedLetter: TaggedLetters,
+                                    index: number
+                                ) => (
+                                    <TagImage
+                                        taggedBy={recentTaggedLetter.tagged_by}
+                                        key={index}
+                                        tagId={recentTaggedLetter.id}
+                                        image={recentTaggedLetter.cropped_image}
+                                        letter={
+                                            recentTaggedLetter.letter.letter
+                                        }
+                                    />
+                                )
+                            )}
+                        </TagsWrap>
+                    ) : (
+                        <p style={{ padding: "20px" }}>
+                            Your recently tagged letters will be shown here
+                        </p>
+                    )}
+                </Tab>
+                <Tab id="all" label="All">
+                    {loading ? (
+                        <Loader />
+                    ) : (
+                        <AllTagsWrap>
+                            {letterTypes.map((accordion: any) => (
+                                <div key={accordion.id}>
+                                    <AccordionItem
+                                        onClick={() =>
+                                            handleAccordionClick(accordion.id)
+                                        }
+                                    >
+                                        <span>{accordion.title}</span>
+                                        <AccordionArrow>
+                                            {accordion.expanded ? (
+                                                <Icon icon="Minus" />
+                                            ) : (
+                                                <Icon icon="Plus" />
+                                            )}
+                                        </AccordionArrow>
+                                    </AccordionItem>
+                                    <AccordionContent
+                                        className={
+                                            accordion.expanded
+                                                ? "active"
+                                                : "inactive"
+                                        }
+                                    >
+                                        {tags.taggedLetters.filter(
+                                            (taggedLetter: TaggedLetters) =>
+                                                taggedLetter.letter
+                                                    .letter_type ===
+                                                accordion.letterType
+                                        ).length === 0 ? (
+                                            <p
+                                                style={{
+                                                    background: "#eee",
+                                                    padding: "20px",
+                                                }}
+                                            >
+                                                No data available
+                                            </p>
                                         ) : (
-                                            <Icon icon="Plus" />
-                                        )}
-                                    </AccordionArrow>
-                                </AccordionItem>
-                                <AccordionContent
-                                    className={
-                                        accordion.expanded
-                                            ? "active"
-                                            : "inactive"
-                                    }
-                                >
-                                    {tags.taggedLetters.filter(
-                                        (taggedLetter: TaggedLetters) =>
-                                            taggedLetter.letter.letter_type ===
-                                            accordion.letterType
-                                    ).length === 0 ? (
-                                        <p
-                                            style={{
-                                                background: "#eee",
-                                                padding: "20px",
-                                            }}
-                                        >
-                                            No data available
-                                        </p>
-                                    ) : (
-                                        <TagsWrap>
-                                            {tags.taggedLetters
-                                                .filter(
-                                                    (
-                                                        taggedLetter: TaggedLetters
-                                                    ) =>
-                                                        taggedLetter.letter
-                                                            .letter_type ===
-                                                        accordion.letterType
-                                                )
-                                                .map(
-                                                    (
-                                                        taggedLetter: TaggedLetters,
-                                                        index: number
-                                                    ) => (
-                                                        <TagImage
-                                                            taggedBy={
-                                                                taggedLetter.tagged_by
-                                                            }
-                                                            key={index}
-                                                            tagId={
-                                                                taggedLetter.id
-                                                            }
-                                                            image={
-                                                                taggedLetter.cropped_image
-                                                            }
-                                                            letter={
-                                                                taggedLetter
-                                                                    .letter
-                                                                    .letter
-                                                            }
-                                                        />
+                                            <TagsWrap>
+                                                {tags.taggedLetters
+                                                    .filter(
+                                                        (
+                                                            taggedLetter: TaggedLetters
+                                                        ) =>
+                                                            taggedLetter.letter
+                                                                .letter_type ===
+                                                            accordion.letterType
                                                     )
-                                                )}
-                                        </TagsWrap>
-                                    )}
-                                </AccordionContent>
-                            </div>
-                        ))}
-                    </AllTagsWrap>
-                )}
-            </Tab>
-        </Tabs>
+                                                    .map(
+                                                        (
+                                                            taggedLetter: TaggedLetters,
+                                                            index: number
+                                                        ) => (
+                                                            <TagImage
+                                                                taggedBy={
+                                                                    taggedLetter.tagged_by
+                                                                }
+                                                                key={index}
+                                                                tagId={
+                                                                    taggedLetter.id
+                                                                }
+                                                                image={
+                                                                    taggedLetter.cropped_image
+                                                                }
+                                                                letter={
+                                                                    taggedLetter
+                                                                        .letter
+                                                                        .letter
+                                                                }
+                                                            />
+                                                        )
+                                                    )}
+                                            </TagsWrap>
+                                        )}
+                                    </AccordionContent>
+                                </div>
+                            ))}
+                        </AllTagsWrap>
+                    )}
+                </Tab>
+            </Tabs>
+        </div>
     );
 };
 

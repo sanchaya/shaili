@@ -124,63 +124,51 @@ const LetterTagProvider = ({ children }: Props) => {
     const [currentAdmin] = useCurrentAdmin();
 
     const fetchTag = async (bookId: number) => {
-        try {
-            const response = await axios.get(
-                `${BASE_URL}/tagged-letter?bookId=` + bookId
+        const response = await axios.get(
+            `${BASE_URL}/tagged-letter?bookId=` + bookId
+        );
+        if (response.data) {
+            const recentTags = filterRecentLetters(
+                response.data,
+                20,
+                Number(currentAdmin?.id)
             );
-            if (response.data) {
-                const recentTags = filterRecentLetters(
-                    response.data,
-                    20,
-                    Number(currentAdmin?.id)
-                );
-                const all = response.data.sort(sortByCreatedAt);
-                const recent = recentTags.sort(sortByCreatedAt);
+            const all = response.data.sort(sortByCreatedAt);
+            const recent = recentTags.sort(sortByCreatedAt);
 
-                dispatch({
-                    type: "FETCH_TAGS",
-                    payload: { allTags: all, recentTags: recent },
-                });
-            }
-        } catch (error) {
-            console.error("Error fetching tagged letters:", error);
+            dispatch({
+                type: "FETCH_TAGS",
+                payload: { allTags: all, recentTags: recent },
+            });
         }
     };
 
     const addTag = async (tag: IAddTag) => {
-        try {
-            const response = await axios.post(`${BASE_URL}/save-tag`, tag, {
-                headers: {
-                    "Content-Type": "application/json",
+        const response = await axios.post(`${BASE_URL}/save-tag`, tag, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        if (response.status == 200) {
+            dispatch({
+                type: "ADD_TAG",
+                payload: {
+                    tag: response.data,
+                    id: Number(currentAdmin?.id),
                 },
             });
-            if (response.status == 200) {
-                dispatch({
-                    type: "ADD_TAG",
-                    payload: {
-                        tag: response.data,
-                        id: Number(currentAdmin?.id),
-                    },
-                });
-            }
-        } catch (error) {
-            console.error(error);
         }
     };
 
     const removeTag = async (letterId: number) => {
-        try {
-            const response = await axios.delete(
-                `${BASE_URL}/delete-tag?id=` + letterId
-            );
-            if (response.status == 200) {
-                dispatch({
-                    type: "REMOVE_TAG",
-                    payload: { id: Number(currentAdmin?.id), letterId },
-                });
-            }
-        } catch (error) {
-            console.error(error);
+        const response = await axios.delete(
+            `${BASE_URL}/delete-tag?id=` + letterId
+        );
+        if (response.status == 200) {
+            dispatch({
+                type: "REMOVE_TAG",
+                payload: { id: Number(currentAdmin?.id), letterId },
+            });
         }
     };
 

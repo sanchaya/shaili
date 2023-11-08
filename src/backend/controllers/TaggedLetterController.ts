@@ -17,8 +17,6 @@ export const getLetters = async (req: Request, res: Response) => {
 
 export const saveTag = async (req: any, res: Response) => {
     try {
-        console.log(req);
-
         const { book_id, letter_id, cropped_image, tagged_by } = req.body;
         const taggedLetter = await TaggedLetters.create({
             book_id,

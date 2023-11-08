@@ -5,12 +5,12 @@ import RightSideBar from "../RightSideBar/RightSideBar.js";
 import axios from "axios";
 import LetterTagProvider from "../../context/LetterTagContext.js";
 import { BookImage } from "../BookImage/BookImage.js";
-import ScreenCapture from "react-screen-capture-v2";
 import AddTagModal from "../AddTagModal/AddTagModal.js";
 
 const Content = styled.div`
     display: flex;
     justify-content: space-between;
+    gap: 20px;
     @media (max-width: 800px) {
         flex-flow: column wrap;
         width: 98%;
@@ -19,7 +19,6 @@ const Content = styled.div`
 `;
 
 const LeftSide = styled.div`
-    flex: 2;
     width: 70%;
     @media (max-width: 800px) {
         width: 100%;
@@ -27,13 +26,11 @@ const LeftSide = styled.div`
 `;
 
 const RightSide = styled.div`
-    flex: 1;
     display: flex;
     flex-direction: column;
     background: #fff;
     box-shadow: 0px 2px 2px 1px #ccc;
-    margin-left: 34px;
-    width: 200px;
+    width: 30%;
     @media (max-width: 800px) {
         width: 100%;
         margin: 20px auto 0 auto;
@@ -68,7 +65,6 @@ const NavWrap = styled.div`
 
 const ImageWrap = styled.div`
     width: auto;
-    height: 720px;
     position: relative;
     overflow: hidden;
     @media (max-width: 800px) {
@@ -257,20 +253,12 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             </NavigationArrows>
                         </NavWrap>
                         <ImageWrap>
-                            <ScreenCapture
-                                on={capturing}
-                                onEndCapture={(b64: string) => {
-                                    setTag(b64);
-                                    setCapturing(false);
-                                }}
-                            >
-                                <BookImage
-                                    image={img}
-                                    setCapturing={setCapturing}
-                                    capturing={capturing}
-                                    loading={loading}
-                                />
-                            </ScreenCapture>
+                            <BookImage
+                                image={img}
+                                setCapturing={setCapturing}
+                                capturing={capturing}
+                                setTag={setTag}
+                            />
                         </ImageWrap>
                     </LeftSide>
                     <RightSide>

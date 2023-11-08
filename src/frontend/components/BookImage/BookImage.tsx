@@ -1,7 +1,7 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
-import { PanViewer } from "react-image-pan-zoom-rotate";
+import React, { Dispatch, SetStateAction, useRef } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
 import { Loader, Icon } from "@adminjs/design-system";
+import { Cropper, CropperRef } from "react-advanced-cropper";
 
 const CropIcon = styled.div`
     position: absolute;
@@ -35,6 +35,7 @@ const ActionIcon = styled.div`
 
 const ImageInnerWrap = styled.div`
     height: 720px;
+    width: 100%;
     text-align: center;
     background: #0000004a;
     @media (max-width: 800px) {
@@ -44,41 +45,30 @@ const ImageInnerWrap = styled.div`
 
 interface IBookImageProps {
     image: string;
-    alt?: string;
     setCapturing: Dispatch<SetStateAction<boolean>>;
     capturing: boolean;
-    loading: boolean;
+    setTag: Dispatch<SetStateAction<string>>;
 }
 
 export const BookImage = ({
     image,
-    alt,
     setCapturing,
     capturing,
+    setTag,
 }: IBookImageProps) => {
-    const [dx, setDx] = useState(0);
-    const [dy, setDy] = useState(0);
-    const [zoom, setZoom] = useState(1);
+    const cropperRef = useRef<CropperRef>(null);
 
     const resetAll = () => {
-        setDx(0);
-        setDy(0);
-        setZoom(1);
-    };
-
-    const zoomIn = () => {
-        setZoom(zoom + 0.2);
-    };
-
-    const zoomOut = () => {
-        if (zoom > 1) {
-            setZoom(zoom - 0.2);
+        if (cropperRef.current) {
+            cropperRef.current.setCoordinates(({ imageSize }) => imageSize);
         }
     };
 
-    const onPan = (dx: number, dy: number) => {
-        setDx(dx);
-        setDy(dy);
+    const zoom = (factor: number) => () => {
+        const cropper = cropperRef.current;
+        if (cropper) {
+            cropper.zoomImage(factor);
+        }
     };
 
     const handleCapture = () => {
@@ -89,10 +79,21 @@ export const BookImage = ({
         }
     };
 
+    const cropImage = () => {
+        if (cropperRef.current) {
+            const image = cropperRef.current.getCanvas()?.toDataURL();
+            if (image) {
+                setTag(image);
+                setCapturing(false);
+                resetAll();
+            }
+        }
+    };
+
     return (
         <>
             <ActionIcons>
-                <ActionIcon onClick={zoomIn}>
+                <ActionIcon onClick={zoom(2)}>
                     <Icon
                         icon="ZoomIn"
                         style={{
@@ -104,7 +105,7 @@ export const BookImage = ({
                         }}
                     />
                 </ActionIcon>
-                <ActionIcon onClick={zoomOut}>
+                <ActionIcon onClick={zoom(0.5)}>
                     <Icon
                         icon="ZoomOut"
                         style={{
@@ -147,41 +148,72 @@ export const BookImage = ({
                         }}
                     />
                 </ActionIcon>
+                {capturing && (
+                    <>
+                        <ActionIcon onClick={cropImage}>
+                            <Icon
+                                icon="Save"
+                                style={{
+                                    height: "100%",
+                                    width: "100%",
+                                    padding: 10,
+                                    boxSizing: "border-box",
+                                    color: "#4C68C1",
+                                }}
+                            />
+                        </ActionIcon>
+                        <ActionIcon onClick={handleCapture}>
+                            <Icon
+                                icon="X"
+                                style={{
+                                    height: "100%",
+                                    width: "100%",
+                                    padding: 10,
+                                    boxSizing: "border-box",
+                                    color: "#4C68C1",
+                                }}
+                            />
+                        </ActionIcon>
+                    </>
+                )}
             </CropIcon>
             <ImageInnerWrap
-                onContextMenu={(e) => {
+                onContextMenu={(e: { preventDefault: () => void }) => {
                     e.preventDefault();
                 }}
             >
                 {!image ? (
                     <Loader />
                 ) : (
-                    <PanViewer
-                        style={{
-                            width: "100%",
-                            height: "100%",
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                            zIndex: 1,
-                            textAlign: "center",
+                    <Cropper
+                        ref={cropperRef}
+                        src={image}
+                        stencilProps={{
+                            movable: capturing,
+                            resizable: capturing,
+                            scalable: capturing,
+                            lines: capturing,
+                            handlers: capturing
+                                ? {
+                                      eastNorth: true,
+                                      north: false,
+                                      westNorth: true,
+                                      west: false,
+                                      westSouth: true,
+                                      south: false,
+                                      eastSouth: true,
+                                      east: false,
+                                  }
+                                : "",
+                            overlayClassName: !capturing
+                                ? "advanced-cropper-stencil-overlay--faded"
+                                : "",
                         }}
-                        zoom={zoom}
-                        setZoom={setZoom}
-                        pandx={dx}
-                        pandy={dy}
-                        onPan={onPan}
-                        key={dx}
-                    >
-                        <img
-                            style={{
-                                width: "66%",
-                                height: "100%",
-                            }}
-                            src={image}
-                            alt={alt}
-                        />
-                    </PanViewer>
+                        defaultSize={{
+                            width: 400,
+                            height: 400,
+                        }}
+                    />
                 )}
             </ImageInnerWrap>
         </>

@@ -3,18 +3,18 @@ import { styled } from "@adminjs/design-system/styled-components";
 import { Icon, Modal, ModalProps } from "@adminjs/design-system";
 import React from "react";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
-import { useCurrentAdmin } from "adminjs";
+import { useCurrentAdmin, useNotice } from "adminjs";
 
 const SingleTag = styled.img`
-    height: 80px;
-    width: 80px;
+    height: 70px;
+    width: 70px;
     border-radius: 5px;
     box-shadow: 0px 0px 3px 0px rgba(102, 102, 102, 0.75);
 `;
 
 const TagsInnerWrap = styled.div`
     position: relative;
-    height: 80px;
+    height: 70px;
 `;
 
 const DeleteIcon = styled.div`
@@ -46,14 +46,28 @@ const TagImage = ({ image, letter, tagId, taggedBy }) => {
     const [showLetter, setShowLetter] = useState(false);
     const [show, setShow] = useState(false);
     const { removeTag } = useLetterTagContext();
+    const addNotice = useNotice();
+
     const removeSelectedTag = () => {
-        removeTag(tagId).then(() => {
-            setShow(false);
-        });
+        removeTag(tagId)
+            .then(() => {
+                setShow(false);
+                addNotice({
+                    message: "Tag deleted successfully",
+                    type: "success",
+                });
+            })
+            .catch(() => {
+                setShow(false);
+                addNotice({
+                    message: "Error deleting tag,try agin later",
+                    type: "success",
+                });
+            });
     };
     const modalProps: ModalProps = {
         label: "Confirm",
-        title: "Do you really want to remove this tag?",
+        title: "Are you sure you want to delete this tag?",
         variant: "danger",
         buttons: [
             { label: "Cancel", onClick: () => setShow(false) },

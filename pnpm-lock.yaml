@@ -40,6 +40,9 @@ dependencies:
   argon2:
     specifier: ^0.31.1
     version: 0.31.1
+  axios:
+    specifier: ^1.6.0
+    version: 1.6.0
   connect-mysql-session:
     specifier: ^0.1.3
     version: 0.1.3
@@ -73,9 +76,9 @@ dependencies:
   react:
     specifier: ^18.2.0
     version: 18.2.0
-  react-image-pan-zoom-rotate:
-    specifier: ^1.6.0
-    version: 1.6.0(react@18.2.0)
+  react-advanced-cropper:
+    specifier: ^0.19.4
+    version: 0.19.4(react@18.2.0)
   react-redux:
     specifier: ^8.1.3
     version: 8.1.3(@types/react@18.2.25)(react@18.2.0)
@@ -85,9 +88,6 @@ dependencies:
   react-router-dom:
     specifier: ^6.16.0
     version: 6.16.0(react@18.2.0)
-  react-screen-capture-v2:
-    specifier: ^1.0.0
-    version: 1.0.0(react@18.2.0)
   sequelize:
     specifier: ^6.33.0
     version: 6.33.0(mysql2@3.6.1)
@@ -2811,7 +2811,7 @@ packages:
       '@rollup/plugin-terser': 0.4.3(rollup@3.29.4)
       '@types/babel-core': 6.25.8
       '@types/react': 18.2.25
-      axios: 1.5.1
+      axios: 1.6.0
       commander: 10.0.1
       flat: 5.0.2
       i18next: 22.5.1
@@ -2842,6 +2842,13 @@ packages:
       - encoding
       - react-native
       - supports-color
+    dev: false
+
+  /advanced-cropper@0.18.0:
+    resolution: {integrity: sha512-Bo0fiW8F+kI4f8zEm8YXIDkGNi+aXaQPxqDijU7hY+1ETACbvFnNCxssspgAwHBy9RpFlcXMmjcq+LImUOhaqQ==}
+    engines: {node: '>=8', npm: '>=5'}
+    dependencies:
+      tslib: 2.6.2
     dev: false
 
   /agent-base@6.0.2:
@@ -2935,8 +2942,8 @@ packages:
     engines: {node: '>= 4.0.0'}
     dev: true
 
-  /axios@1.5.1:
-    resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
+  /axios@1.6.0:
+    resolution: {integrity: sha512-EZ1DYihju9pwVB+jg67ogm+Tmqc6JmhamRN6I4Zt8DfZu5lbcQGw3ozH9lFejSJgs/ibaef3A9PMXPLeefFGJg==}
     dependencies:
       follow-redirects: 1.15.3
       form-data: 4.0.0
@@ -3022,11 +3029,6 @@ packages:
 
   /balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
-
-  /base64-arraybuffer@1.0.2:
-    resolution: {integrity: sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==}
-    engines: {node: '>= 0.6.0'}
-    dev: false
 
   /base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
@@ -3375,12 +3377,6 @@ packages:
   /css-color-keywords@1.0.0:
     resolution: {integrity: sha512-FyyrDHZKEjXDpNJYvVsV960FiqQyXc/LlYmsxl2BcdMb2WPx0OGRVgTg55rPSyLSNMqP52R9r8geSp7apN3Ofg==}
     engines: {node: '>=4'}
-    dev: false
-
-  /css-line-break@2.1.0:
-    resolution: {integrity: sha512-FHcKFCZcAha3LwfVBhCQbW2nCNbkZXn7KVUJcsT5/P8YmfsVja0FMPJr0B903j/E69HUphKiV9iQArX8SDYA4w==}
-    dependencies:
-      utrie: 1.0.2
     dev: false
 
   /css-to-react-native@3.2.0:
@@ -4026,14 +4022,6 @@ packages:
     resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
     dependencies:
       void-elements: 3.1.0
-    dev: false
-
-  /html2canvas@1.4.1:
-    resolution: {integrity: sha512-fPU6BHNpsyIhr8yyMpTLLxAbkaK8ArIBcmZIRiBLiDhjeqvXolaEmDGmELFuX9I4xDcaKKcJl+TKZLqruBbmWA==}
-    engines: {node: '>=8.0.0'}
-    dependencies:
-      css-line-break: 2.1.0
-      text-segmentation: 1.0.3
     dev: false
 
   /http-errors@2.0.0:
@@ -5085,6 +5073,18 @@ packages:
       unpipe: 1.0.0
     dev: false
 
+  /react-advanced-cropper@0.19.4(react@18.2.0):
+    resolution: {integrity: sha512-CJAeOyg5gMvrhZoaMKcP6XJf10xanUCHqRCFXUtIiKxcHgSGAVGedd/zjvCIG4E1hMoFwaaFazS/Hw0Odhtjmw==}
+    engines: {node: '>=8', npm: '>=5'}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      advanced-cropper: 0.18.0
+      classnames: 2.3.2
+      react: 18.2.0
+      tslib: 2.6.2
+    dev: false
+
   /react-currency-input-field@3.6.11(react@18.2.0):
     resolution: {integrity: sha512-M9vOx1eaioSaYWirm7W2WSBi4bpLg+LK4Gf7C1kNhy6MvoSoOzd0mYZPxA78OC9UBIQ2nM080Wu9D1CwTY6n3w==}
     peerDependencies:
@@ -5165,15 +5165,6 @@ packages:
       i18next: 22.5.1
       react: 18.2.0
       react-dom: 18.2.0(react@18.2.0)
-    dev: false
-
-  /react-image-pan-zoom-rotate@1.6.0(react@18.2.0):
-    resolution: {integrity: sha512-YpuMjhA9TlcyuC1vcKeTGnECAial0uEsjXUHcCk3GTeznwtnfpgLfMDhejCrilUud/hxueXrr9SJiQiycWjYVA==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      react: '>=16'
-    dependencies:
-      react: 18.2.0
     dev: false
 
   /react-is@16.13.1:
@@ -5356,16 +5347,6 @@ packages:
       react: '>=16.8'
     dependencies:
       '@remix-run/router': 1.9.0
-      react: 18.2.0
-    dev: false
-
-  /react-screen-capture-v2@1.0.0(react@18.2.0):
-    resolution: {integrity: sha512-yUEIwiZdYNUQ1lPMYBfBiaVO+xzkdserBr7GkKQhfssNw+R0hFx8RusdDjQK3k3aKIv5Nge+nNLSpvUUoUSkwQ==}
-    engines: {node: '>=10'}
-    peerDependencies:
-      react: '>=17.0.0'
-    dependencies:
-      html2canvas: 1.4.1
       react: 18.2.0
     dev: false
 
@@ -6004,12 +5985,6 @@ packages:
     resolution: {integrity: sha512-VSZSdc/tKn4zGxgpJ+uNBzoW1t472AoAFIlbw1K7hSNXz0DfSBYDJNRxLqgxOfWw1BY2z6DQpm7g0sYZn5qLpg==}
     dev: false
 
-  /text-segmentation@1.0.3:
-    resolution: {integrity: sha512-iOiPUo/BGnZ6+54OsWxZidGCsdU8YbE4PSpdPinp7DeMtUJNJBoJ/ouUSTJjHkh1KntHaltHl/gDs2FC4i5+Nw==}
-    dependencies:
-      utrie: 1.0.2
-    dev: false
-
   /throttle-debounce@3.0.1:
     resolution: {integrity: sha512-dTEWWNu6JmeVXY0ZYoPuH5cRIwc0MeGbJwah9KUNYSJwommQpCzTySTpEe8Gs1J23aeWEuAobe4Ag7EHVt/LOg==}
     engines: {node: '>=10'}
@@ -6249,12 +6224,6 @@ packages:
   /utils-merge@1.0.1:
     resolution: {integrity: sha512-pMZTvIkT1d+TFGvDOqodOclx0QWkkgi6Tdoa8gC8ffGAAqz9pzPTZWAybbsHHoED/ztMtkv/VoYTYyShUn81hA==}
     engines: {node: '>= 0.4.0'}
-    dev: false
-
-  /utrie@1.0.2:
-    resolution: {integrity: sha512-1MLa5ouZiOmQzUbjbu9VmjLzn1QLXBhwpUa7kdLUQK+KQ5KA9I1vk5U4YHe/X2Ch7PYnJfWuWT+VbuxbGwljhw==}
-    dependencies:
-      base64-arraybuffer: 1.0.2
     dev: false
 
   /uuid@8.3.2:

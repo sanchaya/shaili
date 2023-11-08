@@ -52,13 +52,21 @@ const AddTagModal: React.FC<IAddTagModalProps> = ({ tag, setTag, bookId }) => {
             cropped_image: tag,
             tagged_by: Number(currentAdmin?.id),
         };
-        addTag(data).then(() => {
-            setTag("");
-            addNotice({
-                message: "Tag added successfully",
-                type: "success",
+        addTag(data)
+            .then(() => {
+                setTag("");
+                addNotice({
+                    message: "Tag added successfully",
+                    type: "success",
+                });
+            })
+            .catch((error) => {
+                setTag("");
+                addNotice({
+                    message: "Error adding tag try again later",
+                    type: "error",
+                });
             });
-        });
     };
 
     return (
