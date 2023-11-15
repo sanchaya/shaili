@@ -47,7 +47,7 @@ const RightSideBar = ({ bookId, loading, letterTypes, setLetterTypes }) => {
             (state: { id: number; expanded: boolean }) =>
                 state.id === accordionId
                     ? { ...state, expanded: !state.expanded }
-                    : state
+                    : { ...state, expanded: false }
         );
         setLetterTypes(updatedAccordionStates);
     };

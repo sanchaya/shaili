@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Letters } from "../db/models/Letters.js";
 import { TaggedLetters } from "../db/models/TaggedLetters.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
+import { Books } from "../db/models/Books.js";
 
 export const getLetterTypes = async (req: Request, res: Response) => {
     const letterTypes = await LetterTypes.findAll({
@@ -24,6 +25,20 @@ export const saveTag = async (req: any, res: Response) => {
             cropped_image,
             tagged_by,
         });
+        const bookCurrentStatus = await Books.findOne({
+            where: { id: book_id },
+            attributes: ["status"],
+        });
+        if (Number(bookCurrentStatus?.dataValues.status) == 1) {
+            await Books.update(
+                { status: 2 },
+                {
+                    where: {
+                        id: book_id,
+                    },
+                }
+            );
+        }
         const response = await TaggedLetters.findOne({
             where: { id: taggedLetter.id },
             include: {
