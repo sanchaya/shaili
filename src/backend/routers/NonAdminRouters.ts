@@ -5,23 +5,23 @@ import ResetPasswordController from "../controllers/ResetPasswordController.js";
 const NonAdminRouter = express.Router();
 
 NonAdminRouter.get(
-  "/forgot-password",
-  PasswordResetController.renderForgotPasswordForm
+    "/forgot-password",
+    PasswordResetController.renderForgotPasswordForm
 );
 
 NonAdminRouter.post(
-  "/forgot-password",
-  PasswordResetController.handleForgotPasswordSubmission
+    "/forgot-password",
+    PasswordResetController.handleForgotPasswordSubmission
 );
 
 NonAdminRouter.get(
-  "/reset-password",
-  ResetPasswordController.renderResetPasswordForm
+    "/reset-password",
+    ResetPasswordController.renderResetPasswordForm
 );
 
 NonAdminRouter.post(
-  "/reset-password",
-  ResetPasswordController.handleResetPasswordSubmission
+    "/reset-password",
+    ResetPasswordController.handleResetPasswordSubmission
 );
 
 export default NonAdminRouter;

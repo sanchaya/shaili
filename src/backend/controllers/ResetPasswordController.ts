@@ -55,7 +55,7 @@ export const handleResetPasswordSubmission = async (
       passwordReset.destroy();
       res.status(200).send({
         statusCode: 200,
-        message: `Password has beed updated successfully.You can login with your new password`,
+        message: `Password has been updated successfully.You can login with your new password`,
       });
     } else {
       res.status(500).send({

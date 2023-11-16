@@ -54,7 +54,7 @@ module.exports = {
   },
 
   async down(queryInterface, _Sequelize) {
-    await queryInterface.dropTable("letter_types");
     await queryInterface.dropTable("letters");
+    await queryInterface.dropTable("letter_types");
   },
 };
