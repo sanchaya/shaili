@@ -13,10 +13,34 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      language:{
+        type: Sequelize.STRING,
+        references: {
+          model: "languages",
+          key: "language_code",
+        },
+      },
+      created_by: {
+        type: new Sequelize.INTEGER,
+        references: {
+          model: "users",
+          key: "id",
+        },
+      },
+      updated_by: {
+        type: new Sequelize.INTEGER,
+        references: {
+          model: "users",
+          key: "id",
+        },
+      },
       created_at: {
         type: Sequelize.DATE,
       },
       updated_at: {
+        type: Sequelize.DATE,
+      },
+      deleted_at: {
         type: Sequelize.DATE,
       },
     });
@@ -38,16 +62,31 @@ module.exports = {
           key: "id",
         },
       },
+      is_user_defined: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
       created_by: {
-        type: new Sequelize.STRING(),
+        type: new Sequelize.INTEGER,
+        references: {
+          model: "users",
+          key: "id",
+        },
       },
       updated_by: {
-        type: new Sequelize.STRING(),
+        type: new Sequelize.INTEGER,
+        references: {
+          model: "users",
+          key: "id",
+        },
       },
       created_at: {
         type: Sequelize.DATE,
       },
       updated_at: {
+        type: Sequelize.DATE,
+      },
+      deleted_at: {
         type: Sequelize.DATE,
       },
     });

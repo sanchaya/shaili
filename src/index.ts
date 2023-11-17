@@ -11,6 +11,8 @@ import Users from "./backend/db/models/Users.js";
 import NonAdminRouter from "./backend/routers/NonAdminRouters.js";
 import { AdminResource } from "./backend/resources/AdminResource.js";
 import * as url from "url";
+import { LetterTypesResource } from "./backend/resources/LetterTypesResource.js";
+import { LanguagesResource } from "./backend/resources/LanguagesResource.js";
 
 const PORT = 8000;
 
@@ -49,7 +51,7 @@ const start = async () => {
             logo: "/images/logo.png",
             withMadeWithLove: false,
         },
-        resources: [AdminResource, LetterResource, BookResource],
+        resources: [AdminResource, LetterResource, BookResource, LetterTypesResource, LanguagesResource],
         componentLoader,
         dashboard: {
             component: "Dashboard",
