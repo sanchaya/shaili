@@ -30,6 +30,13 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      language:{
+        type: Sequelize.STRING,
+        references: {
+          model: "languages",
+          key: "language_code",
+        },
+      },
       publisher_name: {
         type: Sequelize.STRING,
         allowNull: false,

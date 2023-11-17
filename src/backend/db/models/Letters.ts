@@ -1,4 +1,4 @@
-import { DataTypes, Model } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 
 import { sequelize } from "../config/config.js";
 import { LetterTypes } from "./LetterTypes.js";
@@ -8,27 +8,31 @@ interface ILetters {
   id: number;
   letter: string;
   letter_type: string;
-  created_by: string;
-  updated_by: string;
+  is_user_defined: boolean;
+  created_by: number;
+  updated_by: number;
 }
 
-export class Letters extends Model<ILetters> {
+type LettersCreationAttributes = Optional<ILetters, "id">;
+
+export class Letters extends Model<ILetters, LettersCreationAttributes> {
   declare id: number;
   declare letter: string;
   declare letter_type: string;
-  declare created_by: string;
-  declare updated_by: string;
+  declare is_user_defined: boolean;
+  declare created_by: number;
+  declare updated_by: number;
 
   static associate(models: any) {
     Letters.belongsTo(LetterTypes, {
       foreignKey: "letter_type",
     });
-    Letters.belongsTo(models.Users, {
+    Letters.belongsTo(Users, {
       foreignKey: "created_by",
     });
 
-    Letters.belongsTo(models.Users, {
-      foreignKey: "created_by",
+    Letters.belongsTo(Users, {
+      foreignKey: "updated_by",
     });
   }
 }
@@ -48,11 +52,15 @@ Letters.init(
       type: new DataTypes.INTEGER(),
       allowNull: false,
     },
+    is_user_defined: {
+      type: new DataTypes.BOOLEAN(),
+      defaultValue: false,
+    },
     created_by: {
-      type: new DataTypes.STRING(),
+      type: new DataTypes.INTEGER(),
     },
     updated_by: {
-      type: new DataTypes.STRING(),
+      type: new DataTypes.INTEGER(),
     },
   },
   {
@@ -61,6 +69,7 @@ Letters.init(
     modelName: "Letters",
     underscored: true,
     timestamps: true,
+    paranoid: true,
   }
 );
 
@@ -68,8 +77,8 @@ Letters.beforeCreate(async (letters, options) => {
   const currentUser = await Users.findOne({ where: {} });
 
   if (currentUser) {
-    letters.created_by = currentUser.name;
-    letters.updated_by = currentUser.name;
+    letters.created_by = currentUser.id;
+    letters.updated_by = currentUser.id;
   }
 });
 
@@ -77,6 +86,6 @@ Letters.beforeUpdate(async (letters, options) => {
   const currentUser = await Users.findOne({ where: {} });
 
   if (currentUser) {
-    letters.updated_by = currentUser.name;
+    letters.updated_by = currentUser.id;
   }
 });

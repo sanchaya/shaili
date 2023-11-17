@@ -1,55 +1,48 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/config.js";
 import Users from "./Users.js";
-import { Languages } from "./Languages.js";
-
-
-interface ILetterTypes {
+interface ILanguages {
   id: number;
-  type: string;
   language: string;
+  language_code: string;
   created_at: Date;
   updated_at: Date;
   created_by: number;
   updated_by: number;
 }
 
-export class LetterTypes extends Model<ILetterTypes> {
+export class Languages extends Model<ILanguages> {
   declare id: number;
-  declare type: string;
   declare language: string;
+  declare language_code: string;
   declare created_by: number;
   declare updated_by: number;
   declare created_at: Date;
   declare updated_at: Date;
 
   static associate(models: any) {
-    LetterTypes.belongsTo(Languages, {
-      foreignKey: "language_code",
-    });
-
-    LetterTypes.belongsTo(models.Users, {
+    Languages.belongsTo(models.Users, {
       foreignKey: "created_by",
     });
 
-    LetterTypes.belongsTo(Users, {
+    Languages.belongsTo(models.Users, {
       foreignKey: "updated_by",
     });
   }
 }
 
-LetterTypes.init(
+Languages.init(
   {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    type: {
-      type: new DataTypes.STRING(128),
+    language: {
+      type: new DataTypes.STRING(),
       allowNull: false,
     },
-    language: {
+    language_code: {
       type: new DataTypes.STRING(),
       allowNull: false,
     },
@@ -68,26 +61,26 @@ LetterTypes.init(
   },
   {
     sequelize,
-    tableName: "letter_types",
-    modelName: "LetterTypes",
+    tableName: "languages",
+    modelName: "Languages",
     underscored: true,
     paranoid: true,
   }
 );
 
-LetterTypes.beforeCreate(async (lettertypes, options) => {
+Languages.beforeCreate(async (Languages, options) => {
   const currentUser = await Users.findOne({ where: {} });
 
   if (currentUser) {
-    lettertypes.created_by = Number(currentUser.id);
-    lettertypes.updated_by = Number(currentUser.id);
+    Languages.created_by = currentUser.id;
+    Languages.updated_by = currentUser.id;
   }
 });
 
-LetterTypes.beforeUpdate(async (lettertypes, options) => {
+Languages.beforeUpdate(async (Languages, options) => {
   const currentUser = await Users.findOne({ where: {} });
 
   if (currentUser) {
-    lettertypes.updated_by = Number(currentUser.id);
+    Languages.updated_by = currentUser.id;
   }
 });

@@ -4,27 +4,21 @@
 module.exports = {
   async up(queryInterface, _Sequelize) {
     return queryInterface.bulkInsert(
-      "letter_types",
+      "languages",
       [
         {
-          type: "Vowels",
-          language: "kn",
+          language: "Kannada",
+          id: "1",
+          language_code: "kn",
           created_by: 1,
           updated_by: 1,
           created_at: new Date(),
           updated_at: new Date(),
         },
         {
-          type: "Consonants",
-          language: "kn",
-          created_by: 1,
-          updated_by: 1,
-          created_at: new Date(),
-          updated_at: new Date(),
-        },
-        {
-          type: "Numerals",
-          language: "en",
+          language: "English",
+          id: "2",
+          language_code: "en",
           created_by: 1,
           updated_by: 1,
           created_at: new Date(),
@@ -36,6 +30,6 @@ module.exports = {
   },
 
   async down(queryInterface, _Sequelize) {
-    await queryInterface.bulkDelete("letter_types", null, {});
+    await queryInterface.bulkDelete("languages", null, {});
   },
 };
