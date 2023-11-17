@@ -2,7 +2,8 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/config.js";
 import Users from "./Users.js";
 import { Languages } from "./Languages.js";
-import { useCurrentAdmin } from "adminjs";
+
+
 interface ILetterTypes {
   id: number;
   type: string;
