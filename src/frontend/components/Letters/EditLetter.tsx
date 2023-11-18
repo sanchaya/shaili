@@ -17,7 +17,6 @@ interface ISelectOptions {
 
 const EditLetter = (props) => {
   const { record } = props;
-  console.log(props);
   const BASE_URL = (window as any).AdminJS.env.BASE_URL;
   const [languageOptions, setLanguageOptions] = useState<ISelectOptions[]>();
   const [letterTypeOptions, setLetterTypeOptions] =
