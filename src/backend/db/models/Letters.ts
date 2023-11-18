@@ -8,7 +8,8 @@ interface ILetters {
   id: number;
   letter: string;
   letter_type: string;
-  is_user_defined: boolean;
+  language: string;
+  user_defined: boolean;
   created_by: number;
   updated_by: number;
 }
@@ -19,13 +20,17 @@ export class Letters extends Model<ILetters, LettersCreationAttributes> {
   declare id: number;
   declare letter: string;
   declare letter_type: string;
-  declare is_user_defined: boolean;
+  declare language: string;
+  declare user_defined: boolean;
   declare created_by: number;
   declare updated_by: number;
 
   static associate(models: any) {
     Letters.belongsTo(LetterTypes, {
       foreignKey: "letter_type",
+    });
+    Letters.belongsTo(models.Languages, {
+      foreignKey: "language",
     });
     Letters.belongsTo(Users, {
       foreignKey: "created_by",
@@ -52,7 +57,10 @@ Letters.init(
       type: new DataTypes.INTEGER(),
       allowNull: false,
     },
-    is_user_defined: {
+    language: {
+      type: new DataTypes.STRING(),
+    },
+    user_defined: {
       type: new DataTypes.BOOLEAN(),
       defaultValue: false,
     },

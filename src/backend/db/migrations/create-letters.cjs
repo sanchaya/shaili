@@ -13,22 +13,23 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      language:{
+      language: {
         type: Sequelize.STRING,
+        allowNull: false,
         references: {
           model: "languages",
           key: "language_code",
         },
       },
       created_by: {
-        type: new Sequelize.INTEGER,
+        type: new Sequelize.INTEGER(),
         references: {
           model: "users",
           key: "id",
         },
       },
       updated_by: {
-        type: new Sequelize.INTEGER,
+        type: new Sequelize.INTEGER(),
         references: {
           model: "users",
           key: "id",
@@ -53,6 +54,15 @@ module.exports = {
       letter: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
+      },
+      language: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        references: {
+          model: "languages",
+          key: "language_code",
+        },
       },
       letter_type: {
         type: Sequelize.INTEGER,
@@ -62,19 +72,19 @@ module.exports = {
           key: "id",
         },
       },
-      is_user_defined: {
+      user_defined: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
       },
       created_by: {
-        type: new Sequelize.INTEGER,
+        type: new Sequelize.INTEGER(),
         references: {
           model: "users",
           key: "id",
         },
       },
       updated_by: {
-        type: new Sequelize.INTEGER,
+        type: new Sequelize.INTEGER(),
         references: {
           model: "users",
           key: "id",
