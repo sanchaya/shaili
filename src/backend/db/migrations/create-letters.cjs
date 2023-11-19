@@ -13,22 +13,23 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      language:{
+      language: {
         type: Sequelize.STRING,
+        allowNull: false,
         references: {
           model: "languages",
           key: "language_code",
         },
       },
       created_by: {
-        type: new Sequelize.INTEGER,
+        type: new Sequelize.INTEGER(),
         references: {
           model: "users",
           key: "id",
         },
       },
       updated_by: {
-        type: new Sequelize.INTEGER,
+        type: new Sequelize.INTEGER(),
         references: {
           model: "users",
           key: "id",
@@ -45,57 +46,59 @@ module.exports = {
       },
     });
     await queryInterface.createTable("letters", {
-        id: {
-            type: Sequelize.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
+      id: {
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+      },
+      letter: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      language: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        references: {
+          model: "languages",
+          key: "language_code",
         },
-        letter: {
-            type: Sequelize.STRING,
-            allowNull: false,
+      },
+      letter_type: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: "letter_types",
+          key: "id",
         },
-        language: {
-            type: Sequelize.STRING,
-            references: {
-                model: "languages",
-                key: "language_code",
-            },
+      },
+      user_defined: {
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      created_by: {
+        type: new Sequelize.INTEGER(),
+        references: {
+          model: "users",
+          key: "id",
         },
-        letter_type: {
-            type: Sequelize.INTEGER,
-            allowNull: false,
-            references: {
-                model: "letter_types",
-                key: "id",
-            },
+      },
+      updated_by: {
+        type: new Sequelize.INTEGER(),
+        references: {
+          model: "users",
+          key: "id",
         },
-        is_user_defined: {
-            type: Sequelize.BOOLEAN,
-            defaultValue: false,
-        },
-        created_by: {
-            type: new Sequelize.INTEGER(),
-            references: {
-                model: "users",
-                key: "id",
-            },
-        },
-        updated_by: {
-            type: new Sequelize.INTEGER(),
-            references: {
-                model: "users",
-                key: "id",
-            },
-        },
-        created_at: {
-            type: Sequelize.DATE,
-        },
-        updated_at: {
-            type: Sequelize.DATE,
-        },
-        deleted_at: {
-            type: Sequelize.DATE,
-        },
+      },
+      created_at: {
+        type: Sequelize.DATE,
+      },
+      updated_at: {
+        type: Sequelize.DATE,
+      },
+      deleted_at: {
+        type: Sequelize.DATE,
+      },
     });
   },
 

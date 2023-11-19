@@ -14,5 +14,7 @@ AdminRouter.post("/save-tag", TaggedLetterController.saveTag);
 AdminRouter.delete("/delete-tag", TaggedLetterController.deleteTaggedLetter);
 AdminRouter.get("/get-languages", CreateLetterController.getLanguages);
 AdminRouter.post("/add-letter", CreateLetterController.addUserDefinedLetter);
+AdminRouter.post("/new-letter", CreateLetterController.addLetter);
+AdminRouter.post("/edit-letter", CreateLetterController.editLetter);
 
 export default AdminRouter;
