@@ -1,6 +1,7 @@
 import express from "express";
 import TaggedLetterController from "../controllers/TaggedLetterController.js";
 import RetriveBookImageController from "../controllers/RetriveBookImageController.js";
+import CreateLetterController from "../controllers/CreateLetterController.js";
 
 const AdminRouter = express.Router();
 
@@ -11,5 +12,7 @@ AdminRouter.get("/get-letters", TaggedLetterController.getLetters);
 AdminRouter.get("/get-lettertypes", TaggedLetterController.getLetterTypes);
 AdminRouter.post("/save-tag", TaggedLetterController.saveTag);
 AdminRouter.delete("/delete-tag", TaggedLetterController.deleteTaggedLetter);
+AdminRouter.get("/get-languages", CreateLetterController.getLanguages);
+AdminRouter.post("/add-letter", CreateLetterController.addUserDefinedLetter);
 
 export default AdminRouter;

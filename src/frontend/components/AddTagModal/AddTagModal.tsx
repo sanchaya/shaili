@@ -4,6 +4,8 @@ import { styled } from "@adminjs/design-system/styled-components";
 import axios from "axios";
 import { useCurrentAdmin, useNotice } from "adminjs";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
+import Creatable from "react-select/creatable";
+import CreateLetter from "../CreateLetter/CreateLetter.js";
 
 const LetterSelectWrap = styled.div`
     display: flex;
@@ -26,8 +28,10 @@ interface ISelectedLetter {
 }
 
 const AddTagModal: React.FC<IAddTagModalProps> = ({ tag, setTag, bookId }) => {
-    const [letters, setLetters] = useState();
-    const [letter, setLetter] = useState<ISelectedLetter>();
+    const [letters, setLetters] = useState<ISelectedLetter[]>([]);
+    const [letter, setLetter] = useState<ISelectedLetter | null>(null);
+    const [createLetter, setCreateLetter] = useState<boolean>(false);
+    const [newLetter, setNewLetter] = useState<string>("");
     const [currentAdmin] = useCurrentAdmin();
     const addNotice = useNotice();
     const { addTag } = useLetterTagContext();
@@ -52,6 +56,7 @@ const AddTagModal: React.FC<IAddTagModalProps> = ({ tag, setTag, bookId }) => {
             cropped_image: tag,
             tagged_by: Number(currentAdmin?.id),
         };
+
         addTag(data)
             .then(() => {
                 setTag("");
@@ -69,47 +74,72 @@ const AddTagModal: React.FC<IAddTagModalProps> = ({ tag, setTag, bookId }) => {
             });
     };
 
+    const handleCreate = (inputValue: string) => {
+        setNewLetter(inputValue);
+        setCreateLetter(true);
+    };
+
     return (
-        <Modal>
-            <Header.H3 textAlign="center" marginTop="default" marginBottom="xl">
-                Tag Letter
-            </Header.H3>
-            <LetterSelectWrap>
-                <div style={{ width: "10%" }}>
-                    <img src={tag} alt="" height={50} width={50} />
-                </div>
-                <div style={{ width: "90%" }}>
-                    <Select
-                        value={letter}
-                        options={letters}
-                        onChange={(selected: ISelectedLetter) =>
-                            setLetter(selected)
-                        }
+        <>
+            <Modal>
+                {!createLetter ? (
+                    <>
+                        <Header.H3
+                            textAlign="center"
+                            marginTop="default"
+                            marginBottom="xl"
+                        >
+                            Tag Letter
+                        </Header.H3>
+                        <LetterSelectWrap>
+                            <div style={{ width: "10%" }}>
+                                <img src={tag} alt="" height={50} width={50} />
+                            </div>
+                            <div style={{ width: "90%" }}>
+                                <Creatable
+                                    value={letter}
+                                    options={letters}
+                                    onChange={(newValue) =>
+                                        setLetter(newValue ?? null)
+                                    }
+                                    onCreateOption={handleCreate}
+                                    placeholder="Select a Letter"
+                                />
+                            </div>
+                        </LetterSelectWrap>
+                        <div
+                            style={{
+                                display: "flex",
+                                textAlign: "center",
+                                justifyContent: "flex-end",
+                                gap: "20px",
+                                marginTop: "25px",
+                            }}
+                        >
+                            <Button color="primary" onClick={() => setTag("")}>
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={saveTag}
+                                disabled={!letter}
+                            >
+                                Save
+                            </Button>
+                        </div>
+                    </>
+                ) : (
+                    <CreateLetter
+                        bookId={bookId}
+                        tag={tag}
+                        newLetter={newLetter}
+                        setCreateLetter={setCreateLetter}
+                        setTag={setTag}
                     />
-                </div>
-            </LetterSelectWrap>
-            <div
-                style={{
-                    display: "flex",
-                    textAlign: "center",
-                    justifyContent: "flex-end",
-                    gap: "20px",
-                    marginTop: "25px",
-                }}
-            >
-                <Button color="primary" onClick={() => setTag("")}>
-                    Cancel
-                </Button>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={saveTag}
-                    disabled={!letter}
-                >
-                    Save
-                </Button>
-            </div>
-        </Modal>
+                )}
+            </Modal>
+        </>
     );
 };
 

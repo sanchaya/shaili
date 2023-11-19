@@ -4,19 +4,19 @@ import { TaggedLetters } from "../db/models/TaggedLetters.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
 import { Books } from "../db/models/Books.js";
 
-export const getLetterTypes = async (req: Request, res: Response) => {
+const getLetterTypes = async (req: Request, res: Response) => {
     const letterTypes = await LetterTypes.findAll({
-        attributes: ["id", "type"],
+        attributes: ["id", "type", "language"],
     });
     return res.status(200).send(letterTypes);
 };
 
-export const getLetters = async (req: Request, res: Response) => {
+const getLetters = async (req: Request, res: Response) => {
     const letters = await Letters.findAll({ attributes: ["id", "letter"] });
     return res.status(200).send(letters);
 };
 
-export const saveTag = async (req: any, res: Response) => {
+const saveTag = async (req: any, res: Response) => {
     try {
         const { book_id, letter_id, cropped_image, tagged_by } = req.body;
         const taggedLetter = await TaggedLetters.create({

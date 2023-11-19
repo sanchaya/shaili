@@ -45,50 +45,57 @@ module.exports = {
       },
     });
     await queryInterface.createTable("letters", {
-      id: {
-        type: Sequelize.INTEGER,
-        autoIncrement: true,
-        primaryKey: true,
-      },
-      letter: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      letter_type: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: "letter_types",
-          key: "id",
+        id: {
+            type: Sequelize.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
         },
-      },
-      is_user_defined: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-      },
-      created_by: {
-        type: new Sequelize.INTEGER,
-        references: {
-          model: "users",
-          key: "id",
+        letter: {
+            type: Sequelize.STRING,
+            allowNull: false,
         },
-      },
-      updated_by: {
-        type: new Sequelize.INTEGER,
-        references: {
-          model: "users",
-          key: "id",
+        language: {
+            type: Sequelize.STRING,
+            references: {
+                model: "languages",
+                key: "language_code",
+            },
         },
-      },
-      created_at: {
-        type: Sequelize.DATE,
-      },
-      updated_at: {
-        type: Sequelize.DATE,
-      },
-      deleted_at: {
-        type: Sequelize.DATE,
-      },
+        letter_type: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: {
+                model: "letter_types",
+                key: "id",
+            },
+        },
+        is_user_defined: {
+            type: Sequelize.BOOLEAN,
+            defaultValue: false,
+        },
+        created_by: {
+            type: new Sequelize.INTEGER(),
+            references: {
+                model: "users",
+                key: "id",
+            },
+        },
+        updated_by: {
+            type: new Sequelize.INTEGER(),
+            references: {
+                model: "users",
+                key: "id",
+            },
+        },
+        created_at: {
+            type: Sequelize.DATE,
+        },
+        updated_at: {
+            type: Sequelize.DATE,
+        },
+        deleted_at: {
+            type: Sequelize.DATE,
+        },
     });
   },
 
