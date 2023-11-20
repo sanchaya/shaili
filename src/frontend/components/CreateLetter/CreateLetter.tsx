@@ -1,23 +1,44 @@
-import React, { useEffect, useState } from "react";
-import {
-    Box,
-    FormGroup,
-    Label,
-    Input,
-    Button,
-    Select,
-} from "@adminjs/design-system";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import Select from "react-select";
+import { styled } from "styled-components";
+import { Button, Header } from "@adminjs/design-system";
 import axios from "axios";
 import { useCurrentAdmin, useNotice } from "adminjs";
-import { useNavigate } from "react-router-dom";
+import { useLetterTagContext } from "../../context/LetterTagContext.js";
+
+interface ICreateLetter {
+    tag: string;
+    bookId: number;
+    newLetter: string;
+    setCreateLetter: Dispatch<SetStateAction<boolean>>;
+    setTag: Dispatch<SetStateAction<string>>;
+}
 
 interface ISelectOptions {
-    value: number;
+    value: string;
     label: string;
 }
 
-const AddLetter = () => {
+const LetterSelectWrap = styled.div`
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    gap: 25px;
+    justify-content: center;
+`;
+
+const CreateLetter: React.FC<ICreateLetter> = ({
+    tag,
+    bookId,
+    newLetter,
+    setCreateLetter,
+    setTag,
+}) => {
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
+    const addNotice = useNotice();
+    const { addTag } = useLetterTagContext();
+    const [currentAdmin] = useCurrentAdmin();
     const [languageOptions, setLanguageOptions] = useState<ISelectOptions[]>();
     const [letterTypeOptions, setLetterTypeOptions] =
         useState<Record<string, { value: string; label: string }[]>>();
@@ -29,10 +50,6 @@ const AddLetter = () => {
         value: string;
         label: string;
     } | null>(null);
-    const [currentAdmin] = useCurrentAdmin();
-    const [lettername, setLettername] = useState("");
-    const navigate = useNavigate();
-    const addNotice = useNotice();
 
     useEffect(() => {
         axios.get(`${BASE_URL}/get-languages`).then((response) => {
@@ -53,6 +70,7 @@ const AddLetter = () => {
                 string,
                 { value: string; label: string }[]
             > = {};
+
             response.data.forEach(
                 (letterType: {
                     id: number;
@@ -78,106 +96,104 @@ const AddLetter = () => {
         setLanguage(newValue);
         setLetterType(null);
     };
+
     const saveLetter = async () => {
         const data = {
-            letter: lettername,
+            letter: newLetter,
             language: language?.value,
-            letter_type: letterType?.value,
-            created_by: Number(currentAdmin?.id),
-            updated_by: Number(currentAdmin?.id),
-            user_defined: false,
+            letterType: letterType?.value,
+            createdBy: Number(currentAdmin?.id),
         };
-
         try {
-            const response = await axios.post(`${BASE_URL}/new-letter`, data, {
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (response.status == 200) {
-                addNotice({
-                    message: "Letter added successfully",
-                    type: "success",
-                });
-                setTimeout(() => {
-                    navigate("/admin/resources/letters");
-                }, 1000);
+            const response = await axios.post(`${BASE_URL}/add-letter`, data);
+            if (response.status === 200) {
+                saveTag(response.data.id);
             }
         } catch (error) {
-            addNotice({
-                message: "Cannot add letter",
-                type: "error",
-            });
+            console.error(error);
         }
     };
 
-    const handleLetternameChange = (event) => {
-        setLettername(event.target.value);
+    const saveTag = async (letterId: number) => {
+        const data = {
+            book_id: bookId,
+            letter_id: letterId,
+            cropped_image: tag,
+            tagged_by: Number(currentAdmin?.id),
+        };
+
+        addTag(data)
+            .then(() => {
+                setTag("");
+                addNotice({
+                    message: "Tag added successfully",
+                    type: "success",
+                });
+            })
+            .catch((error) => {
+                setTag("");
+                addNotice({
+                    message: "Error adding tag try again later",
+                    type: "error",
+                });
+            });
     };
 
     return (
-        <Box
-            padding="20px"
-            borderRadius="8px"
-            boxShadow="0 0 10px rgba(0, 0, 0, 0.1)"
-            backgroundColor="white"
-        >
-            <Box>
-                <FormGroup>
-                    <Label required>Letter</Label>
-                    <Input
-                        id="letter"
-                        name="letter"
-                        value={lettername}
-                        onChange={handleLetternameChange}
-                        required
-                    ></Input>
-                </FormGroup>
-                <FormGroup>
-                    <Label required>Language</Label>
+        <>
+            <Header.H3 textAlign="center" marginTop="default" marginBottom="xl">
+                Create Letter - "{newLetter}"
+            </Header.H3>
+            <LetterSelectWrap>
+                <div style={{ width: "100%" }}>
                     <Select
                         value={language}
                         options={languageOptions}
-                        isClearable={false}
                         onChange={handleLanguageChange}
                         placeholder="Select a language"
-                        required
                     />
-                </FormGroup>
+                </div>
                 {letterTypeOptions && (
-                    <FormGroup>
-                        <Label required>Letter Type</Label>
+                    <div style={{ width: "100%" }}>
                         <Select
                             isDisabled={!language}
                             value={letterType}
-                            isClearable={false}
                             options={
                                 letterTypeOptions[language?.value || ""] || []
                             }
                             onChange={(newValue) => setLetterType(newValue)}
                             placeholder={
                                 language
-                                    ? "Select a letter type"
+                                    ? "Select a tetter type"
                                     : "Select a language first"
                             }
-                            required
                         />
-                    </FormGroup>
+                    </div>
                 )}
-            </Box>
-
-            <Box mt="xl" style={{ textAlign: "center" }}>
+            </LetterSelectWrap>
+            <div
+                style={{
+                    display: "flex",
+                    textAlign: "center",
+                    justifyContent: "flex-end",
+                    gap: "20px",
+                    marginTop: "25px",
+                }}
+            >
+                <Button color="primary" onClick={() => setCreateLetter(false)}>
+                    Go back
+                </Button>
                 <Button
                     variant="contained"
                     color="primary"
                     onClick={saveLetter}
-                    disabled={!language || !letterType || !lettername}
+                    disabled={!letterType}
                 >
-                    Save
+                    Create and Tag
                 </Button>
-            </Box>
-        </Box>
+            </div>
+        </>
     );
 };
 
-export default AddLetter;
+export default CreateLetter;

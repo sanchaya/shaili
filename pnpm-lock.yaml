@@ -88,6 +88,9 @@ dependencies:
   react-router-dom:
     specifier: ^6.16.0
     version: 6.16.0(react@18.2.0)
+  react-select:
+    specifier: ^5.8.0
+    version: 5.8.0(@types/react@18.2.25)(react@18.2.0)
   sequelize:
     specifier: ^6.33.0
     version: 6.33.0(mysql2@3.6.1)
@@ -166,7 +169,7 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
       react-feather: 2.0.10(react@18.2.0)
       react-phone-input-2: 2.15.1(react-dom@18.2.0)(react@18.2.0)
-      react-select: 5.7.7(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0)
+      react-select: 5.8.0(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0)
       react-text-mask: 5.5.0(react@18.2.0)
       styled-components: 5.3.9(@babel/core@7.23.0)(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
       styled-system: 5.1.5
@@ -214,7 +217,7 @@ packages:
       react-datepicker: 4.18.0(react@18.2.0)
       react-feather: 2.0.10(react@18.2.0)
       react-phone-input-2: 2.15.1(react@18.2.0)
-      react-select: 5.7.7(@types/react@18.2.25)(react@18.2.0)
+      react-select: 5.8.0(@types/react@18.2.25)(react@18.2.0)
       react-text-mask: 5.5.0(react@18.2.0)
       styled-components: 5.3.9(react@18.2.0)
       styled-system: 5.1.5
@@ -5350,8 +5353,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /react-select@5.7.7(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-HhashZZJDRlfF/AKj0a0Lnfs3sRdw/46VJIRd8IbB9/Ovr74+ZIwkAdSBjSPXsFMG+u72c5xShqwLSKIJllzqw==}
+  /react-select@5.8.0(@types/react@18.2.25)(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-TfjLDo58XrhP6VG5M/Mi56Us0Yt8X7xD6cDybC7yoRMUNm7BGO7qk8J0TLQOua/prb8vUOtsfnXZwfm30HGsAA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -5371,8 +5374,8 @@ packages:
       - '@types/react'
     dev: false
 
-  /react-select@5.7.7(@types/react@18.2.25)(react@18.2.0):
-    resolution: {integrity: sha512-HhashZZJDRlfF/AKj0a0Lnfs3sRdw/46VJIRd8IbB9/Ovr74+ZIwkAdSBjSPXsFMG+u72c5xShqwLSKIJllzqw==}
+  /react-select@5.8.0(@types/react@18.2.25)(react@18.2.0):
+    resolution: {integrity: sha512-TfjLDo58XrhP6VG5M/Mi56Us0Yt8X7xD6cDybC7yoRMUNm7BGO7qk8J0TLQOua/prb8vUOtsfnXZwfm30HGsAA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0

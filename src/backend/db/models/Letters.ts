@@ -3,6 +3,7 @@ import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/config.js";
 import { LetterTypes } from "./LetterTypes.js";
 import Users from "./Users.js";
+import { Languages } from "./Languages.js";
 
 interface ILetters {
   id: number;
@@ -36,10 +37,10 @@ export class Letters extends Model<ILetters, LettersCreationAttributes> {
       foreignKey: "created_by",
     });
 
-    Letters.belongsTo(Users, {
-      foreignKey: "updated_by",
-    });
-  }
+        Letters.belongsTo(Users, {
+            foreignKey: "updated_by",
+        });
+    }
 }
 
 Letters.init(
@@ -82,18 +83,18 @@ Letters.init(
 );
 
 Letters.beforeCreate(async (letters, options) => {
-  const currentUser = await Users.findOne({ where: {} });
+    const currentUser = await Users.findOne({ where: {} });
 
-  if (currentUser) {
-    letters.created_by = currentUser.id;
-    letters.updated_by = currentUser.id;
-  }
+    if (currentUser) {
+        letters.created_by = currentUser.id;
+        letters.updated_by = currentUser.id;
+    }
 });
 
 Letters.beforeUpdate(async (letters, options) => {
-  const currentUser = await Users.findOne({ where: {} });
+    const currentUser = await Users.findOne({ where: {} });
 
-  if (currentUser) {
-    letters.updated_by = currentUser.id;
-  }
+    if (currentUser) {
+        letters.updated_by = currentUser.id;
+    }
 });
