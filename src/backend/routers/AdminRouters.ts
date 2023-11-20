@@ -12,6 +12,7 @@ AdminRouter.get("/get-letters", TaggedLetterController.getLetters);
 AdminRouter.get("/get-lettertypes", TaggedLetterController.getLetterTypes);
 AdminRouter.post("/save-tag", TaggedLetterController.saveTag);
 AdminRouter.delete("/delete-tag", TaggedLetterController.deleteTaggedLetter);
+AdminRouter.post("/update-tag", TaggedLetterController.updateTag);
 AdminRouter.get("/get-languages", CreateLetterController.getLanguages);
 AdminRouter.post("/add-letter", CreateLetterController.addUserDefinedLetter);
 AdminRouter.post("/new-letter", CreateLetterController.addLetter);

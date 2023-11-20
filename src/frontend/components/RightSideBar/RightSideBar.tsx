@@ -71,11 +71,13 @@ const RightSideBar = ({ bookId, loading, letterTypes, setLetterTypes }) => {
                                     <TagImage
                                         taggedBy={recentTaggedLetter.tagged_by}
                                         key={index}
+                                        bookId={bookId}
                                         tagId={recentTaggedLetter.id}
                                         image={recentTaggedLetter.cropped_image}
                                         letter={
                                             recentTaggedLetter.letter.letter
                                         }
+                                        letterId={recentTaggedLetter.letter_id}
                                     />
                                 )
                             )}
@@ -149,6 +151,7 @@ const RightSideBar = ({ bookId, loading, letterTypes, setLetterTypes }) => {
                                                                     taggedLetter.tagged_by
                                                                 }
                                                                 key={index}
+                                                                bookId={bookId}
                                                                 tagId={
                                                                     taggedLetter.id
                                                                 }
@@ -160,6 +163,7 @@ const RightSideBar = ({ bookId, loading, letterTypes, setLetterTypes }) => {
                                                                         .letter
                                                                         .letter
                                                                 }
+                                                                letterId={taggedLetter.letter_id}
                                                             />
                                                         )
                                                     )}
