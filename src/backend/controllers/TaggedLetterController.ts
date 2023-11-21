@@ -115,6 +115,33 @@ const updateTag = async (req: any, res: Response) => {
   }
 };
 
+const getTaggedLetterByUser = async (req: Request, res: Response) => {
+  const user = req.query.user;
+
+  try {
+    const taggedLetters = await TaggedLetters.findAll({
+      where: { tagged_by: Number(user) },
+      include: [
+        {
+          model: Letters,
+          as: "letter",
+          attributes: ["letter", "letter_type"],
+        },
+        {
+          model: Books,
+          as: "books",
+          attributes: ["name", "url"],
+        },
+      ],
+      order: [["updated_at", "DESC"]],
+    });
+    res.json(taggedLetters);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 export default {
   getLetterTypes,
   getLetters,
@@ -122,4 +149,5 @@ export default {
   getTaggedLetter,
   deleteTaggedLetter,
   updateTag,
+  getTaggedLetterByUser,
 };

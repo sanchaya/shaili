@@ -2,6 +2,7 @@ import express from "express";
 import TaggedLetterController from "../controllers/TaggedLetterController.js";
 import RetriveBookImageController from "../controllers/RetriveBookImageController.js";
 import CreateLetterController from "../controllers/CreateLetterController.js";
+import DashboardController from "../controllers/DashboardController.js";
 
 const AdminRouter = express.Router();
 
@@ -17,5 +18,7 @@ AdminRouter.get("/get-languages", CreateLetterController.getLanguages);
 AdminRouter.post("/add-letter", CreateLetterController.addUserDefinedLetter);
 AdminRouter.post("/new-letter", CreateLetterController.addLetter);
 AdminRouter.post("/edit-letter", CreateLetterController.editLetter);
+AdminRouter.get("/get-books", DashboardController.getBooks); 
+AdminRouter.get("/get-tagged-letters", TaggedLetterController.getTaggedLetterByUser);
 
 export default AdminRouter;

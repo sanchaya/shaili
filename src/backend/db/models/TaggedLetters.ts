@@ -1,6 +1,7 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/config.js";
 import { Letters } from "./Letters.js";
+import { Books } from "./Books.js";
 
 interface ITaggedLetters {
     id: number;
@@ -73,6 +74,11 @@ TaggedLetters.init(
 TaggedLetters.belongsTo(Letters, {
     foreignKey: "letter_id",
     as: "letter",
+});
+
+TaggedLetters.belongsTo(Books, {
+    foreignKey: "book_id",
+    as: "books",
 });
 
 Letters.hasMany(TaggedLetters, {
