@@ -57,7 +57,7 @@ const start = async () => {
             component: "Dashboard",
         },
         assets: {
-            styles: ["/css/cropper.styles.css"],
+            styles: ["/css/cropper.styles.css","/css/styles.css"],
         },
         env: {
             BASE_URL: process.env.BASE_URL || "",

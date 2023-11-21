@@ -126,3 +126,11 @@ body {
 .forgot-password-right button:focus {
   box-shadow: none;
 }
+
+.adminjs_Resources > section{
+  padding: 16px 5px;
+}
+
+[data-css="letters-export-button"].adminjs_ButtonGroupItem,[data-css="books-export-button"].adminjs_ButtonGroupItem  {
+  display: none;
+}

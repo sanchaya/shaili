@@ -18,6 +18,7 @@ const Components = {
     "EditLetter",
     "./components/Letters/EditLetter"
   ),
+  Sidebar: componentLoader.override("Sidebar","./components/Sidebar/Sidebar"),
 };
 
 export { componentLoader, Components };

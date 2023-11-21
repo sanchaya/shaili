@@ -42,15 +42,15 @@ const filterRecentLetters = (
   today.setDate(today.getDate() - days);
   return taggedLetters.filter(
     (letter) =>
-      new Date(letter.created_at) >= today &&
+      new Date(letter.updated_at) >= today &&
       Number(letter.tagged_by) == currentUserId
   );
 };
 
 const sortByUpdatedAt = (
-  a: { created_at: string | number | Date },
-  b: { created_at: string | number | Date }
-) => Number(new Date(b.created_at)) - Number(new Date(a.created_at));
+  a: { updated_at: string | number | Date },
+  b: { updated_at: string | number | Date }
+) => Number(new Date(b.updated_at)) - Number(new Date(a.updated_at));
 
 const LetterTagContext = createContext<
   | {
