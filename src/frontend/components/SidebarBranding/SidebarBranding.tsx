@@ -8,17 +8,14 @@ type Props = {
   branding: BrandingOptions;
 };
 
-export const StyledLogo: any = styled(Link)`
+export const StyledLogo = styled(Link)`
   text-align: center;
   display: flex;
   align-content: center;
   justify-content: center;
   flex-shrink: 0;
   height: 64px;
-  //   padding: ${themeGet("space", "lg")} ${themeGet(
-    "space",
-    "xxl"
-  )} ${themeGet("space", "xxl")};
+  padding: 5px 0;
   text-decoration: none;
 
   & > h1 {

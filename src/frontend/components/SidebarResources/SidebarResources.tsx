@@ -24,7 +24,7 @@ const SidebarResources: FC<SidebarResourceSectionProps> = ({ resources }) => {
   const elements = useNavigationResources(resources);
   const navigate = useNavigate();
 
-  const test = {
+  const dashboardMenu = {
     href: "/admin",
     icon: "Home",
     id: "dashboard",
@@ -38,7 +38,7 @@ const SidebarResources: FC<SidebarResourceSectionProps> = ({ resources }) => {
     },
   };
 
-  return <CustomNavigation elements={[test, ...elements]} />;
+  return <CustomNavigation elements={[dashboardMenu, ...elements]} />;
 };
 
 export default SidebarResources;
