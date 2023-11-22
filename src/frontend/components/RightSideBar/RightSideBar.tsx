@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
 import TagImage from "../TagImage/TagImage.js";
-import { Tabs, Tab, Icon, Loader } from "@adminjs/design-system";
+import { Tabs, Tab, Icon, Loader, Link } from "@adminjs/design-system";
 import { TaggedLetters } from "../../../backend/db/models/TaggedLetters.js";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
+import axios from "axios";
+import TagsListModal from "../TagsListModal/TagsListModal.js";
 
 const TagsWrap = styled.div`
     padding: 1em;
@@ -38,26 +40,225 @@ const AccordionContent = styled.div`
     }
 `;
 
-const RightSideBar = ({ bookId, loading, letterTypes, setLetterTypes }) => {
-    const { tags, fetchTag } = useLetterTagContext();
-    const [selectedTab, setSelectedTab] = useState("recent");
+interface ISelectOptions {
+    value: string;
+    label: string;
+}
 
-    const handleAccordionClick = (accordionId: number) => {
-        const updatedAccordionStates = letterTypes.map(
-            (state: { id: number; expanded: boolean }) =>
-                state.id === accordionId
-                    ? { ...state, expanded: !state.expanded }
-                    : { ...state, expanded: false }
-        );
+interface ILettersData {
+    id: number;
+    language: string;
+    letter: string;
+    letter_type: string;
+}
+
+const RightSideBar = ({
+    bookId,
+    loading,
+    letterTypes,
+    setLetterTypes,
+    selectedLanguage,
+}) => {
+    const { tags, fetchTag } = useLetterTagContext();
+    const [selectedTab, setSelectedTab] = useState("all");
+    const [letters, setLetters] = useState<ILettersData[] | null>(null);
+    const [showTags, setShowTags] = useState<boolean>(false);
+    const [selectedLetter, setSelectedLetter] = useState<number>();
+    const [languages, setLanguages] = useState<ISelectOptions[] | null>(null);
+    const BASE_URL = (window as any).AdminJS.env.BASE_URL;
+
+    const handleAccordionClick = (accordionId: number, language: string) => {
+        const updatedAccordionStates = { ...letterTypes };
+        Object.keys(updatedAccordionStates).forEach((key) => {
+            updatedAccordionStates[key] = updatedAccordionStates[key].map(
+                (state: { id: number; expanded: boolean; language: string }) =>
+                    state.id === accordionId && state.language === language
+                        ? { ...state, expanded: !state.expanded }
+                        : { ...state, expanded: false }
+            );
+        });
         setLetterTypes(updatedAccordionStates);
     };
+
     useEffect(() => {
         fetchTag(bookId);
+        axios.get(`${BASE_URL}/get-languages`).then((response) => {
+            let languages = response.data.map(
+                (language: { language_code: string; language: string }) => ({
+                    value: language.language_code,
+                    label: language.language,
+                })
+            );
+            setLanguages(languages);
+        });
+        axios.get(`${BASE_URL}/get-letters`).then((response) => {
+            setLetters(response.data);
+        });
     }, [bookId]);
+
+    const handleLetterClick = (letter: number) => {
+        setSelectedLetter(letter);
+        setShowTags(true);
+    };
+
+    const getLanguageLabel = (value: string) => {
+        const foundLanguage = languages?.find((lang) => lang.value === value);
+        return foundLanguage ? foundLanguage.label : "";
+    };
 
     return (
         <div>
             <Tabs currentTab={selectedTab} onChange={setSelectedTab}>
+                <Tab id="all" label="All">
+                    {loading ? (
+                        <Loader />
+                    ) : (
+                        <AllTagsWrap>
+                            {!letterTypes[selectedLanguage] &&
+                            selectedLanguage != "all" ? (
+                                <p
+                                    style={{
+                                        background: "#eee",
+                                        padding: "20px",
+                                    }}
+                                >
+                                    No letter types available for{" "}
+                                    {getLanguageLabel(selectedLanguage)}
+                                </p>
+                            ) : (
+                                ""
+                            )}
+                            {Object.keys(letterTypes)
+                                .sort()
+                                .filter((language) =>
+                                    selectedLanguage === "all"
+                                        ? true
+                                        : language === selectedLanguage
+                                )
+                                .map((language) =>
+                                    letterTypes[language].map(
+                                        (accordion: any) => (
+                                            <div key={accordion.id}>
+                                                <AccordionItem
+                                                    onClick={() =>
+                                                        handleAccordionClick(
+                                                            accordion.id,
+                                                            accordion.language
+                                                        )
+                                                    }
+                                                >
+                                                    <span>
+                                                        {accordion.title}
+                                                        {selectedLanguage ===
+                                                            "all" &&
+                                                            " - " +
+                                                                getLanguageLabel(
+                                                                    language
+                                                                )}
+                                                    </span>
+                                                    <AccordionArrow>
+                                                        {accordion.expanded ? (
+                                                            <Icon icon="Minus" />
+                                                        ) : (
+                                                            <Icon icon="Plus" />
+                                                        )}
+                                                    </AccordionArrow>
+                                                </AccordionItem>
+                                                <AccordionContent
+                                                    className={
+                                                        accordion.expanded
+                                                            ? "active"
+                                                            : "inactive"
+                                                    }
+                                                >
+                                                    {letters?.filter(
+                                                        (
+                                                            letter: ILettersData
+                                                        ) => {
+                                                            return (
+                                                                letter.letter_type ===
+                                                                    accordion.letterType &&
+                                                                letter.language ===
+                                                                    accordion.language
+                                                            );
+                                                        }
+                                                    ).length === 0 ? (
+                                                        <p
+                                                            style={{
+                                                                background:
+                                                                    "#eee",
+                                                                padding: "20px",
+                                                            }}
+                                                        >
+                                                            No data available
+                                                        </p>
+                                                    ) : (
+                                                        <TagsWrap>
+                                                            {letters
+                                                                ?.filter(
+                                                                    (
+                                                                        letter: ILettersData
+                                                                    ) => {
+                                                                        return (
+                                                                            letter.letter_type ===
+                                                                                accordion.letterType &&
+                                                                            letter.language ===
+                                                                                accordion.language
+                                                                        );
+                                                                    }
+                                                                )
+                                                                .map(
+                                                                    (
+                                                                        letter: ILettersData,
+                                                                        index: number
+                                                                    ) => (
+                                                                        <>
+                                                                            {tags.taggedLetters.some(
+                                                                                (
+                                                                                    taggedLetter: any
+                                                                                ) =>
+                                                                                    taggedLetter.letter_id ===
+                                                                                    letter.id
+                                                                            ) ? (
+                                                                                <Link
+                                                                                    size="lg"
+                                                                                    key={
+                                                                                        index
+                                                                                    }
+                                                                                    onClick={() =>
+                                                                                        handleLetterClick(
+                                                                                            letter.id
+                                                                                        )
+                                                                                    }
+                                                                                >
+                                                                                    {
+                                                                                        letter.letter
+                                                                                    }
+                                                                                </Link>
+                                                                            ) : (
+                                                                                <span
+                                                                                    key={
+                                                                                        index
+                                                                                    }
+                                                                                >
+                                                                                    {
+                                                                                        letter.letter
+                                                                                    }
+                                                                                </span>
+                                                                            )}
+                                                                        </>
+                                                                    )
+                                                                )}
+                                                        </TagsWrap>
+                                                    )}
+                                                </AccordionContent>
+                                            </div>
+                                        )
+                                    )
+                                )}
+                        </AllTagsWrap>
+                    )}
+                </Tab>
                 <Tab id="recent" label="Recent">
                     {loading ? (
                         <Loader />
@@ -88,94 +289,14 @@ const RightSideBar = ({ bookId, loading, letterTypes, setLetterTypes }) => {
                         </p>
                     )}
                 </Tab>
-                <Tab id="all" label="All">
-                    {loading ? (
-                        <Loader />
-                    ) : (
-                        <AllTagsWrap>
-                            {letterTypes.map((accordion: any) => (
-                                <div key={accordion.id}>
-                                    <AccordionItem
-                                        onClick={() =>
-                                            handleAccordionClick(accordion.id)
-                                        }
-                                    >
-                                        <span>{accordion.title}</span>
-                                        <AccordionArrow>
-                                            {accordion.expanded ? (
-                                                <Icon icon="Minus" />
-                                            ) : (
-                                                <Icon icon="Plus" />
-                                            )}
-                                        </AccordionArrow>
-                                    </AccordionItem>
-                                    <AccordionContent
-                                        className={
-                                            accordion.expanded
-                                                ? "active"
-                                                : "inactive"
-                                        }
-                                    >
-                                        {tags.taggedLetters.filter(
-                                            (taggedLetter: TaggedLetters) =>
-                                                taggedLetter.letter
-                                                    .letter_type ===
-                                                accordion.letterType
-                                        ).length === 0 ? (
-                                            <p
-                                                style={{
-                                                    background: "#eee",
-                                                    padding: "20px",
-                                                }}
-                                            >
-                                                No data available
-                                            </p>
-                                        ) : (
-                                            <TagsWrap>
-                                                {tags.taggedLetters
-                                                    .filter(
-                                                        (
-                                                            taggedLetter: TaggedLetters
-                                                        ) =>
-                                                            taggedLetter.letter
-                                                                .letter_type ===
-                                                            accordion.letterType
-                                                    )
-                                                    .map(
-                                                        (
-                                                            taggedLetter: TaggedLetters,
-                                                            index: number
-                                                        ) => (
-                                                            <TagImage
-                                                                taggedBy={
-                                                                    taggedLetter.tagged_by
-                                                                }
-                                                                key={index}
-                                                                bookId={bookId}
-                                                                tagId={
-                                                                    taggedLetter.id
-                                                                }
-                                                                image={
-                                                                    taggedLetter.cropped_image
-                                                                }
-                                                                letter={
-                                                                    taggedLetter
-                                                                        .letter
-                                                                        .letter
-                                                                }
-                                                                letterId={taggedLetter.letter_id}
-                                                            />
-                                                        )
-                                                    )}
-                                            </TagsWrap>
-                                        )}
-                                    </AccordionContent>
-                                </div>
-                            ))}
-                        </AllTagsWrap>
-                    )}
-                </Tab>
             </Tabs>
+            {showTags && (
+                <TagsListModal
+                    setShowTags={setShowTags}
+                    selectedLetter={selectedLetter}
+                    bookId={bookId}
+                />
+            )}
         </div>
     );
 };
