@@ -12,8 +12,10 @@ export const getLetterTypes = async (req: Request, res: Response) => {
 };
 
 export const getLetters = async (req: Request, res: Response) => {
-  const letters = await Letters.findAll({ attributes: ["id", "letter"] });
-  return res.status(200).send(letters);
+    const letters = await Letters.findAll({
+        attributes: ["id", "letter", "language", "letter_type"],
+    });
+    return res.status(200).send(letters);
 };
 
 export const saveTag = async (req: any, res: Response) => {
