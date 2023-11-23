@@ -5,6 +5,7 @@ import { Button, Header } from "@adminjs/design-system";
 import axios from "axios";
 import { useCurrentAdmin, useNotice } from "adminjs";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
+import { useLettersContext } from "../../context/LettersContext.js";
 
 interface ICreateLetter {
     tag: string;
@@ -37,6 +38,7 @@ const CreateLetter: React.FC<ICreateLetter> = ({
 }) => {
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const addNotice = useNotice();
+    const { addLetter } = useLettersContext();
     const { addTag } = useLetterTagContext();
     const [currentAdmin] = useCurrentAdmin();
     const [languageOptions, setLanguageOptions] = useState<ISelectOptions[]>();
@@ -101,17 +103,11 @@ const CreateLetter: React.FC<ICreateLetter> = ({
         const data = {
             letter: newLetter,
             language: language?.value,
-            letterType: letterType?.value,
+            letterType: Number(letterType?.value),
             createdBy: Number(currentAdmin?.id),
         };
-        try {
-            const response = await axios.post(`${BASE_URL}/add-letter`, data);
-            if (response.status === 200) {
-                saveTag(response.data.id);
-            }
-        } catch (error) {
-            console.error(error);
-        }
+        const newLetterId = await addLetter(data);
+        saveTag(newLetterId);
     };
 
     const saveTag = async (letterId: number) => {

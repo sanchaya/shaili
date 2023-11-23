@@ -26,6 +26,7 @@ export const BookResource = {
       "publisher_name",
       "published_year",
       "url",
+      "language",
       "status",
     ],
     listProperties: [

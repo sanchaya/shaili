@@ -7,6 +7,7 @@ import LetterTagProvider from "../../context/LetterTagContext.js";
 import { BookImage } from "../BookImage/BookImage.js";
 import TagModal from "../TagModal/TagModal.js";
 import Select from "react-select";
+import LettersProvider from "../../context/LettersContext.js";
 
 const Content = styled.div`
     display: flex;
@@ -235,134 +236,143 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
     return (
         <>
             <LetterTagProvider>
-                <NavWrap>
-                    <NavWrapLeft>
-                        <GoToPage>
-                            <GoToInput
-                                max={totalPages}
-                                min={1}
-                                type="number"
-                                placeholder="Go to page number..."
-                                onChange={(e: { target: { value: number } }) =>
-                                    handleGoToChange(Number(e.target.value))
-                                }
-                            />
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                onClick={handleGoToPage}
-                                size="icon"
-                                disabled={
-                                    goToPage > totalPages ||
-                                    goToPage < 0 ||
-                                    goToPage === currentPage ||
-                                    !img
-                                }
-                                title={!img ? "Loading..." : ""}
-                            >
-                                Go
-                            </Button>
-                        </GoToPage>
-                        <NavigationArrows>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                onClick={handlePrev}
-                                size="icon"
-                                disabled={currentPage === 1 || !img}
-                                title={!img ? "Loading..." : ""}
-                            >
-                                <Icon
-                                    icon="ChevronLeft"
-                                    style={{
-                                        height: "100%",
-                                        width: "100%",
-                                    }}
+                <LettersProvider>
+                    <NavWrap>
+                        <NavWrapLeft>
+                            <GoToPage>
+                                <GoToInput
+                                    max={totalPages}
+                                    min={1}
+                                    type="number"
+                                    placeholder="Go to page number..."
+                                    onChange={(e: {
+                                        target: { value: number };
+                                    }) =>
+                                        handleGoToChange(Number(e.target.value))
+                                    }
                                 />
-                            </Button>
-                            {totalPages ? (
-                                <p>
-                                    Page {currentPage} of {totalPages}
-                                </p>
-                            ) : (
-                                <Icon icon="Loader" spin />
-                            )}
-
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                onClick={handleNext}
-                                size="icon"
-                                disabled={currentPage === totalPages || !img}
-                                title={!img ? "Loading..." : ""}
-                            >
-                                <Icon
-                                    icon="ChevronRight"
-                                    style={{
-                                        height: "100%",
-                                        width: "100%",
-                                    }}
-                                />
-                            </Button>
-                        </NavigationArrows>
-                    </NavWrapLeft>
-                    <NavWrapRight>
-                        {languages && (
-                            <>
-                                <LanguageFilterLabel>
-                                    Language
-                                </LanguageFilterLabel>
-                                <LanguageFilterSelect>
-                                    <Select
-                                        isDisabled={!img}
-                                        value={languages.find(
-                                            (lang) =>
-                                                lang.value === selectedLanguage
-                                        )}
-                                        options={[
-                                            { value: "all", label: "All" },
-                                            ...languages,
-                                        ]}
-                                        onChange={(e) => {
-                                            if (e && e.value) {
-                                                handleLanguageChange(e.value);
-                                            }
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={handleGoToPage}
+                                    size="icon"
+                                    disabled={
+                                        goToPage > totalPages ||
+                                        goToPage < 0 ||
+                                        goToPage === currentPage ||
+                                        !img
+                                    }
+                                    title={!img ? "Loading..." : ""}
+                                >
+                                    Go
+                                </Button>
+                            </GoToPage>
+                            <NavigationArrows>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={handlePrev}
+                                    size="icon"
+                                    disabled={currentPage === 1 || !img}
+                                    title={!img ? "Loading..." : ""}
+                                >
+                                    <Icon
+                                        icon="ChevronLeft"
+                                        style={{
+                                            height: "100%",
+                                            width: "100%",
                                         }}
                                     />
-                                </LanguageFilterSelect>
-                            </>
-                        )}
-                    </NavWrapRight>
-                </NavWrap>
-                <Content>
-                    <LeftSide>
-                        <ImageWrap>
-                            <BookImage
-                                image={img}
-                                setCapturing={setCapturing}
-                                capturing={capturing}
-                                setTag={setTag}
+                                </Button>
+                                {totalPages ? (
+                                    <p>
+                                        Page {currentPage} of {totalPages}
+                                    </p>
+                                ) : (
+                                    <Icon icon="Loader" spin />
+                                )}
+
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={handleNext}
+                                    size="icon"
+                                    disabled={
+                                        currentPage === totalPages || !img
+                                    }
+                                    title={!img ? "Loading..." : ""}
+                                >
+                                    <Icon
+                                        icon="ChevronRight"
+                                        style={{
+                                            height: "100%",
+                                            width: "100%",
+                                        }}
+                                    />
+                                </Button>
+                            </NavigationArrows>
+                        </NavWrapLeft>
+                        <NavWrapRight>
+                            {languages && (
+                                <>
+                                    <LanguageFilterLabel>
+                                        Language
+                                    </LanguageFilterLabel>
+                                    <LanguageFilterSelect>
+                                        <Select
+                                            isDisabled={!img}
+                                            value={languages.find(
+                                                (lang) =>
+                                                    lang.value ===
+                                                    selectedLanguage
+                                            )}
+                                            options={[
+                                                { value: "all", label: "All" },
+                                                ...languages,
+                                            ]}
+                                            onChange={(e) => {
+                                                if (e && e.value) {
+                                                    handleLanguageChange(
+                                                        e.value
+                                                    );
+                                                }
+                                            }}
+                                        />
+                                    </LanguageFilterSelect>
+                                </>
+                            )}
+                        </NavWrapRight>
+                    </NavWrap>
+                    <Content>
+                        <LeftSide>
+                            <ImageWrap>
+                                <BookImage
+                                    image={img}
+                                    setCapturing={setCapturing}
+                                    capturing={capturing}
+                                    setTag={setTag}
+                                />
+                            </ImageWrap>
+                        </LeftSide>
+                        <RightSide>
+                            <RightSideBar
+                                bookId={bookId}
+                                loading={loading}
+                                letterTypes={letterTypes}
+                                setLetterTypes={setLetterTypes}
+                                selectedLanguage={selectedLanguage}
                             />
-                        </ImageWrap>
-                    </LeftSide>
-                    <RightSide>
-                        <RightSideBar
+                        </RightSide>
+                    </Content>
+                    {tag && (
+                        <TagModal
+                            setTag={setTag}
+                            tag={tag}
                             bookId={bookId}
-                            loading={loading}
-                            letterTypes={letterTypes}
-                            setLetterTypes={setLetterTypes}
-                            selectedLanguage={selectedLanguage}
+                            mode={"add"}
                         />
-                    </RightSide>
-                </Content>
-                {tag && (
-                    <TagModal
-                        setTag={setTag}
-                        tag={tag}
-                        bookId={bookId}
-                        mode={"add"}
-                    />
-                )}
+                    )}
+                </LettersProvider>
             </LetterTagProvider>
         </>
     );
