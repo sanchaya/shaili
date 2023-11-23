@@ -6,12 +6,13 @@ import { TaggedLetters } from "../../../backend/db/models/TaggedLetters.js";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
 import axios from "axios";
 import TagsListModal from "../TagsListModal/TagsListModal.js";
+import { useLettersContext } from "../../context/LettersContext.js";
 
 const TagsWrap = styled.div`
     padding: 1em;
     display: flex;
     flex-wrap: wrap;
-    gap: 17px;
+    gap: 10px;
 `;
 
 const AllTagsWrap = styled.div`
@@ -40,6 +41,22 @@ const AccordionContent = styled.div`
     }
 `;
 
+const StyledDiv = styled.div`
+    display: flex;
+    flex-direction: column;
+    width: 50px;
+    height: 66px;
+    align-items: center;
+`;
+
+const NoTagDiv = styled.div`
+    display: flex;
+    align-items: stretch;
+    align-content: center;
+    flex-wrap: wrap;
+    height: 100%;
+`;
+
 interface ISelectOptions {
     value: string;
     label: string;
@@ -60,8 +77,8 @@ const RightSideBar = ({
     selectedLanguage,
 }) => {
     const { tags, fetchTag } = useLetterTagContext();
+    const { letters, fetchLetters } = useLettersContext();
     const [selectedTab, setSelectedTab] = useState("all");
-    const [letters, setLetters] = useState<ILettersData[] | null>(null);
     const [showTags, setShowTags] = useState<boolean>(false);
     const [selectedLetter, setSelectedLetter] = useState<number>();
     const [languages, setLanguages] = useState<ISelectOptions[] | null>(null);
@@ -82,6 +99,7 @@ const RightSideBar = ({
 
     useEffect(() => {
         fetchTag(bookId);
+        fetchLetters();
         axios.get(`${BASE_URL}/get-languages`).then((response) => {
             let languages = response.data.map(
                 (language: { language_code: string; language: string }) => ({
@@ -90,9 +108,6 @@ const RightSideBar = ({
                 })
             );
             setLanguages(languages);
-        });
-        axios.get(`${BASE_URL}/get-letters`).then((response) => {
-            setLetters(response.data);
         });
     }, [bookId]);
 
@@ -171,7 +186,7 @@ const RightSideBar = ({
                                                             : "inactive"
                                                     }
                                                 >
-                                                    {letters?.filter(
+                                                    {letters.filter(
                                                         (
                                                             letter: ILettersData
                                                         ) => {
@@ -195,7 +210,7 @@ const RightSideBar = ({
                                                     ) : (
                                                         <TagsWrap>
                                                             {letters
-                                                                ?.filter(
+                                                                .filter(
                                                                     (
                                                                         letter: ILettersData
                                                                     ) => {
@@ -204,6 +219,16 @@ const RightSideBar = ({
                                                                                 accordion.letterType &&
                                                                             letter.language ===
                                                                                 accordion.language
+                                                                        );
+                                                                    }
+                                                                )
+                                                                .sort(
+                                                                    (
+                                                                        a: ILettersData,
+                                                                        b: ILettersData
+                                                                    ) => {
+                                                                        return a.letter.localeCompare(
+                                                                            b.letter
                                                                         );
                                                                     }
                                                                 )
@@ -220,31 +245,77 @@ const RightSideBar = ({
                                                                                     taggedLetter.letter_id ===
                                                                                     letter.id
                                                                             ) ? (
-                                                                                <Link
-                                                                                    size="lg"
-                                                                                    key={
-                                                                                        index
-                                                                                    }
-                                                                                    onClick={() =>
-                                                                                        handleLetterClick(
-                                                                                            letter.id
-                                                                                        )
-                                                                                    }
-                                                                                >
-                                                                                    {
-                                                                                        letter.letter
-                                                                                    }
-                                                                                </Link>
+                                                                                <>
+                                                                                    <Link
+                                                                                        style={{
+                                                                                            display:
+                                                                                                "flex",
+                                                                                            flexDirection:
+                                                                                                "column",
+                                                                                            alignItems:
+                                                                                                "center",
+                                                                                        }}
+                                                                                        size="lg"
+                                                                                        key={
+                                                                                            index
+                                                                                        }
+                                                                                        onClick={() =>
+                                                                                            handleLetterClick(
+                                                                                                letter.id
+                                                                                            )
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            letter.letter
+                                                                                        }
+
+                                                                                        <img
+                                                                                            width={
+                                                                                                "50px"
+                                                                                            }
+                                                                                            height={
+                                                                                                "50px"
+                                                                                            }
+                                                                                            src={
+                                                                                                tags.taggedLetters.find(
+                                                                                                    (
+                                                                                                        taggedLetter: any
+                                                                                                    ) =>
+                                                                                                        taggedLetter.letter_id ===
+                                                                                                        letter.id
+                                                                                                )
+                                                                                                    ?.cropped_image
+                                                                                            }
+                                                                                        />
+                                                                                    </Link>
+                                                                                </>
                                                                             ) : (
-                                                                                <span
-                                                                                    key={
-                                                                                        index
-                                                                                    }
-                                                                                >
-                                                                                    {
-                                                                                        letter.letter
-                                                                                    }
-                                                                                </span>
+                                                                                <>
+                                                                                    <StyledDiv>
+                                                                                        <span
+                                                                                            key={
+                                                                                                index
+                                                                                            }
+                                                                                        >
+                                                                                            {
+                                                                                                letter.letter
+                                                                                            }
+                                                                                        </span>
+                                                                                        <NoTagDiv>
+                                                                                            <span
+                                                                                                style={{
+                                                                                                    fontStyle:
+                                                                                                        "italic",
+                                                                                                    fontSize:
+                                                                                                        "smaller",
+                                                                                                }}
+                                                                                            >
+                                                                                                No
+                                                                                                Tags
+                                                                                            </span>
+                                                                                        </NoTagDiv>
+                                                                                    </StyledDiv>
+                                                                                </>
                                                                             )}
                                                                         </>
                                                                     )
@@ -263,7 +334,7 @@ const RightSideBar = ({
                     {loading ? (
                         <Loader />
                     ) : tags.recentLetters.length != 0 ? (
-                        <TagsWrap className="custom-scrollbar">
+                        <TagsWrap>
                             {tags.recentLetters.map(
                                 (
                                     recentTaggedLetter: TaggedLetters,

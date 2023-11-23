@@ -192,10 +192,10 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                                 </TableRow>
                                 {tag && (
                                     <TagModal
-                                        tag={taggedLetter.cropped_image}
+                                        tag={tag}
                                         bookId={bookId}
                                         mode={"edit"}
-                                        image={taggedLetter.cropped_image}
+                                        image={tag}
                                         letterId={taggedLetter.letter_id}
                                         tagId={taggedLetter.id}
                                         setTag={setTag}
