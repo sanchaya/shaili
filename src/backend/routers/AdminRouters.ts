@@ -20,5 +20,6 @@ AdminRouter.post("/new-letter", CreateLetterController.addLetter);
 AdminRouter.post("/edit-letter", CreateLetterController.editLetter);
 AdminRouter.get("/get-books", DashboardController.getBooks); 
 AdminRouter.get("/get-tagged-letters", TaggedLetterController.getTaggedLetterByUser);
+AdminRouter.get("/get-tagged-percentage",TaggedLetterController.calculateTagPercentage);
 
 export default AdminRouter;

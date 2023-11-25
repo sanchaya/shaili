@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
-import { Input, Button, Icon, Label } from "@adminjs/design-system";
+import { Input, Button, Icon } from "@adminjs/design-system";
 import RightSideBar from "../RightSideBar/RightSideBar.js";
 import axios from "axios";
 import LetterTagProvider from "../../context/LetterTagContext.js";
@@ -8,6 +8,8 @@ import { BookImage } from "../BookImage/BookImage.js";
 import TagModal from "../TagModal/TagModal.js";
 import Select from "react-select";
 import LettersProvider from "../../context/LettersContext.js";
+import { BookProgressProvider } from "../../context/BookProgressContext.js";
+import ProgressBar from "./ProgressBar.js";
 
 const Content = styled.div`
     display: flex;
@@ -56,7 +58,7 @@ const GoToPage = styled.div`
 `;
 
 const NavWrap = styled.div`
-    z-index: 9999;
+    z-index: 45;
     position: relative;
     display: flex;
     gap: 20px;
@@ -106,6 +108,22 @@ const GoToInput = styled(Input)`
     width: 200px;
     @media (max-width: 500px) {
         width: 100%;
+    }
+`;
+
+const PagesWrap = styled.div`
+    @media (max-width: 500px) {
+        font-size: 11px;
+    }
+`;
+
+const ProgressWrap = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 17px;
+    @media (max-width: 500px) {
+        justify-content: space-between;
     }
 `;
 
@@ -198,7 +216,9 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                     label: language.language,
                 })
             );
-            languages.sort((a, b) => (a.label > b.label ? 1 : -1));
+            languages.sort((a: { label: string }, b: { label: string }) =>
+                a.label > b.label ? 1 : -1
+            );
             setLanguages(languages);
         });
     };
@@ -237,6 +257,13 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
         <>
             <LetterTagProvider>
                 <LettersProvider>
+                    <ProgressWrap>
+                        <p>% Completed</p>
+                        <BookProgressProvider bookId={bookId}>
+                            <ProgressBar />
+                        </BookProgressProvider>
+                    </ProgressWrap>
+
                     <NavWrap>
                         <NavWrapLeft>
                             <GoToPage>
@@ -285,9 +312,9 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                                     />
                                 </Button>
                                 {totalPages ? (
-                                    <p>
+                                    <PagesWrap>
                                         Page {currentPage} of {totalPages}
-                                    </p>
+                                    </PagesWrap>
                                 ) : (
                                     <Icon icon="Loader" spin />
                                 )}
