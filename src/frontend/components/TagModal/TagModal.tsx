@@ -59,7 +59,11 @@ const TagModal: React.FC<ITagModalProps> = ({
                     label: letter.letter,
                 })
             );
-            setLetters(letters);
+            const sortedLetters = letters.sort(
+                (a: { label: string }, b: { label: string }) =>
+                    a.label > b.label ? 1 : -1
+            );
+            setLetters(sortedLetters);
             if (mode === "edit") {
                 const selectedLetter = letters.find(
                     (option) => option.value === letterId
@@ -144,7 +148,13 @@ const TagModal: React.FC<ITagModalProps> = ({
                         </Header.H3>
                         <LetterSelectWrap>
                             <div style={{ width: "10%" }}>
-                                <img src={tag} alt="" height={50} width={50} />
+                                <img
+                                    src={tag}
+                                    alt=""
+                                    height={60}
+                                    width={60}
+                                    style={{ borderRadius: "10px" }}
+                                />
                             </div>
                             <div style={{ width: "90%" }}>
                                 <Creatable

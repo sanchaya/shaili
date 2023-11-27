@@ -13,7 +13,7 @@ import {
 } from "@adminjs/design-system";
 import { TaggedLetters } from "../../../backend/db/models/TaggedLetters.js";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
-import { useCurrentAdmin } from "adminjs";
+import { useCurrentAdmin, useNotice } from "adminjs";
 import TagModal from "../TagModal/TagModal.js";
 
 interface ITagsListModalProps {
@@ -34,6 +34,9 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("success");
     const [tag, setTag] = useState<string>("");
+    const [tagId, setTagId] = useState<number>();
+    const [newLetterId, setNewLetterId] = useState<number>();
+    const addNotice = useNotice();
     const modalProps = {
         onClose: () => setShowTags(false),
     };
@@ -70,6 +73,14 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
             .then(() => {
                 setMessage("Tag deleted successfully");
                 setMessageType("success");
+                const isLastTag = paginatedData.length === 1;
+                if (isLastTag) {
+                    setShowTags(false);
+                    addNotice({
+                        message: "Tag deleted successfully",
+                        type: "success",
+                    });
+                }
             })
             .catch(() => {
                 setMessage("Error deleting tag,try agin later");
@@ -108,8 +119,9 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                                     <TableCell style={{ textAlign: "center" }}>
                                         <img
                                             style={{
-                                                height: "50px",
-                                                width: "50px",
+                                                height: "60px",
+                                                width: "60px",
+                                                borderRadius: "10px",
                                             }}
                                             src={taggedLetter.cropped_image}
                                             key={index}
@@ -133,6 +145,12 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                                                     ? () => {
                                                           setTag(
                                                               taggedLetter.cropped_image
+                                                          );
+                                                          setTagId(
+                                                              taggedLetter.id
+                                                          );
+                                                          setNewLetterId(
+                                                              taggedLetter.letter_id
                                                           );
                                                       }
                                                     : undefined
@@ -196,8 +214,8 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                                         bookId={bookId}
                                         mode={"edit"}
                                         image={tag}
-                                        letterId={taggedLetter.letter_id}
-                                        tagId={taggedLetter.id}
+                                        letterId={newLetterId}
+                                        tagId={tagId}
                                         setTag={setTag}
                                         setShowTags={setShowTags}
                                     />

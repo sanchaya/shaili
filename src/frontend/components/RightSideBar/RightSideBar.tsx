@@ -12,7 +12,7 @@ const TagsWrap = styled.div`
     padding: 1em;
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 30px 22.4px;
 `;
 
 const AllTagsWrap = styled.div`
@@ -44,9 +44,10 @@ const AccordionContent = styled.div`
 const StyledDiv = styled.div`
     display: flex;
     flex-direction: column;
-    width: 50px;
-    height: 66px;
+    width: 60px;
+    height: 100%;
     align-items: center;
+    gap: 5px;
 `;
 
 const NoTagDiv = styled.div`
@@ -54,7 +55,7 @@ const NoTagDiv = styled.div`
     align-items: stretch;
     align-content: center;
     flex-wrap: wrap;
-    height: 100%;
+    height: 60px;
 `;
 
 interface ISelectOptions {
@@ -161,6 +162,7 @@ const RightSideBar = ({
                                                             accordion.language
                                                         )
                                                     }
+                                                    key={accordion.id}
                                                 >
                                                     <span>
                                                         {accordion.title}
@@ -254,10 +256,11 @@ const RightSideBar = ({
                                                                                                 "column",
                                                                                             alignItems:
                                                                                                 "center",
+                                                                                            gap: "5px",
                                                                                         }}
                                                                                         size="lg"
                                                                                         key={
-                                                                                            index
+                                                                                            letter.id
                                                                                         }
                                                                                         onClick={() =>
                                                                                             handleLetterClick(
@@ -265,17 +268,17 @@ const RightSideBar = ({
                                                                                             )
                                                                                         }
                                                                                     >
-                                                                                        {
-                                                                                            letter.letter
-                                                                                        }
-
                                                                                         <img
                                                                                             width={
-                                                                                                "50px"
+                                                                                                "60px"
                                                                                             }
                                                                                             height={
-                                                                                                "50px"
+                                                                                                "60px"
                                                                                             }
+                                                                                            style={{
+                                                                                                borderRadius:
+                                                                                                    "10px",
+                                                                                            }}
                                                                                             src={
                                                                                                 tags.taggedLetters.find(
                                                                                                     (
@@ -287,33 +290,33 @@ const RightSideBar = ({
                                                                                                     ?.cropped_image
                                                                                             }
                                                                                         />
+                                                                                        {
+                                                                                            letter.letter
+                                                                                        }
                                                                                     </Link>
                                                                                 </>
                                                                             ) : (
                                                                                 <>
-                                                                                    <StyledDiv>
-                                                                                        <span
-                                                                                            key={
-                                                                                                index
-                                                                                            }
-                                                                                        >
+                                                                                    <StyledDiv
+                                                                                        key={
+                                                                                            letter.id
+                                                                                        }
+                                                                                    >
+                                                                                        <NoTagDiv>
+                                                                                            <span
+                                                                                                style={{
+                                                                                                    fontSize:
+                                                                                                        "24px",
+                                                                                                }}
+                                                                                            >
+                                                                                                -
+                                                                                            </span>
+                                                                                        </NoTagDiv>
+                                                                                        <span>
                                                                                             {
                                                                                                 letter.letter
                                                                                             }
                                                                                         </span>
-                                                                                        <NoTagDiv>
-                                                                                            <span
-                                                                                                style={{
-                                                                                                    fontStyle:
-                                                                                                        "italic",
-                                                                                                    fontSize:
-                                                                                                        "smaller",
-                                                                                                }}
-                                                                                            >
-                                                                                                No
-                                                                                                Tags
-                                                                                            </span>
-                                                                                        </NoTagDiv>
                                                                                     </StyledDiv>
                                                                                 </>
                                                                             )}
