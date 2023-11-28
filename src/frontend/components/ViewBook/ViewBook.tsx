@@ -10,6 +10,7 @@ import Select from "react-select";
 import LettersProvider from "../../context/LettersContext.js";
 import { BookProgressProvider } from "../../context/BookProgressContext.js";
 import ProgressBar from "./ProgressBar.js";
+import PdfGenerator from "../PDFGenerator/PdfGenerator.js";
 
 const Content = styled.div`
     display: flex;
@@ -82,7 +83,7 @@ const NavWrapRight = styled.div`
     display: flex;
     width: 40%;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: space-between;
     @media (max-width: 500px) {
         width: 100%;
     }
@@ -127,12 +128,21 @@ const ProgressWrap = styled.div`
     }
 `;
 
+const LanguageContainer = styled.div`
+    display: flex;
+    width: 85%;
+    align-items: center;
+    justify-content: flex-end;
+`;
 interface IViewBookProps {
     record: {
         params: {
             id: number;
             url: string;
             language: string;
+            name:string;
+            publisher_name: string;
+            published_year: string;
         };
     };
 }
@@ -340,34 +350,37 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             </NavigationArrows>
                         </NavWrapLeft>
                         <NavWrapRight>
-                            {languages && (
-                                <>
-                                    <LanguageFilterLabel>
-                                        Language
-                                    </LanguageFilterLabel>
-                                    <LanguageFilterSelect>
-                                        <Select
-                                            isDisabled={!img}
-                                            value={languages.find(
-                                                (lang) =>
-                                                    lang.value ===
-                                                    selectedLanguage
-                                            )}
-                                            options={[
-                                                { value: "all", label: "All" },
-                                                ...languages,
-                                            ]}
-                                            onChange={(e) => {
-                                                if (e && e.value) {
-                                                    handleLanguageChange(
-                                                        e.value
-                                                    );
-                                                }
-                                            }}
-                                        />
-                                    </LanguageFilterSelect>
-                                </>
-                            )}
+                            <PdfGenerator bookId={bookId} bookName={record.params.name} language={language} publisher={record.params.publisher_name} year={record.params.published_year}/>
+                            <LanguageContainer>
+                                {languages && (
+                                    <>
+                                        <LanguageFilterLabel>
+                                            Language
+                                        </LanguageFilterLabel>
+                                        <LanguageFilterSelect>
+                                            <Select
+                                                isDisabled={!img}
+                                                value={languages.find(
+                                                    (lang) =>
+                                                        lang.value ===
+                                                        selectedLanguage
+                                                )}
+                                                options={[
+                                                    { value: "all", label: "All" },
+                                                    ...languages,
+                                                ]}
+                                                onChange={(e) => {
+                                                    if (e && e.value) {
+                                                        handleLanguageChange(
+                                                            e.value
+                                                        );
+                                                    }
+                                                }}
+                                            />
+                                        </LanguageFilterSelect>
+                                    </>
+                                )}
+                            </LanguageContainer>
                         </NavWrapRight>
                     </NavWrap>
                     <Content>
