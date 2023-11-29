@@ -5,8 +5,8 @@ import {
     Loader,
     Modal,
     ModalProps,
+    RichTextEditor,
     Text,
-    TextArea,
 } from "@adminjs/design-system";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
@@ -14,7 +14,7 @@ import { useCommentsContext } from "../../context/CommentsContext.js";
 import { useCurrentAdmin, useNotice } from "adminjs";
 
 const CommentsWrap = styled.div`
-    width: 57.5%;
+    width: 56.7%;
     margin-top: 20px;
     padding: 30px 15px;
     background: rgb(255, 255, 255);
@@ -61,11 +61,6 @@ const CommentAction = styled.div`
 const NewCommentsWrap = styled.div`
     display: flex;
     flex-direction: column;
-`;
-
-const CustomCommentsWrap = styled(TextArea)`
-    width: 100%;
-    height: 100px;
 `;
 
 const EditCommentWrap = styled.div`
@@ -230,12 +225,10 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                                 <Comment key={comment.id}>
                                     {editedCommentId === comment.id ? (
                                         <EditCommentWrap>
-                                            <CustomCommentsWrap
+                                            <RichTextEditor
                                                 value={editedComment}
-                                                onChange={(e) =>
-                                                    setEditedComment(
-                                                        e.target.value
-                                                    )
+                                                onChange={(content) =>
+                                                    setEditedComment(content)
                                                 }
                                             />
                                             <div
@@ -295,9 +288,11 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                                                     )}
                                                 </p>
                                             </CommentMeta>
-                                            <CommentContent>
-                                                <p>{comment.comment}</p>
-                                            </CommentContent>
+                                            <div
+                                                dangerouslySetInnerHTML={{
+                                                    __html: comment.comment,
+                                                }}
+                                            />
                                             <CommentAction>
                                                 {Number(currentAdmin?.id) ===
                                                     comment.commented_by && (
@@ -370,15 +365,9 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                 >
                     Add your comment
                 </Text>
-                <CustomCommentsWrap
-                    disabled={props.loading}
-                    placeholder="Enter your comment here"
+                <RichTextEditor
+                    onChange={(content) => setComment(content)}
                     value={comment}
-                    onChange={(e: {
-                        target: {
-                            value: React.SetStateAction<string | undefined>;
-                        };
-                    }) => setComment(e.target.value)}
                 />
                 <Button
                     variant={"contained"}
