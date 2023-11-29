@@ -13,6 +13,7 @@ import { AdminResource } from "./backend/resources/AdminResource.js";
 import * as url from "url";
 import { LetterTypesResource } from "./backend/resources/LetterTypesResource.js";
 import { LanguagesResource } from "./backend/resources/LanguagesResource.js";
+import { CommentsResource } from "./backend/resources/CommentsResource.js";
 
 const PORT = 8000;
 
@@ -51,13 +52,20 @@ const start = async () => {
             logo: "/images/logo.png",
             withMadeWithLove: false,
         },
-        resources: [AdminResource, LetterResource, BookResource, LetterTypesResource, LanguagesResource],
+        resources: [
+            AdminResource,
+            LetterResource,
+            BookResource,
+            LetterTypesResource,
+            LanguagesResource,
+            CommentsResource,
+        ],
         componentLoader,
         dashboard: {
             component: "Dashboard",
         },
         assets: {
-            styles: ["/css/cropper.styles.css","/css/styles.css"],
+            styles: ["/css/cropper.styles.css", "/css/styles.css"],
         },
         env: {
             BASE_URL: process.env.BASE_URL || "",

@@ -11,6 +11,8 @@ import LettersProvider from "../../context/LettersContext.js";
 import { BookProgressProvider } from "../../context/BookProgressContext.js";
 import ProgressBar from "./ProgressBar.js";
 import PdfGenerator from "../PDFGenerator/PdfGenerator.js";
+import CommentsProvider from "../../context/CommentsContext.js";
+import Comments from "../Comments/Comments.js";
 
 const Content = styled.div`
     display: flex;
@@ -140,7 +142,7 @@ interface IViewBookProps {
             id: number;
             url: string;
             language: string;
-            name:string;
+            name: string;
             publisher_name: string;
             published_year: string;
         };
@@ -350,7 +352,13 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             </NavigationArrows>
                         </NavWrapLeft>
                         <NavWrapRight>
-                            <PdfGenerator bookId={bookId} bookName={record.params.name} language={language} publisher={record.params.publisher_name} year={record.params.published_year}/>
+                            <PdfGenerator
+                                bookId={bookId}
+                                bookName={record.params.name}
+                                language={language}
+                                publisher={record.params.publisher_name}
+                                year={record.params.published_year}
+                            />
                             <LanguageContainer>
                                 {languages && (
                                     <>
@@ -366,7 +374,10 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                                                         selectedLanguage
                                                 )}
                                                 options={[
-                                                    { value: "all", label: "All" },
+                                                    {
+                                                        value: "all",
+                                                        label: "All",
+                                                    },
                                                     ...languages,
                                                 ]}
                                                 onChange={(e) => {
@@ -414,6 +425,9 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                     )}
                 </LettersProvider>
             </LetterTagProvider>
+            <CommentsProvider>
+                <Comments loading={loading} bookId={bookId} />
+            </CommentsProvider>
         </>
     );
 };
