@@ -17,30 +17,45 @@ const isAccessible = (context: ActionContext, role: number[]) => {
     return role.includes(currentAdmin?.role);
 };
 
+const beforeBooksShowHook = (request, context) => {
+    const { record } = context;
+    const values = record.params;
+
+    for (let key in values) {
+        if (values[key] === "") {
+            values[key] = "-";
+        }
+    }
+    return context;
+};
+
 export const BookResource = {
     resource: Books,
     options: {
         navigation: menu.Books,
         editProperties: [
             "name",
-            "publisher_name",
-            "published_year",
+            "language",
             "url",
-            "language",
-            "status",
-        ],
-        listProperties: [
-            "name",
-            "language",
+            "identifier",
+            "author_name",
             "publisher_name",
             "published_year",
+            "printer_location",
+            "printer_name",
             "status",
         ],
+        listProperties: ["name", "language", "url", "status"],
         showProperties: [
             "name",
             "language",
+            "url",
+            "identifier",
+            "author_name",
             "publisher_name",
             "published_year",
+            "printer_location",
+            "printer_name",
             "status",
         ],
         timestamps: true,
@@ -85,6 +100,7 @@ export const BookResource = {
                     isAccessible(context, [1, 2]),
             },
             show: {
+                before: [beforeBooksShowHook],
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, [1]),
             },
