@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useCommentsContext } from "../../context/CommentsContext.js";
 import { useCurrentAdmin, useNotice } from "adminjs";
+import { formatDate } from "../../utils/helpers.js";
 
 const CommentsWrap = styled.div`
     width: 56.7%;
@@ -92,18 +93,6 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
             setUsers(response.data);
         });
     }, []);
-
-    const formatDate = (timestamp: string) => {
-        const dateTime = new Date(timestamp);
-        let formattedDate = dateTime.toLocaleString("en-IN", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-        });
-        return formattedDate;
-    };
 
     const handleAddComment = () => {
         if (comment) {
