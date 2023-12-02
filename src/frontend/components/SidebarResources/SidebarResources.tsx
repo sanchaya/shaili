@@ -37,8 +37,22 @@ const SidebarResources: FC<SidebarResourceSectionProps> = ({ resources }) => {
       }
     },
   };
+  
+  const compareMenu = {
+    href: "/admin/pages/compare",
+    icon: "BookOpen",
+    id: "comparison",
+    isSelected: isSelected("/admin/pages/compare", location),
+    label: "Book Comparison",
+    onClick: (event) => {
+      if ("/admin/pages/compare") {
+        event.preventDefault();
+        navigate("/admin/pages/compare");
+      }
+    },
+  };
 
-  return <CustomNavigation elements={[dashboardMenu, ...elements]} />;
+  return <CustomNavigation elements={[dashboardMenu, ...elements,compareMenu]} />;
 };
 
 export default SidebarResources;

@@ -6,7 +6,7 @@ import { Letters } from "../db/models/Letters.js";
 const getBooks = async (req: Request, res: Response) => {
   try {
     const books = await Books.findAll({
-      attributes: ["id", "name", "status"],
+      attributes: ["id", "name", "status","language"],
     });
     return res.status(200).send(books);
   } catch (error) {

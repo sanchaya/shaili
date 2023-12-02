@@ -62,6 +62,11 @@ const start = async () => {
         dashboard: {
             component: "Dashboard",
         },
+        pages: {
+            compare: {
+                component: "Comparison",
+            }
+        },
         assets: {
             styles: ["/css/cropper.styles.css", "/css/styles.css"],
         },

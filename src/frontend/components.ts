@@ -19,6 +19,7 @@ const Components = {
     "./components/Letters/EditLetter"
   ),
   Sidebar: componentLoader.override("Sidebar","./components/Sidebar/Sidebar"),
+  Comparison: componentLoader.add("Comparison","./components/Comparison/Comparison"),
 };
 
 export { componentLoader, Components };
