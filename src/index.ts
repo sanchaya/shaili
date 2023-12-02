@@ -51,13 +51,19 @@ const start = async () => {
             logo: "/images/logo.png",
             withMadeWithLove: false,
         },
-        resources: [AdminResource, LetterResource, BookResource, LetterTypesResource, LanguagesResource],
+        resources: [
+            AdminResource,
+            LetterResource,
+            BookResource,
+            LetterTypesResource,
+            LanguagesResource,
+        ],
         componentLoader,
         dashboard: {
             component: "Dashboard",
         },
         assets: {
-            styles: ["/css/cropper.styles.css","/css/styles.css"],
+            styles: ["/css/cropper.styles.css", "/css/styles.css"],
         },
         env: {
             BASE_URL: process.env.BASE_URL || "",

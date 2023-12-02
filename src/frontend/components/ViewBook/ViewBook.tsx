@@ -138,9 +138,9 @@ interface IViewBookProps {
     record: {
         params: {
             id: number;
-            url: string;
+            identifier: string;
             language: string;
-            name:string;
+            name: string;
             publisher_name: string;
             published_year: string;
         };
@@ -155,10 +155,8 @@ interface ILetterTypes {
 }
 
 const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
-    const url = record.params.url;
     const language = record.params.language;
-    const parts = url.split("/");
-    const bookIdentifier = parts[parts.length - 1];
+    const bookIdentifier = record.params.identifier;
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const bookId = record.params.id;
     const [loading, setLoading] = useState(true);
@@ -350,7 +348,13 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             </NavigationArrows>
                         </NavWrapLeft>
                         <NavWrapRight>
-                            <PdfGenerator bookId={bookId} bookName={record.params.name} language={language} publisher={record.params.publisher_name} year={record.params.published_year}/>
+                            <PdfGenerator
+                                bookId={bookId}
+                                bookName={record.params.name}
+                                language={language}
+                                publisher={record.params.publisher_name}
+                                year={record.params.published_year}
+                            />
                             <LanguageContainer>
                                 {languages && (
                                     <>
@@ -366,7 +370,10 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                                                         selectedLanguage
                                                 )}
                                                 options={[
-                                                    { value: "all", label: "All" },
+                                                    {
+                                                        value: "all",
+                                                        label: "All",
+                                                    },
                                                     ...languages,
                                                 ]}
                                                 onChange={(e) => {
