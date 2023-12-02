@@ -11,6 +11,8 @@ import LettersProvider from "../../context/LettersContext.js";
 import { BookProgressProvider } from "../../context/BookProgressContext.js";
 import ProgressBar from "./ProgressBar.js";
 import PdfGenerator from "../PDFGenerator/PdfGenerator.js";
+import CommentsProvider from "../../context/CommentsContext.js";
+import Comments from "../Comments/Comments.js";
 
 const Content = styled.div`
     display: flex;
@@ -421,6 +423,9 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                     )}
                 </LettersProvider>
             </LetterTagProvider>
+            <CommentsProvider>
+                <Comments loading={loading} bookId={bookId} />
+            </CommentsProvider>
         </>
     );
 };

@@ -13,6 +13,7 @@ import { AdminResource } from "./backend/resources/AdminResource.js";
 import * as url from "url";
 import { LetterTypesResource } from "./backend/resources/LetterTypesResource.js";
 import { LanguagesResource } from "./backend/resources/LanguagesResource.js";
+import { CommentsResource } from "./backend/resources/CommentsResource.js";
 
 const PORT = 8000;
 
@@ -57,7 +58,7 @@ const start = async () => {
             BookResource,
             LetterTypesResource,
             LanguagesResource,
-        ],
+            CommentsResource,        ],
         componentLoader,
         dashboard: {
             component: "Dashboard",

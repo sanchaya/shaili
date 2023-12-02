@@ -3,6 +3,7 @@ import TaggedLetterController from "../controllers/TaggedLetterController.js";
 import RetriveBookImageController from "../controllers/RetriveBookImageController.js";
 import CreateLetterController from "../controllers/CreateLetterController.js";
 import DashboardController from "../controllers/DashboardController.js";
+import CommentsController from "../controllers/CommentsController.js";
 
 const AdminRouter = express.Router();
 
@@ -22,5 +23,10 @@ AdminRouter.get("/get-books", DashboardController.getBooks);
 AdminRouter.get("/get-tagged-letters", TaggedLetterController.getTaggedLetterByUser);
 AdminRouter.get("/get-tagged-percentage",TaggedLetterController.calculateTagPercentage);
 AdminRouter.get("/pdf-generator", DashboardController.getDataForPdf);
+AdminRouter.get("/get-comments", CommentsController.getComments);
+AdminRouter.post("/add-comment", CommentsController.addComment);
+AdminRouter.get("/get-users", CommentsController.getUsers);
+AdminRouter.delete("/delete-comment", CommentsController.deleteComment);
+AdminRouter.post("/edit-comment", CommentsController.editComment);
 
 export default AdminRouter;
