@@ -22,7 +22,7 @@ AdminRouter.post("/edit-letter", CreateLetterController.editLetter);
 AdminRouter.get("/get-books", DashboardController.getBooks); 
 AdminRouter.get("/get-tagged-letters", TaggedLetterController.getTaggedLetterByUser);
 AdminRouter.get("/get-tagged-percentage",TaggedLetterController.calculateTagPercentage);
-AdminRouter.get("/pdf-generator", DashboardController.getDataForPdf);
+AdminRouter.get("/pdf-generator", DashboardController.createPdf);
 AdminRouter.get("/get-comments", CommentsController.getComments);
 AdminRouter.post("/add-comment", CommentsController.addComment);
 AdminRouter.get("/get-users", CommentsController.getUsers);
