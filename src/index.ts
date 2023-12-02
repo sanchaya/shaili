@@ -58,11 +58,15 @@ const start = async () => {
             BookResource,
             LetterTypesResource,
             LanguagesResource,
-            CommentsResource,
-        ],
+            CommentsResource,        ],
         componentLoader,
         dashboard: {
             component: "Dashboard",
+        },
+        pages: {
+            compare: {
+                component: "Comparison",
+            }
         },
         assets: {
             styles: ["/css/cropper.styles.css", "/css/styles.css"],
