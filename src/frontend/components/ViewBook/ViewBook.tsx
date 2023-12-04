@@ -355,9 +355,6 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             <PdfGenerator
                                 bookId={bookId}
                                 bookName={record.params.name}
-                                language={language}
-                                publisher={record.params.publisher_name}
-                                year={record.params.published_year}
                             />
                             <LanguageContainer>
                                 {languages && (

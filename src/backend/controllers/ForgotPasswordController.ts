@@ -51,7 +51,7 @@ export const handleForgotPasswordSubmission = async (
             await PasswordResetTokens.create({ email, token });
         }
 
-        const mailHtml = await edge.render("Emails::ForgotPasswordEmail", {
+        const mailHtml = await edge.render("Templates::ForgotPasswordEmail", {
             email: user.email,
             url: url,
         });

@@ -1,0 +1,50 @@
+<html>
+<head>
+	<meta charset="utf-8">
+</head>
+<body>
+        <div style="width: 96%; margin: 20px auto;">
+        <div style="text-align: left; font-size:20px">
+          <p style="font-size:20px;font-weight: 900;">
+            Book Name: <span style="text-align: center; font-family: Baloo;">{{ bookName }}</span>
+          </p>
+          @if(publisher)
+            <p style="font-size:20px;font-weight: 900;">
+              Publisher Name: <span style="text-align: center; font-family: Baloo;">{{publisher}}</span>
+            </p>
+          @end
+          @if (year)
+            <p style="font-size:20px;font-weight: 900;">
+              Published Year: <span>{{ year }}</span>
+            </p>
+          @end
+          @if (language)
+            <p style="font-size:20px;font-weight: 900;">
+              Book Language: <span style="text-align: center; font-family: Baloo;">{{ language }}</span>
+            </p>
+          @end
+        </div>
+        <div style="display:flex;justify-content:center;text-align:center;align-items:center;">
+        <p style="color: #000; margin: auto;width:100%;font-size:20px;font-weight: 900; ">Tags</p>
+        </div>
+        @each ((type, language) in data)
+            <div style="margin-top: 15px">
+            <h2>{{ language }}</h2>
+            <div style="padding:10px">
+            @each ((items, lettertype) in type)
+            <h3>{{ lettertype }}</h3>
+                <div style="width:100%;display:flex;flex-direction:row;padding-left: 20px;align-items:center;flex-wrap:wrap;margin-top:10px;">
+                @each ((item, index) in items)
+                    <div style="display:flex;justify-content:center;text-align:center;border:1px solid #BCBEC0;align-items:center;padding:8px;flex-direction: column;">
+                        <p style="text-align:center;font-size:20px;font-weight: 900;line-height:1.2; ">{{ item.letter }}</p>
+                        <img src="{{ item.image }}" alt="image for {{ item.letter }}" loading="lazy" style="width:50px;height:50px;objectFit:cover;textAlign:center;margin:auto;" />
+                    </div>
+                @end
+                </div>
+            @end
+            </div>
+            </div>
+        @end
+      </div>
+</body>
+</html>
