@@ -8,6 +8,9 @@ import { useLetterTagContext } from "../../context/LetterTagContext.js";
 import { useLettersContext } from "../../context/LettersContext.js";
 
 interface ICreateLetter {
+    mode: string;
+    tagId?: number;
+    setShowTags?: Dispatch<SetStateAction<boolean>>;
     tag: string;
     bookId: number;
     newLetter: string;
@@ -27,19 +30,25 @@ const LetterSelectWrap = styled.div`
     -webkit-box-pack: center;
     gap: 25px;
     justify-content: center;
+    @media (max-width: 440px) {
+        flex-wrap: wrap;
+    }
 `;
 
 const CreateLetter: React.FC<ICreateLetter> = ({
+    mode,
+    tagId,
     tag,
     bookId,
     newLetter,
+    setShowTags,
     setCreateLetter,
     setTag,
 }) => {
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const addNotice = useNotice();
     const { addLetter } = useLettersContext();
-    const { addTag } = useLetterTagContext();
+    const { addTag, updateTag } = useLetterTagContext();
     const [currentAdmin] = useCurrentAdmin();
     const [languageOptions, setLanguageOptions] = useState<ISelectOptions[]>();
     const [letterTypeOptions, setLetterTypeOptions] =
@@ -111,28 +120,54 @@ const CreateLetter: React.FC<ICreateLetter> = ({
     };
 
     const saveTag = async (letterId: number) => {
-        const data = {
-            book_id: bookId,
-            letter_id: letterId,
-            cropped_image: tag,
-            tagged_by: Number(currentAdmin?.id),
-        };
+        if (mode == "add") {
+            const data = {
+                book_id: bookId,
+                letter_id: letterId,
+                cropped_image: tag,
+                tagged_by: Number(currentAdmin?.id),
+            };
 
-        addTag(data)
-            .then(() => {
-                setTag("");
-                addNotice({
-                    message: "Tag added successfully",
-                    type: "success",
+            addTag(data)
+                .then(() => {
+                    setTag("");
+                    addNotice({
+                        message: "Tag added successfully",
+                        type: "success",
+                    });
+                })
+                .catch((error) => {
+                    setTag("");
+                    addNotice({
+                        message: "Error adding tag try again later",
+                        type: "error",
+                    });
                 });
-            })
-            .catch((error) => {
-                setTag("");
-                addNotice({
-                    message: "Error adding tag try again later",
-                    type: "error",
+        } else {
+            const data = {
+                id: tagId!,
+                book_id: bookId,
+                letter_id: letterId,
+                cropped_image: tag!,
+                tagged_by: Number(currentAdmin?.id),
+            };
+            updateTag(data)
+                .then(() => {
+                    setTag("");
+                    if (setShowTags) setShowTags(false);
+                    addNotice({
+                        message: "Tag updated successfully",
+                        type: "success",
+                    });
+                })
+                .catch((error) => {
+                    setTag("");
+                    addNotice({
+                        message: "Error updating tag try again later",
+                        type: "error",
+                    });
                 });
-            });
+        }
     };
 
     return (
@@ -175,6 +210,7 @@ const CreateLetter: React.FC<ICreateLetter> = ({
                     gap: "20px",
                     marginTop: "25px",
                 }}
+                className="createLetterBtnWrap"
             >
                 <Button color="primary" onClick={() => setCreateLetter(false)}>
                     Go back

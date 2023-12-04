@@ -256,7 +256,7 @@ const RightSideBar = ({
                                                                                                 "column",
                                                                                             alignItems:
                                                                                                 "center",
-                                                                                            gap: "5px",
+                                                                                            gap: "8px",
                                                                                         }}
                                                                                         size="lg"
                                                                                         key={

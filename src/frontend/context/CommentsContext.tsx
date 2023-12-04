@@ -106,7 +106,7 @@ const CommentsProvider = ({ children }: Props) => {
         const response = await axios.get(
             `${BASE_URL}/get-comments?bookId=` + bookId
         );
-        console.log(response.data);
+
         if (response.data) {
             dispatch({
                 type: "FETCH_COMMENTS",

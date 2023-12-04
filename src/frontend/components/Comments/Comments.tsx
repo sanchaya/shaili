@@ -260,7 +260,7 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                                                 display: "flex",
                                                 flexDirection: "column",
                                                 gap: "10px",
-                                                width: "80%",
+                                                width: "100%",
                                             }}
                                         >
                                             <CommentMeta>

@@ -15,6 +15,21 @@ import { TaggedLetters } from "../../../backend/db/models/TaggedLetters.js";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
 import { useCurrentAdmin, useNotice } from "adminjs";
 import TagModal from "../TagModal/TagModal.js";
+import { styled } from "@adminjs/design-system/styled-components";
+
+const TagListModal = styled(Modal)`
+    @media (max-width: 576px) {
+        width: 96%;
+    }
+    @media (max-width: 400px) and (max-height: 720px) {
+        height: 96%;
+        overflow: scroll;
+    }
+    @media only screen and (max-height: 575.98px) and (orientation: landscape) {
+        height: 96%;
+        overflow: scroll;
+    }
+`;
 
 interface ITagsListModalProps {
     selectedLetter?: number;
@@ -89,7 +104,7 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
     };
 
     return (
-        <Modal {...modalProps}>
+        <TagListModal {...modalProps}>
             {message && (
                 <MessageBox
                     message={message}
@@ -233,7 +248,7 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                     onChange={handlePaginationChange}
                 />
             </div>
-        </Modal>
+        </TagListModal>
     );
 };
 

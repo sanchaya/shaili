@@ -101,8 +101,6 @@ export const BookResource = {
             },
             show: {
                 before: [beforeBooksShowHook],
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, [1]),
             },
             delete: {
                 isAccessible: (context: ActionContext) =>
