@@ -147,7 +147,7 @@ const TagModal: React.FC<ITagModalProps> = ({
                             {mode === "add" ? `Create ` : `Edit `}Tag
                         </Header.H3>
                         <LetterSelectWrap>
-                            <div style={{ width: "10%" }}>
+                            <div>
                                 <img
                                     src={tag}
                                     alt=""
@@ -161,6 +161,7 @@ const TagModal: React.FC<ITagModalProps> = ({
                                     value={letter}
                                     options={letters}
                                     isClearable={false}
+                                    backspaceRemovesValue={true}
                                     onChange={(newValue) =>
                                         setLetter(newValue ?? null)
                                     }
@@ -193,11 +194,14 @@ const TagModal: React.FC<ITagModalProps> = ({
                     </>
                 ) : (
                     <CreateLetter
+                        tagId={tagId}
+                        mode={mode}
                         bookId={bookId}
                         tag={tag}
                         newLetter={newLetter}
                         setCreateLetter={setCreateLetter}
                         setTag={setTag}
+                        setShowTags={setShowTags}
                     />
                 )}
             </Modal>

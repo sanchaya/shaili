@@ -52,12 +52,15 @@ const NavigationArrows = styled.div`
     justify-content: flex-end;
 `;
 
-const GoToPage = styled.div`
+const GoToPage = styled.form`
     display: flex;
     flex: 2 1 0%;
     align-items: center;
     gap: 15px;
     width: 70%;
+    @media (max-width: 349px) {
+        flex: 1.5 1 0%;
+    }
 `;
 
 const NavWrap = styled.div`
@@ -273,7 +276,6 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             <ProgressBar />
                         </BookProgressProvider>
                     </ProgressWrap>
-
                     <NavWrap>
                         <NavWrapLeft>
                             <GoToPage>
@@ -295,7 +297,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                                     size="icon"
                                     disabled={
                                         goToPage > totalPages ||
-                                        goToPage < 0 ||
+                                        goToPage <= 0 ||
                                         goToPage === currentPage ||
                                         !img
                                     }

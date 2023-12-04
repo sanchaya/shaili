@@ -1,136 +1,165 @@
 body {
-  background-color: #f8f9f9;
+    background-color: #f8f9f9;
 }
 
 .message {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 .back-to-login {
-  font-family: Roboto, sans-serif;
-  font-size: 14px;
-  line-height: 24px;
-  font-weight: 300;
-  text-align: center;
-  margin-top: 16px;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 300;
+    text-align: center;
+    margin-top: 16px;
 }
 
 .back-to-login a {
-  color: #551a8b;
+    color: #551a8b;
 }
 
 #forgot-password-inner {
-  height: 440px;
-  width: auto;
-  box-shadow: rgba(137, 138, 154, 0.15) 0px 15px 24px 0px;
+    height: 440px;
+    width: auto;
+    box-shadow: rgba(137, 138, 154, 0.15) 0px 15px 24px 0px;
 }
 
 .forgot-password-left {
-  background-color: #3040d6;
-  width: 380px;
-  padding: 48px;
+    background-color: #3040d6;
+    width: 380px;
+    padding: 48px;
 }
 
 .forgot-password-left h1 {
-  font-family: Roboto, sans-serif;
-  padding: 0px;
-  font-weight: 300;
-  font-size: 32px;
-  line-height: 40px;
-  margin-bottom: 32px;
+    font-family: Roboto, sans-serif;
+    padding: 0px;
+    font-weight: 300;
+    font-size: 32px;
+    line-height: 40px;
+    margin-bottom: 32px;
 }
 
 .forgot-password-left p {
-  font-family: Roboto, sans-serif;
-  font-size: 14px;
-  line-height: 24px;
-  font-weight: 300;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 300;
 }
 
 .forgot-password-right {
-  width: 480px;
-  padding: 48px;
-  background-color: #fff;
-  text-align: center;
+    width: 480px;
+    padding: 48px;
+    background-color: #fff;
+    text-align: center;
 }
 
 .forgot-password-right h5,
 .forgot-password-right h6 {
-  font-family: Roboto, sans-serif;
-  vertical-align: middle;
-  padding: 0px;
-  font-size: 18px;
-  line-height: 24px;
-  font-weight: 400;
-  margin-bottom: 32px;
+    font-family: Roboto, sans-serif;
+    vertical-align: middle;
+    padding: 0px;
+    font-size: 18px;
+    line-height: 24px;
+    font-weight: 400;
+    margin-bottom: 32px;
 }
 
 .forgot-password-right h6 {
-  font-size: 16px;
-  font-weight: 300;
+    font-size: 16px;
+    font-weight: 300;
 }
 
 .forgot-password-right label {
-  display: block;
-  font-family: Roboto, sans-serif;
-  font-size: 12px;
-  line-height: 16px;
-  margin-bottom: 8px;
+    display: block;
+    font-family: Roboto, sans-serif;
+    font-size: 12px;
+    line-height: 16px;
+    margin-bottom: 8px;
 }
 
 .forgot-password-right input {
-  box-sizing: border-box;
-  color: rgb(12, 30, 41);
-  background: transparent;
-  border: 1px solid rgb(187, 195, 203);
-  border-radius: 2px;
-  font-size: 14px;
-  line-height: 24px;
-  font-family: Roboto, sans-serif;
-  outline: none;
-  padding: 4px 8px;
+    box-sizing: border-box;
+    color: rgb(12, 30, 41);
+    background: transparent;
+    border: 1px solid rgb(187, 195, 203);
+    border-radius: 2px;
+    font-size: 14px;
+    line-height: 24px;
+    font-family: Roboto, sans-serif;
+    outline: none;
+    padding: 4px 8px;
 }
 
 .forgot-password-right input:focus {
-  border-color: rgb(48, 64, 214);
-  box-shadow: none;
+    border-color: rgb(48, 64, 214);
+    box-shadow: none;
 }
 
 .forgot-password-right button {
-  appearance: none;
-  display: inline-block;
-  background-color: transparent;
-  outline: 0px;
-  font-family: Roboto, sans-serif;
-  font-size: 14px;
-  vertical-align: middle;
-  border-radius: 4px;
-  user-select: none;
-  text-align: center;
-  border: 1px solid currentcolor;
-  cursor: pointer;
-  text-decoration: none;
-  box-sizing: border-box;
-  transition: all 0.1s ease-in 0s;
-  color: rgb(48, 64, 214);
-  padding: 4px 32px;
-  line-height: 24px;
-  margin-top: 24px;
+    appearance: none;
+    display: inline-block;
+    background-color: transparent;
+    outline: 0px;
+    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    vertical-align: middle;
+    border-radius: 4px;
+    user-select: none;
+    text-align: center;
+    border: 1px solid currentcolor;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: all 0.1s ease-in 0s;
+    color: rgb(48, 64, 214);
+    padding: 4px 32px;
+    line-height: 24px;
+    margin-top: 24px;
 }
 
 .forgot-password-right button:hover {
-  background-color: rgba(48, 64, 214, 0.05);
-  color: rgb(48, 64, 214);
+    background-color: rgba(48, 64, 214, 0.05);
+    color: rgb(48, 64, 214);
 }
 
 .forgot-password-right button:focus {
-  box-shadow: none;
+    box-shadow: none;
 }
 
-.adminjs_Resources > section{
-  padding: 16px 5px;
+.adminjs_Resources > section {
+    padding: 16px 5px;
 }
 
-[data-css="letters-export-button"].adminjs_ButtonGroupItem,[data-css="books-export-button"].adminjs_ButtonGroupItem  {
-  display: none;
+[data-css="letters-export-button"].adminjs_ButtonGroupItem,
+[data-css="books-export-button"].adminjs_ButtonGroupItem {
+    display: none;
+}
+@media (max-width: 416px) {
+    [data-css="books-show-button"].adminjs_ButtonGroupItem,
+    [data-css="books-edit-button"].adminjs_ButtonGroupItem,
+    [data-css="books-delete-button"].adminjs_ButtonGroupItem {
+        margin-bottom: 10px;
+    }
+}
+@media (max-width: 325px) {
+    [data-css="books-ViewBook-breadcrumbs"].adminjs_Breadcrumbs a {
+        font-size: 12px;
+    }
+}
+@media (max-width: 576px) {
+    .jdcQJo.adminjs_Box {
+        width: 96%;
+    }
+}
+@media only screen and (max-height: 575.98px) and (orientation: landscape) {
+    .jdcQJo.adminjs_Box {
+        height: 96%;
+        overflow: scroll;
+    }
+}
+@media (max-width: 440px) {
+    .createLetterBtnWrap button {
+        padding: 4px 9px;
+    }
 }

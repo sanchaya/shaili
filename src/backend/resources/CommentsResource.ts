@@ -1,6 +1,7 @@
 import { ActionContext } from "adminjs";
 import { menu } from "../../common/menu.js";
 import { Comments } from "../db/models/Comments.js";
+import { Components } from "../../frontend/components.js";
 
 const isAccessible = (context: ActionContext, role: number) => {
     const { currentAdmin } = context;
@@ -13,6 +14,14 @@ export const CommentsResource = {
         navigation: menu.Comments,
         listProperties: ["book", "commented_by", "comment"],
         showProperties: ["book", "commented_by", "comment", "created_at"],
+        properties: {
+            comment: {
+                components: {
+                    list: Components.SingleCommentInList,
+                    show: Components.SingleCommentInList,
+                },
+            },
+        },
         actions: {
             new: { isAccessible: false },
             edit: { isAccessible: false },

@@ -17,6 +17,9 @@ const ProgressContainer = styled.div`
     @media (max-width: 500px) {
         width: 70%;
     }
+    @media (max-width: 400px) {
+        width: 60%;
+    }
 `;
 
 const ProgressInnerWrap = styled.div<IProgressProps>`

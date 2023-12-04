@@ -58,9 +58,20 @@ export const BookImage = ({
 }: IBookImageProps) => {
     const cropperRef = useRef<CropperRef>(null);
 
+    const resetStencil = () => {
+        cropperRef.current?.setCoordinates({
+            width: 400,
+            height: 400,
+            left: 1007.5,
+            top: 1472.5,
+        });
+    };
+
     const resetAll = () => {
         if (cropperRef.current) {
             cropperRef.current.setCoordinates(({ imageSize }) => imageSize);
+            setCapturing(false);
+            resetStencil();
         }
     };
 
@@ -86,6 +97,7 @@ export const BookImage = ({
                 setTag(image);
                 setCapturing(false);
                 resetAll();
+                resetStencil();
             }
         }
     };
