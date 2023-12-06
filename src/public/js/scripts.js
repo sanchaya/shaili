@@ -1,23 +1,31 @@
 jQuery("#forgot-password").on("submit", function (e) {
     e.preventDefault();
     var email = jQuery("#emailInput").val();
-    const data = {
-        email: email,
-    };
-    jQuery.ajax({
-        type: "POST",
-        url: BASE_URL + "/forgot-password",
-        dataType: "json",
-        contentType: "application/json",
-        data: JSON.stringify(data),
-        success: function (response) {
-            jQuery("#emailInput").val("");
-            showMessage(response.message, true);
-        },
-        error: function (response) {
-            showMessage(response.responseJSON.message, false);
-        },
-    });
+    if (!validateEmail(email) || !email) {
+        jQuery(".error")
+            .removeClass("d-none")
+            .text("Enter valid email address");
+    } else {
+        const data = {
+            email: email,
+        };
+        jQuery.ajax({
+            type: "POST",
+            url: BASE_URL + "/forgot-password",
+            dataType: "json",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (response) {
+                jQuery("#emailInput").val("");
+                jQuery(".error").addClass("d-none").text("");
+                showMessage(response.message, true);
+            },
+            error: function (response) {
+                jQuery(".error").addClass("d-none").text("");
+                showMessage(response.responseJSON.message, false);
+            },
+        });
+    }
 });
 
 jQuery("#reset-password").on("submit", function (e) {
@@ -25,6 +33,23 @@ jQuery("#reset-password").on("submit", function (e) {
     var newPassword = jQuery("#newPasswordInput").val();
     var confirmPassword = jQuery("#confirmPasswordInput").val();
     var token = jQuery("#passwordResetToken").val();
+    jQuery(".error").text("");
+    if (!newPassword) {
+        jQuery(".error.newPasswordInput")
+            .removeClass("d-none")
+            .text("Enter new password.");
+    }
+
+    if (!confirmPassword) {
+        jQuery(".error.confirmPasswordInput")
+            .removeClass("d-none")
+            .text("Enter new password again.");
+    }
+
+    if (!newPassword || !confirmPassword) {
+        return;
+    }
+
     if (!isValidPassword(newPassword)) {
         showMessage(
             "Must contain: 8 or more characters, 1 uppercase, 1 lowercase, 1 number, 1 special character.",
@@ -32,39 +57,43 @@ jQuery("#reset-password").on("submit", function (e) {
         );
         return;
     }
-    if (newPassword === confirmPassword) {
-        const data = {
-            password: newPassword,
-            token: token,
-        };
-        jQuery.ajax({
-            type: "POST",
-            url: BASE_URL + "/reset-password",
-            dataType: "json",
-            contentType: "application/json",
-            data: JSON.stringify(data),
-            success: function (response) {
-                if (response.statusCode == 200) {
-                    jQuery(".form-container").html(
-                        "<h6 class = 'text-start' > " +
-                            response.message +
-                            " </h6>"
-                    );
-                }
-            },
-            error: function (response) {
-                showMessage(response.responseJSON.message, false);
-            },
-        });
-    } else {
+
+    if (newPassword !== confirmPassword) {
         showMessage("The new and confirm passwords do not match.", false);
         return;
     }
+
+    const data = {
+        password: newPassword,
+        token: token,
+    };
+    jQuery.ajax({
+        type: "POST",
+        url: BASE_URL + "/reset-password",
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(data),
+        success: function (response) {
+            if (response.statusCode == 200) {
+                jQuery(".form-container").html(
+                    "<h6 class = 'text-start' > " + response.message + " </h6>"
+                );
+            }
+        },
+        error: function (response) {
+            showMessage(response.responseJSON.message, false);
+        },
+    });
 });
 
 function isValidPassword(password) {
     pattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s)(?=.*[!@#$*])/;
     return pattern.test(password);
+}
+
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 }
 
 function showMessage(message, messageType) {
@@ -89,3 +118,42 @@ function showMessage(message, messageType) {
         jQuery("#emailInput").trigger("focus");
     }
 }
+
+function handleScreenWidth() {
+    const screenWidth = window.innerWidth;
+
+    const minWidth769 = `
+        @media screen and (min-width: 769px) {
+            .sectionRight {
+                width: 480px;
+            }
+            .sectionLeft {
+                display: block;
+            }
+            .sectionInnerWrap {
+                width: auto;
+            }
+        }
+    `;
+
+    const minWidth577 = `
+        @media screen and (min-width: 577px) {
+            .sectionLeft {
+                display: none;
+            }
+            .sectionInnerWrap {
+                width: 66.6667%;
+            } 
+        }
+    `;
+
+    if (screenWidth >= 769) {
+        jQuery("#dynamicStyles").text(minWidth769);
+    } else if (screenWidth >= 577 && screenWidth <= 768) {
+        jQuery("#dynamicStyles").text(minWidth577);
+    }
+}
+
+handleScreenWidth();
+
+window.addEventListener("resize", handleScreenWidth);

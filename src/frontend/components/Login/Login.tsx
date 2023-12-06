@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
 import {
     theme,
@@ -12,7 +12,6 @@ import {
     FormGroup,
     Button,
     Text,
-    MessageBox,
 } from "@adminjs/design-system";
 import { useTranslation } from "adminjs";
 import { LoginTemplateAttributes } from "adminjs/bundler";
@@ -46,6 +45,9 @@ export type LoginProps = {
 
 export const Login: React.FC<LoginProps> = () => {
     const props = (window as any).__APP_STATE__ as LoginTemplateAttributes;
+    const [loginEmail, setLoginEmail] = useState<string>();
+    const [loginPassword, setLoginPassword] = useState<string>();
+    const [showError, setShowError] = useState<boolean>();
     const { action, errorMessage } = props;
     const {
         translateLabel,
@@ -54,12 +56,26 @@ export const Login: React.FC<LoginProps> = () => {
         translateMessage,
     } = useTranslation();
 
+    const validateEmail = (email: string): boolean => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        if (!loginEmail || !loginPassword || !validateEmail(loginEmail)) {
+            e.preventDefault();
+            setShowError(true);
+        } else {
+            setShowError(false);
+        }
+    };
+
     return (
         <ThemeProvider theme={theme}>
             <Wrapper flex variant="grey">
                 <Box
                     bg="white"
-                    height="440px"
+                    height={["auto", "auto", "440px"]}
                     flex
                     boxShadow="login"
                     width={[1, 2 / 3, "auto"]}
@@ -114,39 +130,70 @@ export const Login: React.FC<LoginProps> = () => {
                         p="x3"
                         flexGrow={1}
                         width={["100%", "100%", "480px"]}
+                        onSubmit={handleSubmit}
                     >
+                        <h1 className="pageTitle">Login</h1>
                         <H5 marginBottom="xxl">Type Extract</H5>
                         {errorMessage && (
-                            <MessageBox
-                                my="lg"
-                                message={
-                                    errorMessage.split(" ").length > 1
-                                        ? errorMessage
-                                        : translateMessage(errorMessage)
-                                }
-                                variant="danger"
-                            />
+                            <div className="loginError">
+                                {errorMessage.split(" ").length > 1
+                                    ? errorMessage
+                                    : translateMessage(errorMessage)}
+                            </div>
                         )}
                         <FormGroup>
                             <Label required>{translateProperty("email")}</Label>
                             <Input
+                                style={{ marginBottom: "2px" }}
                                 name="email"
-                                type="email"
+                                type="text"
                                 placeholder={translateProperty("email")}
-                                required
+                                onChange={(e: {
+                                    target: {
+                                        value: React.SetStateAction<
+                                            string | undefined
+                                        >;
+                                    };
+                                }) => setLoginEmail(e.target.value)}
                             />
+                            {showError &&
+                                (!loginEmail || !validateEmail(loginEmail)) && (
+                                    <span
+                                        style={{
+                                            color: "red",
+                                        }}
+                                    >
+                                        Enter valid email address
+                                    </span>
+                                )}
                         </FormGroup>
                         <FormGroup>
                             <Label required>
                                 {translateProperty("password")}
                             </Label>
                             <Input
+                                style={{ marginBottom: "2px" }}
                                 type="password"
                                 name="password"
                                 placeholder={translateProperty("password")}
                                 autoComplete="password"
-                                required
+                                onChange={(e: {
+                                    target: {
+                                        value: React.SetStateAction<
+                                            string | undefined
+                                        >;
+                                    };
+                                }) => setLoginPassword(e.target.value)}
                             />
+                            {!loginPassword && showError && (
+                                <span
+                                    style={{
+                                        color: "red",
+                                    }}
+                                >
+                                    Enter valid password
+                                </span>
+                            )}
                         </FormGroup>
                         <Text mt="xl" textAlign="center">
                             <Button variant="primary">
