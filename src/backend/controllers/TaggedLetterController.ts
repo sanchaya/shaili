@@ -66,6 +66,7 @@ const getTaggedLetter = async (req: Request, res: Response) => {
                 as: "letter",
                 attributes: ["letter", "letter_type"],
             },
+            order: [["updated_at", "DESC"]],
         });
         res.json(taggedLetters);
     } catch (error) {

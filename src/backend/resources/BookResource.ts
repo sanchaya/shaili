@@ -22,42 +22,35 @@ const beforeBooksShowHook = (request, context) => {
     const values = record.params;
 
     for (let key in values) {
-        if (values[key] === "") {
+        if (values[key] === "" || values[key] === null) {
             values[key] = "-";
         }
     }
     return context;
 };
 
+const properties = [
+    "name",
+    "language",
+    "url",
+    "identifier",
+    "author_name",
+    "publisher_name",
+    "published_year",
+    "publisher_city",
+    "printer_location",
+    "printer_name",
+    "status",
+];
+
 export const BookResource = {
     resource: Books,
     options: {
         navigation: menu.Books,
-        editProperties: [
-            "name",
-            "language",
-            "url",
-            "identifier",
-            "author_name",
-            "publisher_name",
-            "published_year",
-            "printer_location",
-            "printer_name",
-            "status",
-        ],
+        editProperties: properties,
         listProperties: ["name", "language", "url", "status"],
-        showProperties: [
-            "name",
-            "language",
-            "url",
-            "identifier",
-            "author_name",
-            "publisher_name",
-            "published_year",
-            "printer_location",
-            "printer_name",
-            "status",
-        ],
+        showProperties: properties,
+        filterProperties: properties,
         timestamps: true,
         properties: {
             status: {

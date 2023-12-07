@@ -13,7 +13,7 @@ import {
 } from "@adminjs/design-system";
 import { TaggedLetters } from "../../../backend/db/models/TaggedLetters.js";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
-import { useCurrentAdmin, useNotice } from "adminjs";
+import { useCurrentAdmin } from "adminjs";
 import TagModal from "../TagModal/TagModal.js";
 import { styled } from "@adminjs/design-system/styled-components";
 
@@ -51,7 +51,6 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
     const [tag, setTag] = useState<string>("");
     const [tagId, setTagId] = useState<number>();
     const [newLetterId, setNewLetterId] = useState<number>();
-    const addNotice = useNotice();
     const modalProps = {
         onClose: () => setShowTags(false),
     };
@@ -83,6 +82,12 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
         );
     };
 
+    const clearMessage = () => {
+        setTimeout(() => {
+            setMessage("");
+        }, 5000);
+    };
+
     const removeSelectedTag = (tagId) => {
         removeTag(tagId)
             .then(() => {
@@ -90,16 +95,16 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                 setMessageType("success");
                 const isLastTag = paginatedData.length === 1;
                 if (isLastTag) {
-                    setShowTags(false);
-                    addNotice({
-                        message: "Tag deleted successfully",
-                        type: "success",
-                    });
+                    setCurrentPage(currentPage - 1);
+                    setMessage("Tag deleted successfully");
+                    setMessageType("success");
                 }
+                clearMessage();
             })
             .catch(() => {
                 setMessage("Error deleting tag,try agin later");
                 setMessageType("danger");
+                clearMessage();
             });
     };
 

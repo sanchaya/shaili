@@ -229,6 +229,15 @@ html,
     display: none;
 }
 
+.comment-container.overflowing {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 200px;
+}
+
 @media screen and (max-width: 769px) {
     .sectionInnerWrap {
         height: auto;
@@ -255,13 +264,6 @@ html,
 @media (max-width: 576px) {
     .jdcQJo.adminjs_Box {
         width: 96%;
-    }
-}
-
-@media only screen and (max-height: 575.98px) and (orientation: landscape) {
-    .jdcQJo.adminjs_Box {
-        height: 96%;
-        overflow: scroll;
     }
 }
 
