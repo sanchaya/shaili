@@ -143,6 +143,7 @@ interface IViewBookProps {
     record: {
         params: {
             id: number;
+            url: string;
             identifier: string;
             language: string;
             name: string;
@@ -161,7 +162,11 @@ interface ILetterTypes {
 
 const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
     const language = record.params.language;
-    const bookIdentifier = record.params.identifier;
+    const bookUrl = record.params.url;
+    let splitUrl = bookUrl.split("/");
+    let lastPart = splitUrl[splitUrl.length - 1];
+    const bookIdentifier =
+        `${lastPart}/` + encodeURIComponent(record.params.identifier);
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const bookId = record.params.id;
     const [loading, setLoading] = useState(true);

@@ -465,7 +465,10 @@ const Compare = () => {
                         <NotFoundDiv>No Tags available.</NotFoundDiv>
                     )
                 ) : (
-                    <NotFoundDiv>Choose the Book.</NotFoundDiv>
+                    <NotFoundDiv>
+                        Choose printername/ printerlocation/ book to compare
+                        tags
+                    </NotFoundDiv>
                 )}
             </Container>
         </CompareItem>
