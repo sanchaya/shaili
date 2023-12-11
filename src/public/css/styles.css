@@ -81,7 +81,7 @@ html,
 
 .loginError {
     position: relative;
-    padding: 0.5rem;
+    padding: 1rem 3rem 1rem 1rem;
     margin-bottom: 1rem;
     border: 1px solid transparent;
     border-radius: 0.25rem;
@@ -90,6 +90,24 @@ html,
     border-color: #f5c2c7;
     font-size: 14px;
     text-align: left;
+}
+
+.loginError a {
+    box-sizing: content-box;
+    width: 1em;
+    height: 0.7em;
+    color: #000;
+    background: transparent
+        url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23000'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e")
+        center/1em auto no-repeat;
+    border: 0;
+    border-radius: 0.25rem;
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 2;
+    padding: 1.25rem 1rem;
 }
 
 .sectionLeft p {
@@ -163,7 +181,7 @@ html,
     margin-top: 24px;
 }
 
-.sectionRight button {
+.sectionRight .submitWrap button {
     appearance: none;
     display: inline-block;
     background-color: transparent;
@@ -184,12 +202,12 @@ html,
     line-height: 24px;
 }
 
-.sectionRight button:hover {
+.sectionRight .submitWrap button:hover {
     background-color: rgba(48, 64, 214, 0.05);
     color: rgb(48, 64, 214);
 }
 
-.sectionRight button:focus {
+.sectionRight .submitWrap button:focus {
     box-shadow: none;
 }
 

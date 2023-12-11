@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
 import {
     theme,
@@ -47,6 +47,7 @@ export const Login: React.FC<LoginProps> = () => {
     const props = (window as any).__APP_STATE__ as LoginTemplateAttributes;
     const [loginEmail, setLoginEmail] = useState<string>();
     const [loginPassword, setLoginPassword] = useState<string>();
+    const [error, setError] = useState<string>();
     const [showError, setShowError] = useState<boolean>();
     const { action, errorMessage } = props;
     const {
@@ -68,6 +69,14 @@ export const Login: React.FC<LoginProps> = () => {
         } else {
             setShowError(false);
         }
+    };
+
+    useEffect(() => {
+        if (errorMessage) setError(errorMessage);
+    }, [errorMessage]);
+
+    const handleErrorMessage = () => {
+        setError("");
     };
 
     return (
@@ -134,11 +143,12 @@ export const Login: React.FC<LoginProps> = () => {
                     >
                         <h1 className="pageTitle">Login</h1>
                         <H5 marginBottom="xxl">Type Extract</H5>
-                        {errorMessage && (
+                        {error && (
                             <div className="loginError">
-                                {errorMessage.split(" ").length > 1
-                                    ? errorMessage
-                                    : translateMessage(errorMessage)}
+                                {error.split(" ").length > 1
+                                    ? error
+                                    : translateMessage(error)}
+                                <a onClick={handleErrorMessage}></a>
                             </div>
                         )}
                         <FormGroup>
