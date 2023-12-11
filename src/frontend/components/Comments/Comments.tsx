@@ -13,6 +13,7 @@ import axios from "axios";
 import { useCommentsContext } from "../../context/CommentsContext.js";
 import { useCurrentAdmin, useNotice } from "adminjs";
 import { formatDate } from "../../utils/helpers.js";
+import DOMPurify from "dompurify";
 
 const CommentsWrap = styled.div`
     width: 56.7%;
@@ -87,6 +88,7 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
         useCommentsContext();
     const bookId = props.bookId;
     const [currentAdmin] = useCurrentAdmin();
+
     useEffect(() => {
         fetchComments(bookId);
         axios.get(`${BASE_URL}/get-users`).then((response) => {
@@ -279,7 +281,9 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                                             </CommentMeta>
                                             <div
                                                 dangerouslySetInnerHTML={{
-                                                    __html: comment.comment,
+                                                    __html: DOMPurify.sanitize(
+                                                        comment.comment
+                                                    ),
                                                 }}
                                             />
                                             <CommentAction>

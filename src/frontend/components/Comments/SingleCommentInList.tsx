@@ -1,6 +1,7 @@
 import React from "react";
 import { ValueGroup } from "@adminjs/design-system";
 import { BaseRecord } from "adminjs";
+import DOMPurify from "dompurify";
 
 const SingleCommentInList = (props: { record: BaseRecord; where: string }) => {
     const { record, where } = props;
@@ -11,7 +12,7 @@ const SingleCommentInList = (props: { record: BaseRecord; where: string }) => {
                 <ValueGroup label={"Comment"}>
                     <div
                         dangerouslySetInnerHTML={{
-                            __html: record.params.comment,
+                            __html: DOMPurify.sanitize(record.params.comment),
                         }}
                     />
                 </ValueGroup>
@@ -19,8 +20,9 @@ const SingleCommentInList = (props: { record: BaseRecord; where: string }) => {
             {where === "list" && (
                 <div
                     dangerouslySetInnerHTML={{
-                        __html: record.params.comment,
+                        __html: DOMPurify.sanitize(record.params.comment),
                     }}
+                    className="comment-container overflowing"
                 />
             )}
         </>

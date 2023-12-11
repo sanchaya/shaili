@@ -97,24 +97,21 @@ function validateEmail(email) {
 }
 
 function showMessage(message, messageType) {
+    const messageElement = jQuery(".message");
+    const closeButton = messageElement.find(".btn-close").detach(); 
+    messageElement.empty();
     if (messageType === true) {
         jQuery(".message")
             .removeClass("alert-danger d-none")
             .addClass("alert-success d-block")
-            .text(message)
-            .delay(3000)
-            .fadeOut("slow", function () {
-                jQuery(this).addClass("d-none").text("");
-            });
+            .append(message)
+            .append(closeButton);
     } else {
         jQuery(".message")
             .removeClass("alert-success d-none")
             .addClass("alert-danger d-block")
-            .text(message)
-            .delay(3000)
-            .fadeOut("slow", function () {
-                jQuery(this).addClass("d-none").text("");
-            });
+            .append(message)
+            .append(closeButton);
         jQuery("#emailInput").trigger("focus");
     }
 }

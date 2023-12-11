@@ -58,7 +58,8 @@ const start = async () => {
             BookResource,
             LetterTypesResource,
             LanguagesResource,
-            CommentsResource,        ],
+            CommentsResource,
+        ],
         componentLoader,
         dashboard: {
             component: "Dashboard",
@@ -66,7 +67,7 @@ const start = async () => {
         pages: {
             compare: {
                 component: "Comparison",
-            }
+            },
         },
         assets: {
             styles: ["/css/cropper.styles.css", "/css/styles.css"],

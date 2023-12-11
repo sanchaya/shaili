@@ -11,6 +11,10 @@ const isAccessible = (context: ActionContext, role: number) => {
 export const CommentsResource = {
     resource: Comments,
     options: {
+        sort: {
+            sortBy: "created_at",
+            direction: "desc",
+        },
         navigation: menu.Comments,
         listProperties: ["book", "commented_by", "comment"],
         showProperties: ["book", "commented_by", "comment", "created_at"],
