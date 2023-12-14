@@ -3,91 +3,94 @@ import { sequelize } from "../config/config.js";
 import Users from "./Users.js";
 import { Languages } from "./Languages.js";
 
-
 interface ILetterTypes {
-  id: number;
-  type: string;
-  language: string;
-  created_at: Date;
-  updated_at: Date;
-  created_by: number;
-  updated_by: number;
+    id: number;
+    type: string;
+    language: string;
+    created_at: Date;
+    updated_at: Date;
+    created_by: number;
+    updated_by: number;
 }
 
 export class LetterTypes extends Model<ILetterTypes> {
-  declare id: number;
-  declare type: string;
-  declare language: string;
-  declare created_by: number;
-  declare updated_by: number;
-  declare created_at: Date;
-  declare updated_at: Date;
+    declare id: number;
+    declare type: string;
+    declare language: string;
+    declare created_by: number;
+    declare updated_by: number;
+    declare created_at: Date;
+    declare updated_at: Date;
 
-  static associate(models: any) {
-    LetterTypes.belongsTo(Languages, {
-      foreignKey: "language_code",
-    });
+    static associate(models: any) {
+        LetterTypes.belongsTo(Languages, {
+            foreignKey: "language_code",
+        });
 
-    LetterTypes.belongsTo(models.Users, {
-      foreignKey: "created_by",
-    });
+        LetterTypes.belongsTo(models.Users, {
+            foreignKey: "created_by",
+        });
 
-    LetterTypes.belongsTo(Users, {
-      foreignKey: "updated_by",
-    });
-  }
+        LetterTypes.belongsTo(Users, {
+            foreignKey: "updated_by",
+        });
+    }
 }
 
 LetterTypes.init(
-  {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
+    {
+        type: {
+            type: new DataTypes.STRING(128),
+            allowNull: false,
+        },
+        id: {
+            type: DataTypes.INTEGER,
+            autoIncrement: true,
+            primaryKey: true,
+        },
+        language: {
+            type: new DataTypes.STRING(),
+            allowNull: false,
+            references: {
+                model: "languages",
+                key: "language_code",
+            },
+        },
+        created_by: {
+            type: new DataTypes.INTEGER(),
+        },
+        updated_by: {
+            type: new DataTypes.INTEGER(),
+        },
+        created_at: {
+            type: DataTypes.DATE,
+        },
+        updated_at: {
+            type: DataTypes.DATE,
+        },
     },
-    type: {
-      type: new DataTypes.STRING(128),
-      allowNull: false,
-    },
-    language: {
-      type: new DataTypes.STRING(),
-      allowNull: false,
-    },
-    created_by: {
-      type: new DataTypes.INTEGER(),
-    },
-    updated_by: {
-      type: new DataTypes.INTEGER(),
-    },
-    created_at: {
-      type: DataTypes.DATE,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-    },
-  },
-  {
-    sequelize,
-    tableName: "letter_types",
-    modelName: "LetterTypes",
-    underscored: true,
-    paranoid: true,
-  }
+    {
+        sequelize,
+        tableName: "letter_types",
+        modelName: "LetterTypes",
+        underscored: true,
+        paranoid: true,
+    }
 );
 
 LetterTypes.beforeCreate(async (lettertypes, options) => {
-  const currentUser = await Users.findOne({ where: {} });
+    const currentUser = await Users.findOne({ where: {} });
 
-  if (currentUser) {
-    lettertypes.created_by = Number(currentUser.id);
-    lettertypes.updated_by = Number(currentUser.id);
-  }
+    if (currentUser) {
+        lettertypes.created_by = Number(currentUser.id);
+        lettertypes.updated_by = Number(currentUser.id);
+    }
 });
 
 LetterTypes.beforeUpdate(async (lettertypes, options) => {
-  const currentUser = await Users.findOne({ where: {} });
+    const currentUser = await Users.findOne({ where: {} });
 
-  if (currentUser) {
-    lettertypes.updated_by = Number(currentUser.id);
-  }
+    if (currentUser) {
+        lettertypes.updated_by = Number(currentUser.id);
+    }
 });

@@ -73,6 +73,10 @@ Books.init(
         language: {
             type: new DataTypes.STRING(),
             allowNull: false,
+            references: {
+                model: "languages",
+                key: "language_code",
+            },
         },
         author_name: {
             type: new DataTypes.STRING(),

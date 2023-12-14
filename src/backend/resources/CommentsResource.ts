@@ -17,6 +17,7 @@ export const CommentsResource = {
         },
         navigation: menu.Comments,
         listProperties: ["book", "commented_by", "comment"],
+        filterProperties: ["book", "commented_by", "comment"],
         showProperties: ["book", "commented_by", "comment", "created_at"],
         properties: {
             comment: {
@@ -29,6 +30,7 @@ export const CommentsResource = {
         actions: {
             new: { isAccessible: false },
             edit: { isAccessible: false },
+            bulkDelete: { isAccessible: false },
             list: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, 1),
@@ -38,10 +40,6 @@ export const CommentsResource = {
                     isAccessible(context, 1),
             },
             delete: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
-            },
-            bulkDelete: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, 1),
             },

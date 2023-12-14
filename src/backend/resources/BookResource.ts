@@ -10,7 +10,6 @@ import { Components, componentLoader } from "../../frontend/components.js";
 import { Books } from "../db/models/Books.js";
 import BookStatus from "../db/models/BookStatus.js";
 import { menu } from "../../common/menu.js";
-import { Languages } from "../db/models/Languages.js";
 
 const isAccessible = (context: ActionContext, role: number[]) => {
     const { currentAdmin } = context;
@@ -67,24 +66,6 @@ export const BookResource = {
                     })),
                 ],
             },
-            language: {
-                position: 1,
-                availableValues: [
-                    {
-                        value: "",
-                        label: "Select a Language",
-                        placeholder: true,
-                    },
-                    ...(
-                        await Languages.findAll({
-                            attributes: ["language_code", "language"],
-                        })
-                    ).map((status) => ({
-                        value: status.language_code,
-                        label: status.language,
-                    })),
-                ],
-            },
         },
         actions: {
             new: { isAccessible: false },
@@ -108,8 +89,7 @@ export const BookResource = {
                     isAccessible(context, [1]),
             },
             bulkDelete: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, [1]),
+                isAccessible: false,
             },
             ViewBook: {
                 actionType: "record",
