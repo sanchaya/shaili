@@ -55,9 +55,17 @@ Letters.init(
         letter_type: {
             type: new DataTypes.INTEGER(),
             allowNull: false,
+            references: {
+                model: "letter_types",
+                key: "type",
+            },
         },
         language: {
             type: new DataTypes.STRING(),
+            references: {
+                model: "languages",
+                key: "language_code",
+            },
         },
         user_defined: {
             type: new DataTypes.BOOLEAN(),

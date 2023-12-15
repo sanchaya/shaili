@@ -54,10 +54,10 @@ const start = async () => {
         },
         resources: [
             AdminResource,
+            LanguagesResource,
+            LetterTypesResource,
             LetterResource,
             BookResource,
-            LetterTypesResource,
-            LanguagesResource,
             CommentsResource,
         ],
         componentLoader,

@@ -47,6 +47,8 @@ export const AdminResource = {
     options: {
         navigation: menu.Users,
         listProperties: ["name", "email", "role"],
+        filterProperties: ["name", "email", "role"],
+        showProperties: ["name", "email", "role"],
         properties: {
             password: { isVisible: false },
             role: {
@@ -75,8 +77,7 @@ export const AdminResource = {
                 before: hashPassword,
             },
             bulkDelete: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: false,
             },
         },
     },
