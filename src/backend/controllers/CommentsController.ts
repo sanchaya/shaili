@@ -40,19 +40,6 @@ const addComment = async (req: Request, res: Response) => {
     }
 };
 
-const deleteComment = async (req: Request, res: Response) => {
-    const commentId = Number(req.query.id);
-
-    try {
-        const response = Comments.destroy({
-            where: { id: commentId },
-        });
-        res.status(200).json({ message: "Note deleted successfully" });
-    } catch (error) {
-        res.status(500).json({ error: "Server error" });
-    }
-};
-
 const editComment = async (req: Request, res: Response) => {
     const { id, bookId, comment, commented_by } = req.body;
 
@@ -81,6 +68,5 @@ export default {
     getUsers,
     getComments,
     addComment,
-    deleteComment,
     editComment,
 };

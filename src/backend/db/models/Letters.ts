@@ -73,9 +73,17 @@ Letters.init(
         },
         created_by: {
             type: new DataTypes.INTEGER(),
+            references: {
+                model: "users",
+                key: "id",
+            },
         },
         updated_by: {
             type: new DataTypes.INTEGER(),
+            references: {
+                model: "users",
+                key: "id",
+            },
         },
     },
     {
@@ -84,23 +92,5 @@ Letters.init(
         modelName: "Letters",
         underscored: true,
         timestamps: true,
-        paranoid: true,
     }
 );
-
-Letters.beforeCreate(async (letters, options) => {
-    const currentUser = await Users.findOne({ where: {} });
-
-    if (currentUser) {
-        letters.created_by = currentUser.id;
-        letters.updated_by = currentUser.id;
-    }
-});
-
-Letters.beforeUpdate(async (letters, options) => {
-    const currentUser = await Users.findOne({ where: {} });
-
-    if (currentUser) {
-        letters.updated_by = currentUser.id;
-    }
-});

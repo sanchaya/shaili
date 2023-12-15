@@ -20,7 +20,6 @@ interface IEditComment {
 
 type Action =
     | { type: "ADD_COMMENT"; payload: { comment: Comments } }
-    | { type: "REMOVE_COMMENT"; payload: { commentId: number } }
     | { type: "EDIT_COMMENT"; payload: { comment: Comments; id: number } }
     | {
           type: "FETCH_COMMENTS";
@@ -40,7 +39,6 @@ const CommentsContext = createContext<
           dispatch: Dispatch;
           fetchComments: (bookId: number) => Promise<void>;
           addComment: (comment: IAddComment) => Promise<void>;
-          removeComment: (commentId: number) => Promise<void>;
           editComment: (comment: IEditComment) => Promise<void>;
       }
     | undefined
@@ -57,13 +55,6 @@ const commentsReducer = (data: IComments, action: Action): IComments => {
             const comment = [...data.comments, action.payload.comment];
             return {
                 comments: comment.sort(sortByUpdatedAt),
-            };
-        case "REMOVE_COMMENT":
-            const filteredComments = data.comments.filter(
-                (comment) => comment.id !== action.payload.commentId
-            );
-            return {
-                comments: filteredComments.sort(sortByUpdatedAt),
             };
         case "EDIT_COMMENT":
             const updatedComment = data.comments.map((record) => {
@@ -148,18 +139,6 @@ const CommentsProvider = ({ children }: Props) => {
         }
     };
 
-    const removeComment = async (commentId: number) => {
-        const response = await axios.delete(
-            `${BASE_URL}/delete-comment?id=` + commentId
-        );
-        if (response.status == 200) {
-            dispatch({
-                type: "REMOVE_COMMENT",
-                payload: { commentId },
-            });
-        }
-    };
-
     return (
         <CommentsContext.Provider
             value={{
@@ -168,7 +147,6 @@ const CommentsProvider = ({ children }: Props) => {
                 fetchComments,
                 addComment,
                 editComment,
-                removeComment,
             }}
         >
             {children}

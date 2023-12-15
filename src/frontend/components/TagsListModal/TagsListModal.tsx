@@ -13,7 +13,7 @@ import {
 } from "@adminjs/design-system";
 import { TaggedLetters } from "../../../backend/db/models/TaggedLetters.js";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
-import { useCurrentAdmin } from "adminjs";
+import { useCurrentAdmin, useNotice } from "adminjs";
 import TagModal from "../TagModal/TagModal.js";
 import { styled } from "@adminjs/design-system/styled-components";
 
@@ -43,6 +43,7 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
     bookId,
 }) => {
     const [currentAdmin] = useCurrentAdmin();
+    const addNotice = useNotice();
     const { tags, removeTag } = useLetterTagContext();
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [itemsPerPage] = useState<number>(5);
@@ -82,29 +83,30 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
         );
     };
 
-    const clearMessage = () => {
-        setTimeout(() => {
-            setMessage("");
-        }, 5000);
-    };
-
     const removeSelectedTag = (tagId) => {
         removeTag(tagId)
             .then(() => {
-                setMessage("Tag deleted successfully");
-                setMessageType("success");
                 const isLastTag = paginatedData.length === 1;
                 if (isLastTag) {
-                    setCurrentPage(currentPage - 1);
+                    if (currentPage == 1) {
+                        setShowTags(false);
+                        addNotice({
+                            message: "Tag deleted successfully",
+                            type: "success",
+                        });
+                    } else {
+                        setCurrentPage(currentPage - 1);
+                        setMessage("Tag deleted successfully");
+                        setMessageType("success");
+                    }
+                } else {
                     setMessage("Tag deleted successfully");
                     setMessageType("success");
                 }
-                clearMessage();
             })
             .catch(() => {
                 setMessage("Error deleting tag,try agin later");
                 setMessageType("danger");
-                clearMessage();
             });
     };
 

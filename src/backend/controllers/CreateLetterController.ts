@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Languages } from "../db/models/Languages.js";
 import { Letters } from "../db/models/Letters.js";
+import { Op } from "sequelize";
 
 const getLanguages = async (req: Request, res: Response) => {
     const languages = await Languages.findAll({
@@ -36,6 +37,13 @@ const addLetter = async (req: any, res: Response) => {
             updated_by,
             user_defined,
         } = req.body;
+
+        const isExists = await Letters.findOne({
+            where: { letter: letter },
+        });
+        if (isExists) {
+            return res.status(422).json("Letter already exists");
+        }
         const response = await Letters.create({
             letter,
             letter_type,
@@ -47,7 +55,7 @@ const addLetter = async (req: any, res: Response) => {
 
         return res.status(200).json(response);
     } catch (error) {
-        return res.status(500).send("Error saving the tagged letter");
+        return res.status(500).send("Something went wrong.Try again later.");
     }
 };
 
@@ -62,6 +70,12 @@ const editLetter = async (req: any, res: Response) => {
             updated_by,
             user_defined,
         } = req.body;
+        const isExists = await Letters.findOne({
+            where: { letter: letter, id: { [Op.ne]: id } },
+        });
+        if (isExists) {
+            return res.status(422).json("Letter already exists");
+        }
         const response = await Letters.update(
             {
                 letter,
@@ -76,7 +90,7 @@ const editLetter = async (req: any, res: Response) => {
 
         return res.status(200).json(response);
     } catch (error) {
-        return res.status(500).send("Error saving the tagged letter");
+        return res.status(500).send("Something went wrong.Try again later.");
     }
 };
 

@@ -58,9 +58,17 @@ LetterTypes.init(
         },
         created_by: {
             type: new DataTypes.INTEGER(),
+            references: {
+                model: "users",
+                key: "id",
+            },
         },
         updated_by: {
             type: new DataTypes.INTEGER(),
+            references: {
+                model: "users",
+                key: "id",
+            },
         },
         created_at: {
             type: DataTypes.DATE,
@@ -74,23 +82,5 @@ LetterTypes.init(
         tableName: "letter_types",
         modelName: "LetterTypes",
         underscored: true,
-        paranoid: true,
     }
 );
-
-LetterTypes.beforeCreate(async (lettertypes, options) => {
-    const currentUser = await Users.findOne({ where: {} });
-
-    if (currentUser) {
-        lettertypes.created_by = Number(currentUser.id);
-        lettertypes.updated_by = Number(currentUser.id);
-    }
-});
-
-LetterTypes.beforeUpdate(async (lettertypes, options) => {
-    const currentUser = await Users.findOne({ where: {} });
-
-    if (currentUser) {
-        lettertypes.updated_by = Number(currentUser.id);
-    }
-});

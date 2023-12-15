@@ -10,6 +10,10 @@ import { Components, componentLoader } from "../../frontend/components.js";
 import { Books } from "../db/models/Books.js";
 import BookStatus from "../db/models/BookStatus.js";
 import { menu } from "../../common/menu.js";
+import {
+    BookDeleteBefore,
+    BookDeleteHandler,
+} from "../utils/BookResourceUtils.js";
 
 const isAccessible = (context: ActionContext, role: number[]) => {
     const { currentAdmin } = context;
@@ -79,6 +83,8 @@ export const BookResource = {
             delete: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, [1]),
+                before: [BookDeleteBefore],
+                handler: [BookDeleteHandler],
             },
             import: {
                 isAccessible: (context: ActionContext) =>
