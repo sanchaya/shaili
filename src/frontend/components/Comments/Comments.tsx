@@ -1,13 +1,5 @@
 import { styled } from "@adminjs/design-system/styled-components";
-import {
-    Button,
-    Link,
-    Loader,
-    Modal,
-    ModalProps,
-    RichTextEditor,
-    Text,
-} from "@adminjs/design-system";
+import { Button, Link, Loader, Text } from "@adminjs/design-system";
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useCommentsContext } from "../../context/CommentsContext.js";
@@ -78,13 +70,11 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const [comment, setComment] = useState<string>();
     const [editedComment, setEditedComment] = useState<string>();
-    const [commentId, setCommentId] = useState<number>();
     const [editedCommentId, setEditedCommentId] = useState<number | null>(null);
     const [users, setUsers] = useState<IUser[]>();
-    const [show, setShow] = useState<boolean>(false);
     const [showAll, setShowAll] = useState<boolean>(false);
     const addNotice = useNotice();
-    const { data, fetchComments, addComment, removeComment, editComment } =
+    const { data, fetchComments, addComment, editComment } =
         useCommentsContext();
     const bookId = props.bookId;
     const [currentAdmin] = useCurrentAdmin();
@@ -98,9 +88,12 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
 
     const handleAddComment = () => {
         if (comment) {
+            const cleanComment = DOMPurify.sanitize(
+                comment.trim().replace(/\s+/g, " ")
+            );
             const data = {
                 bookId: bookId,
-                comment: comment.trim().replace(/\s+/g, " "),
+                comment: cleanComment,
                 commented_by: Number(currentAdmin?.id),
             };
             addComment(data)
@@ -120,32 +113,15 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
         }
     };
 
-    const handleDeleteComment = () => {
-        if (commentId) {
-            removeComment(commentId)
-                .then(() => {
-                    setShow(false);
-                    addNotice({
-                        type: "success",
-                        message: "Comment deleted successfully",
-                    });
-                })
-                .catch((error) => {
-                    setShow(false);
-                    addNotice({
-                        message: "Error deleting comment try again later",
-                        type: "error",
-                    });
-                });
-        }
-    };
-
     const handleSaveComment = (noteId: number) => {
         if (editedComment) {
+            const cleanEditedComment = DOMPurify.sanitize(
+                editedComment.trim().replace(/\s+/g, " ")
+            );
             editComment({
                 id: noteId,
                 bookId: bookId,
-                comment: editedComment.trim().replace(/\s+/g, " "),
+                comment: cleanEditedComment,
                 commented_by: Number(currentAdmin?.id),
             })
                 .then(() => {
@@ -157,7 +133,6 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                     });
                 })
                 .catch((error) => {
-                    setShow(false);
                     addNotice({
                         message: "Error editing comment try again later",
                         type: "error",
@@ -175,21 +150,6 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
 
     const handleLoadMore = () => {
         setShowAll((prevShowAll) => !prevShowAll);
-    };
-
-    const modalProps: ModalProps = {
-        label: "Confirm",
-        title: "Are you sure you want to delete this comment?",
-        variant: "danger",
-        buttons: [
-            { label: "Cancel", onClick: () => setShow(false) },
-            {
-                label: "Delete",
-                variant: "danger",
-                onClick: handleDeleteComment,
-            },
-        ],
-        onClose: () => setShow(false),
     };
 
     return (
@@ -216,11 +176,17 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                                 <Comment key={comment.id}>
                                     {editedCommentId === comment.id ? (
                                         <EditCommentWrap>
-                                            <RichTextEditor
+                                            <textarea
                                                 value={editedComment}
-                                                onChange={(content) =>
-                                                    setEditedComment(content)
+                                                onChange={(e) =>
+                                                    setEditedComment(
+                                                        e.target.value
+                                                    )
                                                 }
+                                                style={{
+                                                    height: "100px",
+                                                    width: "100%",
+                                                }}
                                             />
                                             <div
                                                 style={{
@@ -249,7 +215,8 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                                                     }
                                                     disabled={
                                                         editedComment ==
-                                                        comment.comment
+                                                            comment.comment ||
+                                                        !editedComment
                                                     }
                                                 >
                                                     Update
@@ -279,13 +246,9 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                                                     )}
                                                 </p>
                                             </CommentMeta>
-                                            <div
-                                                dangerouslySetInnerHTML={{
-                                                    __html: DOMPurify.sanitize(
-                                                        comment.comment
-                                                    ),
-                                                }}
-                                            />
+                                            <p className="comment-container">
+                                                {comment.comment}
+                                            </p>
                                             <CommentAction>
                                                 {Number(currentAdmin?.id) ===
                                                     comment.commented_by && (
@@ -301,17 +264,6 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                                                             }}
                                                         >
                                                             Edit
-                                                        </Link>{" "}
-                                                        |{" "}
-                                                        <Link
-                                                            onClick={() => {
-                                                                setCommentId(
-                                                                    comment.id
-                                                                );
-                                                                setShow(true);
-                                                            }}
-                                                        >
-                                                            Delete
                                                         </Link>
                                                     </>
                                                 )}
@@ -358,9 +310,10 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                 >
                     Add your comment
                 </Text>
-                <RichTextEditor
-                    onChange={(content) => setComment(content)}
+                <textarea
+                    onChange={(e) => setComment(e.target.value)}
                     value={comment}
+                    style={{ height: "100px" }}
                 />
                 <Button
                     variant={"contained"}
@@ -371,7 +324,6 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                     Add Comment
                 </Button>
             </NewCommentsWrap>
-            {show && <Modal {...modalProps} />}
         </CommentsWrap>
     );
 };

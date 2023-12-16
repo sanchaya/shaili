@@ -3,6 +3,10 @@ import importExportFeature from "@adminjs/import-export";
 import { Components, componentLoader } from "../../frontend/components.js";
 import { menu } from "../../common/menu.js";
 import { ActionContext } from "adminjs";
+import {
+    LetterDeleteBefore,
+    LetterDeleteHandler,
+} from "../utils/LetterResourceUtils.js";
 
 const isAccessible = (context: ActionContext, role: number) => {
     const { currentAdmin } = context;
@@ -13,8 +17,15 @@ export const LetterResource = {
     resource: Letters,
     options: {
         navigation: menu.Letters,
-        editProperties: ["letter", "language", "letter_type"],
         listProperties: ["letter", "language", "letter_type", "user_defined"],
+        showProperties: [
+            "letter",
+            "language",
+            "letter_type",
+            "user_defined",
+            "created_by",
+            "updated_by",
+        ],
         filterProperties: ["letter", "language", "letter_type", "user_defined"],
         actions: {
             bulkDelete: { isAccessible: false },
@@ -34,6 +45,8 @@ export const LetterResource = {
             delete: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, 1),
+                before: [LetterDeleteBefore],
+                handler: [LetterDeleteHandler],
             },
             new: {
                 isAccessible: (context: ActionContext) =>

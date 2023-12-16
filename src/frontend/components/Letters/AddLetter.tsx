@@ -99,13 +99,11 @@ const AddLetter = () => {
                     message: "Letter added successfully",
                     type: "success",
                 });
-                setTimeout(() => {
-                    navigate("/admin/resources/letters");
-                }, 1000);
+                navigate("/admin/resources/letters");
             }
         } catch (error) {
             addNotice({
-                message: "Cannot add letter",
+                message: error.response.data,
                 type: "error",
             });
         }
