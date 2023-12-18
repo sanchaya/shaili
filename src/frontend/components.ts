@@ -25,6 +25,7 @@ const Components = {
         "Sidebar",
         "./components/Sidebar/Sidebar"
     ),
+    TopBar: componentLoader.override("TopBar", "./components/TopBar/TopBar"),
     Comparison: componentLoader.add(
         "Comparison",
         "./components/Comparison/Comparison"

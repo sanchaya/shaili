@@ -12,7 +12,7 @@ const TagsWrap = styled.div`
     padding: 1em;
     display: flex;
     flex-wrap: wrap;
-    gap: 30px 22.4px;
+    gap: 30px 25.4px;
 `;
 
 const AllTagsWrap = styled.div`

@@ -188,7 +188,7 @@ export const LetterTypeDeleteBefore = async (
 
     if (letterTypeId) {
         const letters = await Letters.findAll({
-            where: { id: letterTypeId },
+            where: { letter_type: letterTypeId },
         });
 
         if (letters.length > 0) {

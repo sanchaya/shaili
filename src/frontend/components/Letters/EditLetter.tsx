@@ -31,11 +31,12 @@ const EditLetter = (props) => {
         label: string;
     } | null>(null);
     const [currentAdmin] = useCurrentAdmin();
-    const [lettername, setLettername] = useState("");
+    const [lettername, setLettername] = useState(null);
     const addNotice = useNotice();
     const navigate = useNavigate();
 
     useEffect(() => {
+        setLettername(record.params.letter);
         const fetchData = async () => {
             try {
                 const [languagesResponse, letterTypesResponse] =
@@ -99,11 +100,6 @@ const EditLetter = (props) => {
         fetchData();
     }, [record.params?.language, record.params?.letter_type]);
 
-    const handleLanguageChange = (newValue: any) => {
-        setLanguage(newValue);
-        setLetterType(null);
-    };
-
     const saveLetter = async () => {
         const data = {
             id: record.params.id,
@@ -135,6 +131,11 @@ const EditLetter = (props) => {
         }
     };
 
+    const handleLanguageChange = (newValue: any) => {
+        setLanguage(newValue);
+        setLetterType(null);
+    };
+
     const handleLetternameChange = (event) => {
         setLettername(event.target.value);
     };
@@ -153,9 +154,7 @@ const EditLetter = (props) => {
                         <Input
                             id="letter"
                             name="letter"
-                            value={
-                                !lettername ? record.params.letter : lettername
-                            }
+                            value={lettername ? lettername : ""}
                             onChange={handleLetternameChange}
                         />
                     </FormGroup>
@@ -196,7 +195,7 @@ const EditLetter = (props) => {
                         variant="contained"
                         color="primary"
                         onClick={saveLetter}
-                        disabled={!language || !letterType}
+                        disabled={!language || !letterType || !lettername}
                     >
                         Update
                     </Button>
