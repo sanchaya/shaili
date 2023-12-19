@@ -42,7 +42,7 @@ const SidebarBranding: React.FC<Props> = (props) => {
     return (
         <StyledLogo
             className={cssClass("Logo")}
-            to={""}
+            to={"/admin"}
             data-css="sidebar-logo"
         >
             {logo ? (

@@ -15,30 +15,75 @@ interface IData {
     language: string;
 }
 
-const fetchTagData = (taggedLetters, letterType, language) => {
+const fetchTagData = async (
+    bookId,
+    letterType,
+    languages,
+    bookLanguage,
+    letters
+) => {
     const letterIdMap: Record<string, boolean> = {};
 
-    const mergedData: IData[] = taggedLetters
-        .map((item) => {
-            if (!letterIdMap[item.letter_id]) {
-                letterIdMap[item.letter_id] = true;
-                const matchingItem = letterType?.find(
-                    (val) => val.id === Number(item.letter.letter_type)
-                );
-                const languageValue = language?.find(
-                    (record) => record.language_code === matchingItem?.language
-                );
-                return {
-                    id: item.id,
-                    image: item.cropped_image,
-                    letter: item.letter.letter,
-                    type: matchingItem ? matchingItem.type : "",
-                    language: languageValue ? languageValue.language : "",
-                };
-            }
-            return null;
-        })
-        .filter((item): item is IData => item !== null);
+    const mergedData: IData[] = (
+        await Promise.all(
+            letters.map(async (letter) => {
+                const tag = await TaggedLetters.findOne({
+                    where: { letter_id: letter.id, book_id: bookId },
+                    include: [
+                        {
+                            model: Letters,
+                            as: "letter",
+                            attributes: ["letter", "letter_type"],
+                        },
+                    ],
+                });
+
+                if (tag && !letterIdMap[tag.dataValues.letter_id]) {
+                    letterIdMap[tag.dataValues.letter_id] = true;
+
+                    const matchingItem = letterType?.find(
+                        (val) =>
+                            val.id ===
+                            Number(tag.dataValues.letter.dataValues.letter_type)
+                    );
+
+                    const languageValue = languages?.find(
+                        (record) =>
+                            record.language_code === matchingItem?.language
+                    );
+                    return {
+                        image: tag.dataValues.cropped_image,
+                        letter: tag.dataValues.letter.dataValues.letter,
+                        type: matchingItem ? matchingItem.type : "",
+                        language: languageValue ? languageValue.language : "",
+                    };
+                } else if (!letterIdMap[letter.id]) {
+                    letterIdMap[letter.id] = true;
+
+                    const matchingItem = letterType?.find(
+                        (val) => val.id === Number(letter.letter_type)
+                    );
+
+                    const languageValue = languages?.find(
+                        (record) =>
+                            record.language_code === matchingItem?.language
+                    );
+                    if (bookLanguage === languageValue?.language) {
+                        return {
+                            image: "-",
+                            letter: letter.letter,
+                            type: matchingItem ? matchingItem.type : "",
+                            language: languageValue
+                                ? languageValue.language
+                                : "",
+                        };
+                    }
+                }
+
+                return null;
+            })
+        )
+    ).filter((item): item is IData => item !== null);
 
     const organizedData: Record<
         string,
@@ -60,29 +105,29 @@ const fetchTagData = (taggedLetters, letterType, language) => {
         });
     });
 
-    return organizedData;
+    const sortedData: Record<
+        string,
+        Record<string, { letter: string; image: string }[]>
+    > = {};
+
+    const sortedLanguages = Object.keys(organizedData).sort((a, b) => {
+        if (a === bookLanguage) return -1;
+        if (b === bookLanguage) return 1;
+        return a.localeCompare(b);
+    });
+
+    sortedLanguages.forEach((language) => {
+        sortedData[language] = organizedData[language];
+    });
+
+    return sortedData;
 };
 
 const createPdf = async (req: Request, res: Response) => {
     const bookId = req.query.bookId;
 
-    const taggedLetters = await TaggedLetters.findAll({
-        where: { book_id: Number(bookId) },
-        attributes: [
-            "id",
-            "book_id",
-            "cropped_image",
-            "letter_id",
-            "tagged_by",
-        ],
-        include: [
-            {
-                model: Letters,
-                as: "letter",
-                attributes: ["letter", "letter_type"],
-            },
-        ],
-        order: [["updated_at", "DESC"]],
+    const letters = await Letters.findAll({
+        attributes: ["id", "letter", "language", "letter_type"],
     });
 
     const languages = await Languages.findAll({
@@ -108,7 +153,13 @@ const createPdf = async (req: Request, res: Response) => {
         (record) => record.language_code === bookDetails?.dataValues.language
     );
 
-    const data = fetchTagData(taggedLetters, letterTypes, languages);
+    const data = await fetchTagData(
+        bookId,
+        letterTypes,
+        languages,
+        languageValue?.dataValues.language,
+        letters
+    );
 
     const templateData = {
         bookName: bookDetails?.dataValues.name,
@@ -126,7 +177,10 @@ const createPdf = async (req: Request, res: Response) => {
 
     await page.setContent(html);
 
-    const pdf = await page.pdf({ format: "A4" });
+    const pdf = await page.pdf({
+        format: "A4",
+        margin: { top: 40, left: 40, right: 40, bottom: 40 },
+    });
 
     await browser.close();
 

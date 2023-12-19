@@ -359,6 +359,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                         <NavWrapRight>
                             <PdfGenerator
                                 bookId={bookId}
+                                loading={loading}
                                 bookName={record.params.name}
                             />
                             <LanguageContainer>

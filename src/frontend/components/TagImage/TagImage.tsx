@@ -25,7 +25,7 @@ const DeleteIcon = styled.div`
     color: rgb(255, 255, 255);
     cursor: pointer;
     font-size: 18px;
-    z-index: 50;
+    z-index: 10;
 `;
 
 const LetterWrap = styled.div`
