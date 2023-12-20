@@ -4,6 +4,7 @@ import { Letters } from "./Letters.js";
 import { Books } from "./Books.js";
 
 interface ITaggedLetters {
+    [x: string]: any;
     id: number;
     book_id: number;
     letter_id: number;
