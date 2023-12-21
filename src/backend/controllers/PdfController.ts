@@ -36,6 +36,7 @@ const fetchTagData = async (
                             attributes: ["letter", "letter_type"],
                         },
                     ],
+                    order: [["updated_at", "DESC"]],
                 });
 
                 if (tag && !letterIdMap[tag.dataValues.letter_id]) {
