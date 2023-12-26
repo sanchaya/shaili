@@ -125,10 +125,15 @@ const FilterDrawer = ({
                     (book: { published_year: string }) =>
                         book.published_year != null
                 )
+                .sort()
                 .map((book: { published_year: string }) => ({
                     value: book.published_year,
                     label: book.published_year,
-                }));
+                }))
+                .sort((a: { label: string }, b: { label: string }) =>
+                    a.label > b.label ? 1 : -1
+                );
+
             PublishedYear = Array.from(
                 new Set(PublishedYear.map((a) => a.value))
             ).map((value) => {
@@ -143,7 +148,10 @@ const FilterDrawer = ({
                 .map((book: { printer_name: string }) => ({
                     value: book.printer_name,
                     label: book.printer_name,
-                }));
+                }))
+                .sort((a: { label: string }, b: { label: string }) =>
+                    a.label > b.label ? 1 : -1
+                );
             PrinterName = Array.from(
                 new Set(PrinterName.map((a) => a.value))
             ).map((value) => {
@@ -158,7 +166,11 @@ const FilterDrawer = ({
                 .map((book: { printer_location: string }) => ({
                     value: book.printer_location,
                     label: book.printer_location,
-                }));
+                }))
+                .sort((a: { label: string }, b: { label: string }) =>
+                    a.label > b.label ? 1 : -1
+                );
+
             PrinterLocation = Array.from(
                 new Set(PrinterLocation.map((a) => a.value))
             ).map((value) => {
@@ -222,10 +234,14 @@ const FilterDrawer = ({
             );
         }
 
-        const mappedBooks = filteredBooks?.map((book) => ({
-            value: book.id,
-            label: book.name,
-        }));
+        const mappedBooks = filteredBooks
+            ?.map((book) => ({
+                value: book.id,
+                label: book.name,
+            }))
+            .sort((a: { label: string }, b: { label: string }) =>
+                a.label > b.label ? 1 : -1
+            );
         const isBookAvailable = mappedBooks?.find(
             (item) => item.value === compareBook?.value
         );
@@ -259,7 +275,6 @@ const FilterDrawer = ({
                 `${BASE_URL}/tagged-letter?bookId=` + record.value
             );
             const letterIdMap: Record<string, boolean> = {};
-            console.log(response.data);
             const mergedData: IData[] = letters
                 .map((letter) => {
                     const foundLetter = response.data.find(
@@ -347,6 +362,9 @@ const FilterDrawer = ({
                 setCompareBook(record);
                 setCompareBookData(sortedData);
                 setShowFilter(false);
+                setPrinterLocation("");
+                setPrinterName("");
+                setPublishedYear("");
             }
             setCompareLoading(false);
         } catch (error) {

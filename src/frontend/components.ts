@@ -34,6 +34,10 @@ const Components = {
         "SingleCommentInList",
         "./components/Comments/SingleCommentInList"
     ),
+    ImportComponentNew: componentLoader.add(
+        "ImportComponentNew",
+        "./components/ImportExportComponent/ImportComponent"
+    ),
 };
 
 export { componentLoader, Components };
