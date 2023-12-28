@@ -1,10 +1,10 @@
-import UserRoles from "../../backend/db/models/UserRoles.js";
-import Users from "../../backend/db/models/Users.js";
+import Users from "../db/models/Users.js";
 import { menu } from "../../common/menu.js";
 import * as argon2 from "argon2";
 import passwordsFeature from "@adminjs/passwords";
-import { componentLoader } from "../../frontend/components.js";
+import { Components, componentLoader } from "../../frontend/components.js";
 import { ActionContext } from "adminjs";
+import { UserEditHandler, hashPassword } from "../utils/UsersResourceUtils.js";
 
 const isAccessible = (context: ActionContext, role: number) => {
     const { currentAdmin, record, action } = context;
@@ -15,24 +15,7 @@ const isAccessible = (context: ActionContext, role: number) => {
     }
 };
 
-const hashPassword = async (request: {
-    payload: { newPassword: string | Buffer };
-}) => {
-    if (request.payload?.newPassword) {
-        request.payload.newPassword = await argon2.hash(
-            request.payload.newPassword
-        );
-    }
-    return request;
-};
-
-let roles = await UserRoles.findAll({ attributes: ["id", "role"] });
-const availableRoles = roles.map((role) => ({
-    value: role.id,
-    label: role.role,
-}));
-
-export const AdminResource = {
+export const UsersResource = {
     resource: Users,
     features: [
         passwordsFeature({
@@ -51,17 +34,24 @@ export const AdminResource = {
         showProperties: ["name", "email", "role"],
         properties: {
             password: { isVisible: false },
-            role: {
-                availableValues: [
-                    { value: "", label: "Select a role", placeholder: true },
-                    ...availableRoles,
-                ],
-            },
+            newPassword: { isRequired: true },
         },
         actions: {
-            edit: {
+            list: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, 1),
+            },
+            edit: {
+                component: Components.UserEditAction,
+                isAccessible: (context) => {
+                    const { record, currentAdmin } = context;
+                    return (
+                        record?.params?.id === currentAdmin.id ||
+                        currentAdmin?.role === 1
+                    );
+                },
+                before: hashPassword,
+                handler: UserEditHandler,
             },
             show: {
                 isAccessible: (context: ActionContext) =>

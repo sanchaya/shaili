@@ -48,19 +48,21 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
     const parser = fs.createReadStream(filePath).pipe(csvParser());
 
     for await (const data of parser) {
-        const letter = await Letters.findOne({
-            where: { letter: data.letter },
-        });
-        if (!letter) {
-            const letterType = await getLetterTypeIdAsync(
-                data.letter_type,
-                data.language
-            );
-            data.letter_type = letterType;
-            data.created_by = currentAdmin?.id;
-            data.updated_by = currentAdmin?.id;
-            data.user_defined = 0;
-            result.push(data);
+        if (data.letter && data.letter_type) {
+            const letter = await Letters.findOne({
+                where: { letter: data.letter },
+            });
+            if (!letter) {
+                const letterType = await getLetterTypeIdAsync(
+                    data.letter_type,
+                    data.language
+                );
+                data.letter_type = letterType;
+                data.created_by = currentAdmin?.id;
+                data.updated_by = currentAdmin?.id;
+                data.user_defined = 0;
+                result.push(data);
+            }
         }
     }
 
