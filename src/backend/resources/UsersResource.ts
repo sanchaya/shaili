@@ -3,7 +3,7 @@ import { menu } from "../../common/menu.js";
 import * as argon2 from "argon2";
 import passwordsFeature from "@adminjs/passwords";
 import { Components, componentLoader } from "../../frontend/components.js";
-import { ActionContext } from "adminjs";
+import { ActionContext, CurrentAdmin, ListActionResponse } from "adminjs";
 import { UserEditHandler, hashPassword } from "../utils/UsersResourceUtils.js";
 
 const isAccessible = (context: ActionContext, role: number) => {
@@ -40,6 +40,24 @@ export const UsersResource = {
             list: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, 1),
+                after: async (
+                    response: ListActionResponse,
+                    context: { session: CurrentAdmin }
+                ) => {
+                    let foundIndex = -1;
+
+                    response.records.forEach((record, index) => {
+                        if (record.params.id === context.session.adminUser.id) {
+                            foundIndex = index;
+                        }
+                    });
+
+                    if (foundIndex !== -1) {
+                        response.records.splice(foundIndex, 1);
+                        response.meta.total--;
+                    }
+                    return response;
+                },
             },
             edit: {
                 component: Components.UserEditAction,
