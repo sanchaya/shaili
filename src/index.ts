@@ -9,11 +9,12 @@ import { componentLoader } from "./frontend/components.js";
 import { sequelize } from "./backend/db/config/config.js";
 import Users from "./backend/db/models/Users.js";
 import NonAdminRouter from "./backend/routers/NonAdminRouters.js";
-import { AdminResource } from "./backend/resources/AdminResource.js";
+import { UsersResource } from "./backend/resources/UsersResource.js";
 import * as url from "url";
 import { LetterTypesResource } from "./backend/resources/LetterTypesResource.js";
 import { LanguagesResource } from "./backend/resources/LanguagesResource.js";
 import { CommentsResource } from "./backend/resources/CommentsResource.js";
+import { UserRolesResource } from "./backend/resources/UserRolesResource.js";
 
 const PORT = 8000;
 
@@ -53,7 +54,8 @@ const start = async () => {
             withMadeWithLove: false,
         },
         resources: [
-            AdminResource,
+            UsersResource,
+            UserRolesResource,
             LanguagesResource,
             LetterTypesResource,
             LetterResource,

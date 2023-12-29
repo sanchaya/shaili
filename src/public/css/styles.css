@@ -260,6 +260,15 @@ html,
     line-height: 1.5em;
 }
 
+.disabled-role {
+    border-color: rgba(187, 195, 203, 0.5);
+    background-color: rgba(187, 195, 203, 0.5);
+}
+
+.disabled-role .css-3ynj00-singleValue {
+    color: rgba(69, 70, 85, 0.5);
+}
+
 @media screen and (max-width: 769px) {
     .sectionInnerWrap {
         height: auto;

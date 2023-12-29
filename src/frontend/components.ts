@@ -38,6 +38,14 @@ const Components = {
         "ImportComponentNew",
         "./components/ImportExportComponent/ImportComponent"
     ),
+    LoggedIn: componentLoader.override(
+        "LoggedIn",
+        "./components/LoggedIn/LoggedIn"
+    ),
+    UserEditAction: componentLoader.add(
+        "UserEditAction",
+        "./components/UserEditAction/UserEditAction"
+    ),
 };
 
 export { componentLoader, Components };
