@@ -136,6 +136,8 @@ export const LanguageEditHandler = async (request, response, context) => {
         {
             language: request.payload.language,
             language_code: request.payload.language_code,
+            alt_lang_code: request.payload.alt_lang_code,
+            description: request.payload.description,
             updated_by: currentAdmin.id,
         },
         { where: { id: request.payload.id } }

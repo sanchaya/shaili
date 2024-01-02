@@ -9,25 +9,49 @@ import {
     LanguageEditBefore,
     LanguageEditHandler,
 } from "../utils/LanguageResourceUtils.js";
+import { components } from "react-select";
 
 const isAccessible = (context: ActionContext, role: number) => {
     const { currentAdmin } = context;
     return role === currentAdmin?.role;
 };
 
+const beforeLanguagesShowHook = (request, context) => {
+
+    const { record } = context;
+    const values = record.params
+
+    for (let key in values) {
+        if (values[key] === "" || values[key] === null) {
+            values[key] = "-";
+        }
+    }
+    return context;
+};
+
+const afterLanguagesListHook = (response) => {
+    response.records.forEach((record) => {
+        record.params.alt_lang_code = (record.params.alt_lang_code === null 
+            || record.params.alt_lang_code === undefined) ? "-" : 
+            record.params.alt_lang_code;
+    });
+    return response;
+  }
+
 export const LanguagesResource = {
     resource: Languages,
     options: {
         navigation: menu.Languages,
-        editProperties: ["language", "language_code"],
-        listProperties: ["language", "language_code"],
-        showProperties: ["language", "language_code"],
-        filterProperties: ["language", "language_code"],
+        editProperties: ["language", "language_code","alt_lang_code","description"],
+        listProperties: ["language", "language_code","alt_lang_code"],
+        showProperties: ["language", "language_code","alt_lang_code","description"],
+        filterProperties: ["language", "language_code","alt_lang_code"],
         actions: {
             bulkDelete: { isAccessible: false },
             list: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, 1),
+                    after: [afterLanguagesListHook]
             },
             new: {
                 isAccessible: (context: ActionContext) =>
@@ -50,6 +74,7 @@ export const LanguagesResource = {
             show: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, 1),
+                    before: [beforeLanguagesShowHook],
             },
         },
     },

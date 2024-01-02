@@ -5,6 +5,8 @@ interface ILanguages {
     id: number;
     language: string;
     language_code: string;
+    alt_lang_code: string;
+    description: string;
     created_at: Date;
     updated_at: Date;
     created_by: number;
@@ -15,6 +17,8 @@ export class Languages extends Model<ILanguages> {
     declare id: number;
     declare language: string;
     declare language_code: string;
+    declare alt_lang_code: string;
+    declare description: string;
     declare created_by: number;
     declare updated_by: number;
     declare created_at: Date;
@@ -46,6 +50,12 @@ Languages.init(
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
+        },
+        alt_lang_code: {
+            type: DataTypes.STRING,
+        },
+        description: {
+            type: DataTypes.STRING
         },
         created_by: {
             type: new DataTypes.INTEGER(),
