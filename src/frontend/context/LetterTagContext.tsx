@@ -11,14 +11,13 @@ interface ITags {
 interface IAddTag {
     book_id: number;
     letter_id: number | undefined;
-    cropped_image: string;
+    croppedImage: string;
     tagged_by: number | undefined;
 }
 interface IUpdateTag {
     id: number;
     book_id: number;
     letter_id: number | undefined;
-    cropped_image: string;
     tagged_by: number | undefined;
 }
 

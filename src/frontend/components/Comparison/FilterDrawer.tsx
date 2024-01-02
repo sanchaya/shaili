@@ -295,7 +295,7 @@ const FilterDrawer = ({
                                 record.language_code === matchingItem?.language
                         );
                         return {
-                            image: foundLetter.cropped_image,
+                            image: foundLetter.tag_path,
                             letter: foundLetter.letter.letter,
                             type: matchingItem ? matchingItem.type : "",
                             language: language ? language.language : "",

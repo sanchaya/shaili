@@ -124,7 +124,7 @@ const CreateLetter: React.FC<ICreateLetter> = ({
             const data = {
                 book_id: bookId,
                 letter_id: letterId,
-                cropped_image: tag,
+                croppedImage: tag,
                 tagged_by: Number(currentAdmin?.id),
             };
 
@@ -148,7 +148,6 @@ const CreateLetter: React.FC<ICreateLetter> = ({
                 id: tagId!,
                 book_id: bookId,
                 letter_id: letterId,
-                cropped_image: tag!,
                 tagged_by: Number(currentAdmin?.id),
             };
             updateTag(data)
