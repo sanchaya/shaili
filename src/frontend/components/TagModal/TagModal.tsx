@@ -78,7 +78,7 @@ const TagModal: React.FC<ITagModalProps> = ({
             const data = {
                 book_id: bookId,
                 letter_id: letter?.value,
-                cropped_image: tag,
+                croppedImage: tag,
                 tagged_by: Number(currentAdmin?.id),
             };
 
@@ -102,7 +102,6 @@ const TagModal: React.FC<ITagModalProps> = ({
                 id: tagId!,
                 book_id: bookId,
                 letter_id: letter?.value,
-                cropped_image: image!,
                 tagged_by: Number(currentAdmin?.id),
             };
             updateTag(data)

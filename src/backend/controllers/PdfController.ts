@@ -6,6 +6,9 @@ import puppeteer from "puppeteer";
 import edge from "../../common/EdgeConfig.js";
 import { Languages } from "../db/models/Languages.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
+import fs from "fs";
+import path from "path";
+import * as url from "url";
 
 interface IData {
     id: number;
@@ -52,8 +55,22 @@ const fetchTagData = async (
                         (record) =>
                             record.language_code === matchingItem?.language
                     );
+                    const __dirname = url.fileURLToPath(
+                        new URL(".", import.meta.url)
+                    );
+                    const currentDirectory = path.dirname(__dirname);
+                    const tagsDirectory = path.resolve(
+                        currentDirectory,
+                        "../public/"
+                    );
+                    const tagString = fs
+                        .readFileSync(
+                            tagsDirectory + "/" + tag.dataValues.tag_path
+                        )
+                        .toString("base64");
+
                     return {
-                        image: tag.dataValues.cropped_image,
+                        image: "data:image/jpg;base64," + tagString,
                         letter: tag.dataValues.letter.dataValues.letter,
                         type: matchingItem ? matchingItem.type : "",
                         language: languageValue ? languageValue.language : "",
@@ -161,7 +178,7 @@ const createPdf = async (req: Request, res: Response) => {
         languageValue?.dataValues.language,
         letters
     );
-
+ 
     const templateData = {
         bookName: bookDetails?.dataValues.name,
         publisher: bookDetails?.dataValues.publisher_name,

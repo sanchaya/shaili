@@ -4,6 +4,11 @@ import { TaggedLetters } from "../db/models/TaggedLetters.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
 import { Books } from "../db/models/Books.js";
 import { Sequelize } from "sequelize";
+import fs from "fs";
+import path from "path";
+import * as url from "url";
+import { mkdir } from "node:fs/promises";
+import { Languages } from "../db/models/Languages.js";
 
 export const getLetterTypes = async (req: Request, res: Response) => {
     const letterTypes = await LetterTypes.findAll({
@@ -21,13 +26,26 @@ export const getLetters = async (req: Request, res: Response) => {
 
 export const saveTag = async (req: any, res: Response) => {
     try {
-        const { book_id, letter_id, cropped_image, tagged_by } = req.body;
+        const { book_id, letter_id, tagged_by, croppedImage } = req.body;
+        const bookData = await Books.findOne({
+            where: { id: book_id },
+        });
+        const letterData = await Letters.findOne({
+            where: { id: letter_id },
+        });
+        const tag_path = await storeTagImage(
+            bookData,
+            letterData,
+            croppedImage
+        );
+
         const taggedLetter = await TaggedLetters.create({
             book_id,
             letter_id,
-            cropped_image,
             tagged_by,
+            tag_path,
         });
+
         const bookCurrentStatus = await Books.findOne({
             where: { id: book_id },
             attributes: ["status"],
@@ -55,6 +73,7 @@ export const saveTag = async (req: any, res: Response) => {
         return res.status(500).send("Error saving the tagged letter");
     }
 };
+
 const getTaggedLetter = async (req: Request, res: Response) => {
     const bookId = req.query.bookId;
 
@@ -78,10 +97,25 @@ const deleteTaggedLetter = async (req: Request, res: Response) => {
     const taggedLetterId = Number(req.query.id);
 
     try {
-        const taggedLetters = TaggedLetters.destroy({
+        const tagsDirectory = getTagsDirectory();
+        const taggedLetter = await TaggedLetters.findOne({
             where: { id: taggedLetterId },
         });
-        res.status(200).json({ message: "Tagged letter deleted successfully" });
+        const tagPath = tagsDirectory + taggedLetter?.dataValues.tag_path;
+        if (fs.existsSync(tagPath)) {
+            fs.unlink(tagPath, async (err) => {
+                if (err) {
+                    throw new Error();
+                } else {
+                    await TaggedLetters.destroy({
+                        where: { id: taggedLetterId },
+                    });
+                    res.status(200).json({
+                        message: "Tagged letter deleted successfully",
+                    });
+                }
+            });
+        }
     } catch (error) {
         res.status(500).json({ error: "Server error" });
     }
@@ -89,28 +123,37 @@ const deleteTaggedLetter = async (req: Request, res: Response) => {
 
 const updateTag = async (req: any, res: Response) => {
     try {
-        const { id, book_id, letter_id, cropped_image, tagged_by } = req.body;
-        const taggedLetter = await TaggedLetters.update(
-            {
-                book_id,
-                letter_id,
-                cropped_image,
-                tagged_by,
-            },
-            { where: { id: id } }
-        );
+        const { id, book_id, letter_id, tagged_by } = req.body;
 
-        if (taggedLetter) {
-            const response = await TaggedLetters.findOne({
-                where: { id: id },
-                include: {
-                    model: Letters,
-                    as: "letter",
-                    attributes: ["letter", "letter_type"],
+        const letterData = await Letters.findOne({
+            where: { id: letter_id },
+        });
+
+        const tag_path = (await updateTagImage(id, letterData)) as string;
+
+        if (tag_path) {
+            const taggedLetter = await TaggedLetters.update(
+                {
+                    book_id,
+                    letter_id,
+                    tagged_by,
+                    tag_path,
                 },
-            });
+                { where: { id: id } }
+            );
 
-            return res.status(200).json(response);
+            if (taggedLetter) {
+                const response = await TaggedLetters.findOne({
+                    where: { id: id },
+                    include: {
+                        model: Letters,
+                        as: "letter",
+                        attributes: ["letter", "letter_type"],
+                    },
+                });
+
+                return res.status(200).json(response);
+            }
         }
     } catch (error) {
         return res.status(500).send("Error saving the tagged letter");
@@ -165,7 +208,6 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
                 where: {
                     letter_id: Sequelize.col("Letters.id"),
                     book_id: bookId,
-                    deleted_at: null,
                 },
             },
             where: {
@@ -179,9 +221,98 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
 
         return res.status(200).json(tagPercentage);
     } catch (error) {
-        console.log(error);
         res.status(500).json({ error: "Failed to calculate tag percentage" });
     }
+};
+
+const storeTagImage = async (bookData, letterData, croppedImage) => {
+    const bookName = bookData.dataValues.name;
+    const letter = letterData.dataValues.letter;
+    const letterLanguageCode = letterData.dataValues.language;
+    const tagsDirectory = getTagsDirectory();
+    const base64Data = croppedImage.replace(/^data:image\/\w+;base64,/, "");
+    const bufferData = Buffer.from(base64Data, "base64");
+    const bookDirectory = tagsDirectory + "/tags/" + bookName;
+    const letterLanguage = await Languages.findOne({
+        where: { language_code: letterLanguageCode },
+    });
+
+    if (!fs.existsSync(bookDirectory)) {
+        await mkdir(bookDirectory, { recursive: true });
+    }
+
+    const fileName =
+        letter + "_" + letterLanguage?.dataValues.language + ".jpg";
+    const filePathBase = bookDirectory + "/" + fileName;
+
+    let counter = 1;
+    let filePath = filePathBase;
+
+    while (fs.existsSync(filePath)) {
+        filePath = `${filePathBase.replace(".jpg", `(${counter}).jpg`)}`;
+        counter++;
+    }
+
+    return new Promise((resolve, reject) => {
+        fs.writeFile(filePath, bufferData, (err) => {
+            if (err) {
+                reject("Error storing tag");
+            } else {
+                resolve("/tags/" + bookName + "/" + path.basename(filePath));
+            }
+        });
+    });
+};
+
+const updateTagImage = async (tagId, letterData) => {
+    const tagsDirectory = getTagsDirectory();
+    const oldTag = await TaggedLetters.findOne({
+        where: { id: tagId },
+    });
+    const newLetter = letterData.dataValues.letter;
+    const newLetterLanguageCode = letterData.dataValues.language;
+    const letterLanguage = await Languages.findOne({
+        where: { language_code: newLetterLanguageCode },
+    });
+
+    if (oldTag?.dataValues.letter_id != letterData.dataValues.id) {
+        const oldTagPath = tagsDirectory + oldTag?.dataValues.tag_path;
+        const newFileName =
+            newLetter + "_" + letterLanguage?.dataValues.language + ".jpg";
+        const oldDirectory = path.dirname(oldTagPath);
+        let newFilePath = path.join(oldDirectory, newFileName);
+        let counter = 1;
+
+        while (fs.existsSync(newFilePath)) {
+            newFilePath = path.join(
+                oldDirectory,
+                `${newLetter}_${letterLanguage?.dataValues.language}(${counter}).jpg`
+            );
+            counter++;
+        }
+
+        return new Promise((resolve, reject) => {
+            fs.rename(oldTagPath, newFilePath, (err) => {
+                if (err) {
+                    reject("Error storing tag");
+                } else {
+                    const parsedPath = path.parse(newFilePath);
+                    const tagPath =
+                        "/" +
+                        parsedPath.dir.split("/public/")[1] +
+                        "/" +
+                        parsedPath.base;
+                    resolve(tagPath);
+                }
+            });
+        });
+    }
+};
+
+const getTagsDirectory = () => {
+    const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
+    const currentDirectory = path.dirname(__dirname);
+    return path.resolve(currentDirectory, "../public");
 };
 
 export default {
