@@ -17,7 +17,7 @@ export const LanguageCreateBefore = async (
 
     if (request.method != "post") return request;
 
-    const { language_code = "" } = payload;
+    const { language_code = "" ,description = "" } = payload;
     const errors: Record<string, any> = {};
 
     if (language_code) {
@@ -34,6 +34,16 @@ export const LanguageCreateBefore = async (
             }
         }
     }
+
+    if (description.length > 150) {
+        errors.description = {
+            message: `Description must be no longer than 150 characters`,
+        };
+        if (Object.keys(errors).length) {
+            throw new ValidationError(errors);
+        }
+    }
+
     return { request, context };
 };
 
@@ -94,7 +104,7 @@ export const LanguageEditBefore = async (request: ActionRequest) => {
     if (request.method != "post") return request;
 
     const languageCode = request.params.recordId;
-    const { language_code = "" } = payload;
+    const { language_code = "" ,description = "" } = payload;
     const errors: Record<string, any> = {};
 
     if (language_code != languageCode) {
@@ -115,11 +125,21 @@ export const LanguageEditBefore = async (request: ActionRequest) => {
             }
         }
     }
+
+    if (description.length > 150) {
+        errors.description = {
+            message: `Description must be no longer than 150 characters`,
+        };
+        if (Object.keys(errors).length) {
+            throw new ValidationError(errors);
+        }
+    }
     return request;
 };
 
 export const LanguageEditHandler = async (request, response, context) => {
     const { record, resource, currentAdmin, h } = context;
+    
     if (!record) {
         throw new NotFoundError(
             [

@@ -269,6 +269,14 @@ html,
     color: rgba(69, 70, 85, 0.5);
 }
 
+[data-css="languages-table-body"] td:first-child {
+    width: auto;
+}
+
+[data-css="languages-table-body"] td {
+    width: 20%;
+}
+
 @media screen and (max-width: 769px) {
     .sectionInnerWrap {
         height: auto;
