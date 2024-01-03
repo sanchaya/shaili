@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/config.js";
+import { LetterTypes } from "./LetterTypes.js";
 import Users from "./Users.js";
 interface ILanguages {
     id: number;
@@ -85,3 +86,15 @@ Languages.init(
         underscored: true,
     }
 );
+
+Languages.afterCreate(async (language) => {
+    const defaultData = [
+      { type: "Vowels", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by},
+      { type: "Consonants", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
+      { type: "Conjuncts", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
+      { type: "Numerals", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
+      { type: "Special Symbols", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
+      { type: "Custom Symbols", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
+    ];
+    await LetterTypes.bulkCreate(defaultData);
+});
