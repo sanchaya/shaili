@@ -145,7 +145,7 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                                                 width: "60px",
                                                 borderRadius: "10px",
                                             }}
-                                            src={taggedLetter.cropped_image}
+                                            src={taggedLetter.tag_path}
                                             key={index}
                                         />
                                     </TableCell>
@@ -166,7 +166,7 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                                                 )
                                                     ? () => {
                                                           setTag(
-                                                              taggedLetter.cropped_image
+                                                              taggedLetter.tag_path
                                                           );
                                                           setTagId(
                                                               taggedLetter.id

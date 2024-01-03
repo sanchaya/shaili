@@ -15,6 +15,8 @@ import { LetterTypesResource } from "./backend/resources/LetterTypesResource.js"
 import { LanguagesResource } from "./backend/resources/LanguagesResource.js";
 import { CommentsResource } from "./backend/resources/CommentsResource.js";
 import { UserRolesResource } from "./backend/resources/UserRolesResource.js";
+import { mkdir } from "node:fs/promises";
+import fs from "fs";
 
 const PORT = 8000;
 
@@ -115,6 +117,13 @@ const start = async () => {
 
     admin.watch();
     app.use(express.static(path.join(__dirname, "./public")));
+    const directoryPath = path.join(__dirname, "public", "tags");
+    if (!fs.existsSync(directoryPath)) {
+        await mkdir(directoryPath, {
+            recursive: true,
+        });
+    }
+
     app.use(express.json({ limit: "50mb" }));
     app.use("/admin", NonAdminRouter);
     app.use("/admin", AdminRouter);

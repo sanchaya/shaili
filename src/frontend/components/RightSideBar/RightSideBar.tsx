@@ -287,7 +287,7 @@ const RightSideBar = ({
                                                                                                         taggedLetter.letter_id ===
                                                                                                         letter.id
                                                                                                 )
-                                                                                                    ?.cropped_image
+                                                                                                    ?.tag_path
                                                                                             }
                                                                                         />
                                                                                         {
@@ -338,24 +338,35 @@ const RightSideBar = ({
                         <Loader />
                     ) : tags.recentLetters.length != 0 ? (
                         <TagsWrap>
-                            {tags.recentLetters.map(
-                                (
-                                    recentTaggedLetter: TaggedLetters,
-                                    index: number
-                                ) => (
-                                    <TagImage
-                                        taggedBy={recentTaggedLetter.tagged_by}
-                                        key={index}
-                                        bookId={bookId}
-                                        tagId={recentTaggedLetter.id}
-                                        image={recentTaggedLetter.cropped_image}
-                                        letter={
-                                            recentTaggedLetter.letter.letter
-                                        }
-                                        letterId={recentTaggedLetter.letter_id}
-                                    />
+                            {tags.recentLetters
+                                .slice()
+                                .sort(
+                                    (a, b) =>
+                                        new Date(b.updated_at).getTime() -
+                                        new Date(a.updated_at).getTime()
                                 )
-                            )}
+                                .map(
+                                    (
+                                        recentTaggedLetter: TaggedLetters,
+                                        index: number
+                                    ) => (
+                                        <TagImage
+                                            taggedBy={
+                                                recentTaggedLetter.tagged_by
+                                            }
+                                            key={index}
+                                            bookId={bookId}
+                                            tagId={recentTaggedLetter.id}
+                                            image={recentTaggedLetter.tag_path}
+                                            letter={
+                                                recentTaggedLetter.letter.letter
+                                            }
+                                            letterId={
+                                                recentTaggedLetter.letter_id
+                                            }
+                                        />
+                                    )
+                                )}
                         </TagsWrap>
                     ) : (
                         <p style={{ padding: "20px" }}>

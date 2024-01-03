@@ -8,7 +8,7 @@ interface ITaggedLetters {
     id: number;
     book_id: number;
     letter_id: number;
-    cropped_image: string;
+    tag_path: string;
     tagged_by: string;
     created_at: Date;
     updated_at: Date;
@@ -26,7 +26,7 @@ export class TaggedLetters extends Model<
     declare id: number;
     declare book_id: number;
     declare letter_id: number;
-    declare cropped_image: string;
+    declare tag_path: string;
     declare tagged_by: string;
     declare letter: Letters;
     declare created_at: Date;
@@ -48,8 +48,8 @@ TaggedLetters.init(
             type: DataTypes.INTEGER(),
             allowNull: false,
         },
-        cropped_image: {
-            type: DataTypes.TEXT("long"),
+        tag_path: {
+            type: DataTypes.STRING(),
             allowNull: false,
         },
         tagged_by: {
@@ -66,7 +66,6 @@ TaggedLetters.init(
     {
         sequelize,
         underscored: true,
-        paranoid: true,
         tableName: "tagged_letters",
         modelName: "TaggedLetters",
     }
