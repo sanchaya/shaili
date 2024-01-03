@@ -14,6 +14,7 @@ export const LanguageCreateBefore = async (
     context: ActionContext
 ) => {
     const { payload = {} } = request;
+    payload.language_code = payload.language_code.toLowerCase();
 
     if (request.method != "post") return request;
 
@@ -100,7 +101,8 @@ export const LanguageCreateHandler = async (props) => {
 
 export const LanguageEditBefore = async (request: ActionRequest) => {
     const { payload = {} } = request;
-
+    payload.language_code = payload.language_code.toLowerCase();
+    
     if (request.method != "post") return request;
 
     const languageCode = request.params.recordId;
