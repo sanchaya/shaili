@@ -14,6 +14,9 @@ import {
     BookDeleteBefore,
     BookDeleteHandler,
 } from "../utils/BookResourceUtils.js";
+import csvParser from "csv-parser";
+import fs from "fs";
+import { Languages } from "../db/models/Languages.js";
 
 const isAccessible = (context: ActionContext, role: number[]) => {
     const { currentAdmin } = context;
@@ -45,6 +48,51 @@ const properties = [
     "printer_name",
     "status",
 ];
+
+const importBefore = async (request: ActionRequest, context: ActionContext) => {
+    const filePath = request.payload?.file.path;
+    const result: Books[] = [];
+
+    const parser = fs.createReadStream(filePath).pipe(csvParser());
+
+    for await (const data of parser) {
+        if (data.language && data.name && data.identifier && data.url) {
+            const language = await Languages.findOne({
+                where: { language_code: data.language.toLowerCase() },
+            });
+            
+            if (language) {
+                data.language = data.language.toLowerCase();
+                result.push(data);
+            }
+        }
+    }
+
+    return { request, context, result };
+};
+
+const importHandler = async (props) => {
+    const records = await Books.bulkCreate(props.result);
+    const { context } = props;
+    const { resource, h } = context;
+    const createdRecords = records.map((record) => record.dataValues.name);
+
+    if (records) {
+        return {
+            redirectUrl: h.resourceUrl({
+                resourceId: resource._decorated?.id() || resource.id(),
+            }),
+            notice: {
+                message:
+                    createdRecords.length == 1
+                        ? createdRecords.length + " Book added"
+                        : createdRecords.length + " Books added",
+                type: "success",
+            },
+            createdRecords: createdRecords.length,
+        };
+    }
+};
 
 export const BookResource = {
     resource: Books,
@@ -89,6 +137,9 @@ export const BookResource = {
             import: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, [1]),
+                before: [importBefore],
+                handler: [importHandler],
+                component: Components.ImportComponentNew,
             },
             export: {
                 isAccessible: (context: ActionContext) =>
