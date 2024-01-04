@@ -101,8 +101,11 @@ export const LanguageCreateHandler = async (props) => {
 
 export const LanguageEditBefore = async (request: ActionRequest) => {
     const { payload = {} } = request;
-    payload.language_code = payload.language_code.toLowerCase();
-    
+
+    if(payload.language_code){
+        payload.language_code = payload.language_code.toLowerCase();
+    }
+        
     if (request.method != "post") return request;
 
     const languageCode = request.params.recordId;
@@ -128,7 +131,7 @@ export const LanguageEditBefore = async (request: ActionRequest) => {
         }
     }
 
-    if (description.length > 150) {
+    if (description && description.length && description.length > 150) {
         errors.description = {
             message: `Description must be no longer than 150 characters`,
         };
