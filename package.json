@@ -8,7 +8,7 @@
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "ts-node dist/index.js",
         "build": "pnpm clean && tsc && pnpm copy-files && pnpm copy-env",
-        "clean": "rm -rf ./dist",
+        "clean": "mkdir -p ./dist && mkdir -p ./dist/public && find ./dist -mindepth 1 -maxdepth 1 ! -name 'public' -exec rm -rf {} \\; && find ./dist/public -mindepth 1 -maxdepth 1 ! -name 'tags' -exec rm -rf {} \\;",
         "copy-files": "cp -r ./src/public/ ./dist/ && cp -r ./src/frontend/views/ ./dist/frontend/ && cp -r ./src/backend/templates/ ./dist/backend/",
         "copy-env": "cp .env ./dist/",
         "dev": "nodemon --exec node --loader ts-node/esm src/index.ts",
