@@ -8,6 +8,9 @@ import {
 import { LetterTypes } from "../db/models/LetterTypes.js";
 import { Books } from "../db/models/Books.js";
 import { Languages } from "../db/models/Languages.js";
+import { Letters } from "../db/models/Letters.js";
+import { TaggedLetters } from "../db/models/TaggedLetters.js";
+import { Op } from "sequelize";
 
 export const LanguageCreateBefore = async (
     request: ActionRequest,
@@ -202,15 +205,26 @@ export const LanguageDeleteBefore = async (
         const books = await Books.findAll({
             where: { language: languageCode },
         });
-        const letterTypes = await LetterTypes.findAll({
+   
+        const letters = await Letters.findAll({
             where: { language: languageCode },
         });
+   
+        const letterIds = letters.map((e: Letters) => e.id);
 
-        if (books.length > 0 || letterTypes.length > 0) {
+        const taggedLetters = await TaggedLetters.findAll({
+            where: {
+                letter_id: {
+                    [Op.in]: letterIds,
+                },
+            },
+        });
+        
+        if (books.length > 0 || taggedLetters.length > 0) {
             return {
                 error: true,
                 message:
-                    "Cannot delete the language, it is associated with a book/letter type",
+                    "unable to delete the selected language. It is associated with the books/tagged letter",
             };
         }
     }
@@ -230,6 +244,19 @@ export const LanguageDeleteHandler = async (props) => {
     } else {
         const { record, resource, currentAdmin, h } = context;
         if (request.params.recordId) {
+            
+            await Letters.destroy({
+                where: {
+                    language: request.params.recordId,
+                },
+            });
+
+            await LetterTypes.destroy({
+                where: {
+                    language: request.params.recordId,
+                },
+            });
+            
             await Languages.destroy({
                 where: {
                     language_code: request.params.recordId,
