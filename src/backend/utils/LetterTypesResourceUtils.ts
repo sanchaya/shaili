@@ -5,9 +5,11 @@ import {
     paramConverter,
     NotFoundError,
 } from "adminjs";
+import { Op } from "sequelize";
 
 import { Letters } from "../db/models/Letters.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
+import { TaggedLetters } from "../db/models/TaggedLetters.js";
 
 export const LetterTypeCreateBefore = async (
     request: ActionRequest,
@@ -191,11 +193,21 @@ export const LetterTypeDeleteBefore = async (
             where: { letter_type: letterTypeId },
         });
 
-        if (letters.length > 0) {
+        const letterIds = letters.map((e: Letters) => e.id);
+
+        const taggedLetters = await TaggedLetters.findAll({
+            where: {
+                letter_id: {
+                    [Op.in]: letterIds,
+                },
+            },
+        });
+        
+        if (taggedLetters.length > 0) {
             return {
                 error: true,
                 message:
-                    "Cannot delete the letter type, it is associated with letter",
+                    "unable to delete the selected letter Type. It is associated with the tagged letter",
             };
         }
     }
@@ -215,6 +227,13 @@ export const LetterTypeDeleteHandler = async (props) => {
     } else {
         const { record, resource, currentAdmin, h } = context;
         if (request.params.recordId) {
+
+            await Letters.destroy({
+                where: {
+                    letter_type: request.params.recordId,
+                },
+            });
+
             await LetterTypes.destroy({
                 where: {
                     id: request.params.recordId,
