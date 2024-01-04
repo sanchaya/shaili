@@ -46,6 +46,10 @@ const Components = {
         "UserEditAction",
         "./components/UserEditAction/UserEditAction"
     ),
+    LanguageShow: componentLoader.add(
+        "LanguageShow",
+        "./components/LanguageShow/LanguageShow"
+    ),
 };
 
 export { componentLoader, Components };
