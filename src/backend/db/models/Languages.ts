@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../config/config.js";
 import { LetterTypes } from "./LetterTypes.js";
-import Users from "./Users.js";
+
 interface ILanguages {
     id: number;
     language: string;
