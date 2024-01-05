@@ -79,6 +79,46 @@ const start = async () => {
         env: {
             BASE_URL: process.env.BASE_URL || "",
         },
+        locale: {
+            language: "en",
+            translations: {
+                en: {
+                    resources: {
+                        languages: {
+                            actions: {
+                                list: "Languages",
+                                show: "Letters",
+                            },
+                        },
+                        letter_types: {
+                            actions: {
+                                list: "Letter Types",
+                            },
+                        },
+                        letters: {
+                            actions: {
+                                list: "Letters",
+                            },
+                        },
+                        users: {
+                            actions: {
+                                list: "Users",
+                            },
+                        },
+                        comments: {
+                            actions: {
+                                list: "Comments",
+                            },
+                        },
+                        books: {
+                            actions: {
+                                list: "Books",
+                            },
+                        },
+                    },
+                },
+            },
+        },
     });
 
     const ConnectSession = MySQLStore(session);

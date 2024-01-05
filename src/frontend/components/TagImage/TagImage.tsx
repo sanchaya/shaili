@@ -62,7 +62,7 @@ const TagImage = ({ image, letter, letterId, bookId, tagId, taggedBy }) => {
                 setShow(false);
                 addNotice({
                     message: "Error deleting tag,try agin later",
-                    type: "success",
+                    type: "error",
                 });
             });
     };

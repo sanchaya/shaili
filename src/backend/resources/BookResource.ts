@@ -60,7 +60,7 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
             const language = await Languages.findOne({
                 where: { language_code: data.language.toLowerCase() },
             });
-            
+            data.name = data.name.replace(/\s+/g, " ").trim();
             if (language) {
                 data.language = data.language.toLowerCase();
                 result.push(data);
