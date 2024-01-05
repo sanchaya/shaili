@@ -49,6 +49,7 @@ const EditLetter = (props) => {
                     value: language.language_code,
                     label: language.language,
                 }));
+                languages.sort((a, b) => a.label.localeCompare(b.label));
                 setLanguageOptions(languages);
 
                 let letterTypes = {};
@@ -59,6 +60,11 @@ const EditLetter = (props) => {
                         value: letterType.id.toString(),
                         label: letterType.type,
                     });
+                });
+                Object.keys(letterTypes).forEach((key) => {
+                    letterTypes[key].sort((a, b) =>
+                        a.label.localeCompare(b.label)
+                    );
                 });
                 setLetterTypeOptions(letterTypes);
 
