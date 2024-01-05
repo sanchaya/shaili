@@ -28,5 +28,6 @@ AdminRouter.get("/get-comments", CommentsController.getComments);
 AdminRouter.post("/add-comment", CommentsController.addComment);
 AdminRouter.get("/get-users", CommentsController.getUsers);
 AdminRouter.post("/edit-comment", CommentsController.editComment);
+AdminRouter.get("/download-tags-zip", TaggedLetterController.downloadTags);
 
 export default AdminRouter;

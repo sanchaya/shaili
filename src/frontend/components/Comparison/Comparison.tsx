@@ -6,17 +6,20 @@ import { styled } from "@adminjs/design-system/styled-components";
 const CompareContainer = styled.div`
     display: flex;
     flex-wrap: wrap;
-    margin: 20px auto;
+    justify-content: space-between;
+`;
+const Container = styled(Box)`
+    background-color: rgb(248, 249, 249);
 `;
 
 const Comparison = () => {
     return (
-        <Box style={{ width: "96%", margin: "0 auto" }}>
+        <Container variant="container">
             <CompareContainer>
                 <Compare />
                 <Compare />
             </CompareContainer>
-        </Box>
+        </Container>
     );
 };
 

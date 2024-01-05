@@ -373,7 +373,7 @@ const FilterDrawer = ({
     };
 
     return (
-        <Drawer variant="filter" style={{ position: "absolute" }}>
+        <Drawer variant="filter" style={{ position: "absolute", zIndex: "48" }}>
             <DrawerContent>
                 <Box flex justifyContent="space-between">
                     <H3>Choose a book</H3>
