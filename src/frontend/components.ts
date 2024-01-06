@@ -50,6 +50,10 @@ const Components = {
         "LanguageShow",
         "./components/LanguageShow/LanguageShow"
     ),
+    RecordInList: componentLoader.override(
+        "RecordInList",
+        "./components/record-in-list/record-in-list"
+    ),
 };
 
 export { componentLoader, Components };

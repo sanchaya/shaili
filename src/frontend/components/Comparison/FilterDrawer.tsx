@@ -90,6 +90,7 @@ const FilterDrawer = ({
     const [letters, setLetters] = useState<any>();
     const [books, setBooks] = useState<IBooks[]>();
     const [bookOptions, setBookOptions] = useState<IBookOptions[]>();
+    const [filteredBooksData, setFilteredBooksData] = useState<IBooks[]>();
     const [printerNameOptions, setPrinterNameOptions] =
         useState<IBookOptions[]>();
     const [printerLocationOptions, setPrinterLocationOptions] =
@@ -99,6 +100,24 @@ const FilterDrawer = ({
     const [languageOptions, setLanguageOptions] = useState<ILanguage[]>();
     const [letterType, setLetterType] = useState<ILetterType[]>();
     const selectInputRef = useRef();
+
+    const calculateUniqueValues = (data: IBooks[], key: keyof IBooks): IBookOptions[] => {
+        const uniqueValues: Map<string | number, IBookOptions> = new Map();
+
+        data
+            .filter(item => item[key] !== null)
+            .forEach(item => {
+                const value = item[key];
+                if (!uniqueValues.has(value)) {
+                    uniqueValues.set(value, {
+                        value: value,
+                        label: value,
+                    });
+                }
+            });
+
+        return Array.from(uniqueValues.values());
+    };
 
     useEffect(() => {
         axios.get(`${BASE_URL}/get-lettertypes`).then((response) => {
@@ -112,6 +131,7 @@ const FilterDrawer = ({
         });
         axios.get(`${BASE_URL}/get-books`).then((response) => {
             setBooks(response.data);
+            setFilteredBooksData(response.data);
 
             let Books = response.data.map(
                 (book: { id: number; name: string }) => ({
@@ -120,79 +140,100 @@ const FilterDrawer = ({
                 })
             );
 
-            let PublishedYear = response.data
-                .filter(
-                    (book: { published_year: string }) =>
-                        book.published_year != null
-                )
-                .sort()
-                .map((book: { published_year: string }) => ({
-                    value: book.published_year,
-                    label: book.published_year,
-                }))
-                .sort((a: { label: string }, b: { label: string }) =>
-                    a.label > b.label ? 1 : -1
-                );
-
-            PublishedYear = Array.from(
-                new Set(PublishedYear.map((a) => a.value))
-            ).map((value) => {
-                return PublishedYear.find((a) => a.value === value);
-            });
-
-            let PrinterName = response.data
-                .filter(
-                    (book: { printer_name: string }) =>
-                        book.printer_name != null
-                )
-                .map((book: { printer_name: string }) => ({
-                    value: book.printer_name,
-                    label: book.printer_name,
-                }))
-                .sort((a: { label: string }, b: { label: string }) =>
-                    a.label > b.label ? 1 : -1
-                );
-            PrinterName = Array.from(
-                new Set(PrinterName.map((a) => a.value))
-            ).map((value) => {
-                return PrinterName.find((a) => a.value === value);
-            });
-
-            let PrinterLocation = response.data
-                .filter(
-                    (book: { printer_location: string }) =>
-                        book.printer_location != null
-                )
-                .map((book: { printer_location: string }) => ({
-                    value: book.printer_location,
-                    label: book.printer_location,
-                }))
-                .sort((a: { label: string }, b: { label: string }) =>
-                    a.label > b.label ? 1 : -1
-                );
-
-            PrinterLocation = Array.from(
-                new Set(PrinterLocation.map((a) => a.value))
-            ).map((value) => {
-                return PrinterLocation.find((a) => a.value === value);
-            });
+            const PublishedYear = calculateUniqueValues(response.data, 'published_year');
+            const PrinterName = calculateUniqueValues(response.data, 'printer_name');
+            const PrinterLocation = calculateUniqueValues(response.data, 'printer_location');
 
             setBookOptions(Books);
-            setPrinterNameOptions(PrinterName);
-            setPrinterLocationOptions(PrinterLocation);
-            setPublishedYearOptions(PublishedYear);
+
+            setPrinterNameOptions(PrinterName as IBookOptions[]);
+            setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
+            setPublishedYearOptions(PublishedYear as IBookOptions[]);
         });
+
+        if (printerLocation != undefined || printerName != undefined || publishedYear != undefined) {
+            setPrinterLocation(undefined);
+            setPrinterName(undefined);
+            setPublishedYear(undefined);
+        }
+
     }, []);
 
     const handleLocationChange = (selectedLocation) => {
+        if (publishedYear == undefined && printerName === undefined) {
+            const PrinterName = calculateUniqueValues(books!.filter(book => book.printer_location === selectedLocation.value), 'printer_name');
+            setPrinterNameOptions(PrinterName as IBookOptions[]);
+
+            const PublishedYear = calculateUniqueValues(books!.filter(book => book.printer_location === selectedLocation.value), 'published_year');
+            setPublishedYearOptions(PublishedYear as IBookOptions[]);
+
+            const filterData = books!.filter(book => book.printer_location === selectedLocation.value);
+            setFilteredBooksData(filterData);
+        } else {
+            const PrinterName = calculateUniqueValues(filteredBooksData!.filter(book => book.printer_location === selectedLocation.value), 'printer_name');
+            setPrinterNameOptions(PrinterName as IBookOptions[]);
+
+            const PublishedYear = calculateUniqueValues(filteredBooksData!.filter(book => book.printer_location === selectedLocation.value), 'published_year');
+            setPublishedYearOptions(PublishedYear as IBookOptions[]);
+
+            const filterData = filteredBooksData!.filter(book => book.printer_location === selectedLocation.value);
+            setFilteredBooksData(filterData);
+        }
+
         setPrinterLocation(selectedLocation);
         updateBookOptions(selectedLocation, printerName, publishedYear);
     };
 
     const handleNameChange = (selectedName) => {
+        if (printerLocation == undefined && publishedYear === undefined) {
+            const PrinterLocation = calculateUniqueValues(books!.filter(book => book.printer_name === selectedName.value), 'printer_location');
+            setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
+
+            const PublishedYear = calculateUniqueValues(books!.filter(book => book.printer_name === selectedName.value), 'published_year');
+            setPublishedYearOptions(PublishedYear as IBookOptions[]);
+
+            const filterData = books!.filter(book => book.printer_name === selectedName.value);
+            setFilteredBooksData(filterData);
+        } else {
+            const PrinterLocation = calculateUniqueValues(filteredBooksData!.filter(book => book.printer_name === selectedName.value), 'printer_location');
+            setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
+
+            const PublishedYear = calculateUniqueValues(filteredBooksData!.filter(book => book.printer_name === selectedName.value), 'published_year');
+            setPublishedYearOptions(PublishedYear as IBookOptions[]);
+
+            const filterData = filteredBooksData!.filter(book => book.printer_name === selectedName.value);
+            setFilteredBooksData(filterData);
+        }
+
         setPrinterName(selectedName);
         updateBookOptions(printerLocation, selectedName, publishedYear);
     };
+
+    const handleYearChange = (selectedYear) => {
+        if (printerLocation == undefined && printerName === undefined) {
+            const PrinterName = calculateUniqueValues(books!.filter(book => book.published_year === selectedYear.value), 'printer_name');
+            setPrinterNameOptions(PrinterName as IBookOptions[]);
+
+            const PrinterLocation = calculateUniqueValues(books!.filter(book => book.published_year === selectedYear.value), 'printer_location');
+            setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
+
+            const filterData = books!.filter(book => book.published_year === selectedYear.value);
+            setFilteredBooksData(filterData);
+        } else {
+            const PrinterName = calculateUniqueValues(filteredBooksData!.filter(book => book.published_year === selectedYear.value), 'printer_name');
+            setPrinterNameOptions(PrinterName as IBookOptions[]);
+
+            const PrinterLocation = calculateUniqueValues(filteredBooksData!.filter(book => book.published_year === selectedYear.value), 'printer_location');
+            setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
+
+            const filterData = filteredBooksData!.filter(book => book.published_year === selectedYear.value);
+            setFilteredBooksData(filterData);
+        }
+
+        setPublishedYear(selectedYear);
+        updateBookOptions(printerLocation, printerName, selectedYear);
+    }
+
 
     const updateBookOptions = (
         selectedLocation,
@@ -269,7 +310,8 @@ const FilterDrawer = ({
 
     const fetchTag = async (record: IBookOptions, mode: string) => {
         setCompareLoading(true);
-        const primaryLanguage = getIdLanguage(record.value);
+        
+        const primaryLanguage = getIdLanguage(Number(record.value));
         try {
             const response = await axios.get(
                 `${BASE_URL}/tagged-letter?bookId=` + record.value
@@ -359,12 +401,12 @@ const FilterDrawer = ({
             });
 
             if (mode === "compare") {
-                setCompareBook(record);
+                setCompareBook(null);
                 setCompareBookData(sortedData);
                 setShowFilter(false);
-                setPrinterLocation("");
-                setPrinterName("");
-                setPublishedYear("");
+                setPrinterLocation(undefined);
+                setPrinterName(undefined);
+                setPublishedYear(undefined);
             }
             setCompareLoading(false);
         } catch (error) {
@@ -372,6 +414,12 @@ const FilterDrawer = ({
         }
     };
 
+    const CloseDrawer = () => {
+        setPrinterLocation(undefined);
+        setPrinterName(undefined);
+        setPublishedYear(undefined);
+        setShowFilter(false)
+    }
     return (
         <Drawer variant="filter" style={{ position: "absolute", zIndex: "48" }}>
             <DrawerContent>
@@ -383,7 +431,7 @@ const FilterDrawer = ({
                         size="icon"
                         rounded
                         color="text"
-                        onClick={() => setShowFilter(false)}
+                        onClick={() => CloseDrawer()}
                     >
                         <Icon icon="X" />
                     </Button>
@@ -395,16 +443,11 @@ const FilterDrawer = ({
                         </Label>
                         <CustomSelect
                             isDisabled={compareLoading}
-                            isClearable={true}
+                            isClearable={false}
                             value={publishedYear}
                             options={publisedYearOptions}
                             onChange={(newValue) => {
-                                setPublishedYear(newValue);
-                                updateBookOptions(
-                                    printerLocation,
-                                    printerName,
-                                    newValue
-                                );
+                                handleYearChange(newValue);
                             }}
                             placeholder="Select a publised year"
                         />
@@ -415,7 +458,7 @@ const FilterDrawer = ({
                         </Label>
                         <CustomSelect
                             isDisabled={compareLoading}
-                            isClearable={true}
+                            isClearable={false}
                             value={printerLocation}
                             options={printerLocationOptions}
                             onChange={(newValue) =>
@@ -431,7 +474,7 @@ const FilterDrawer = ({
                         <CustomSelect
                             ref={selectInputRef}
                             isDisabled={compareLoading}
-                            isClearable={true}
+                            isClearable={false}
                             value={printerName}
                             options={printerNameOptions}
                             onChange={(newValue) => handleNameChange(newValue)}
