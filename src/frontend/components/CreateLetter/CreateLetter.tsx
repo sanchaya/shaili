@@ -70,6 +70,7 @@ const CreateLetter: React.FC<ICreateLetter> = ({
                     label: language.language,
                 })
             );
+            languages.sort((a, b) => a.label.localeCompare(b.label));
             setLanguageOptions(languages);
             getLetterTypes();
         });
@@ -99,6 +100,9 @@ const CreateLetter: React.FC<ICreateLetter> = ({
                     });
                 }
             );
+            Object.keys(letterTypes).forEach((key) => {
+                letterTypes[key].sort((a, b) => a.label.localeCompare(b.label));
+            });
             setLetterTypeOptions(letterTypes);
         });
     };

@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { Box, Button, H3, Icon, Loader } from "@adminjs/design-system";
 import { styled } from "@adminjs/design-system/styled-components";
 import FilterDrawer from "./FilterDrawer.js";
+import axios from "axios";
 
 const CompareItem = styled.div`
     width: calc(50% - 15px);
+    overflow: overlay;
     background-color: #f0f0f0;
     text-align: center;
     box-sizing: border-box;
     border: 1px solid #ccc;
-    margin-right: 10px;
     padding: 20px;
     @media (max-width: 800px) {
         padding: 8px;
@@ -100,6 +101,43 @@ const NotFoundDiv = styled.div`
     justify-content: center;
 `;
 
+const ToolTipButton = styled(Button)`
+    margin-right: 5px;
+    position: relative;
+    &:hover .tooltiptext {
+        visibility: visible;
+        opacity: 1;
+    }
+`;
+
+const ToolTipText = styled.span`
+    visibility: hidden;
+    width: 120px;
+    background-color: #0000009e;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    width: 120px;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    font-size: 12px;
+    color: #fff;
+    &:after {
+        content: " ";
+        position: absolute;
+        top: 100%;
+        left: 50%;
+        margin-left: -5px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #0000009e transparent transparent transparent;
+    }
+`;
+
 export interface IBookOptions {
     value: number;
     label: string;
@@ -117,6 +155,7 @@ export interface LanguageData {
 }
 
 const Compare = () => {
+    const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const [compareBookData, setCompareBookData] = useState<LanguageData>({});
     const [compareBook, setCompareBook] = useState<IBookOptions | null>(null);
     const [compareLoading, setCompareLoading] = useState(false);
@@ -125,6 +164,27 @@ const Compare = () => {
     const [printerLocation, setPrinterLocation] = useState<string>();
     const [publishedYear, setPublishedYear] = useState<string>();
     const [bookChoosed, setBookChoosed] = useState<boolean>(false);
+    const [downloadLoading, setDownloadLoading] = useState<boolean>(false);
+
+    const handleDownloadClick = () => {
+        setDownloadLoading(true);
+        axios
+            .get(`${BASE_URL}/download-tags-zip?bookId=` + compareBook?.value)
+            .then((response) => {
+                if (response.data.status) {
+                    setDownloadLoading(false);
+                    const url = response.data.url;
+                    window.open(url, "_self");
+                }
+            })
+            .catch((error) => {
+                setDownloadLoading(false);
+                alert("There is no tags in this book to download now.");
+            });
+    };
+    const isBookHasNoTags =
+        Object.keys(compareBookData).length === 0 &&
+        compareBookData.constructor === Object;
 
     return (
         <CompareItem style={{ position: "relative" }}>
@@ -138,19 +198,43 @@ const Compare = () => {
                         ? "Selected book :" + compareBook.label
                         : "Select a book"}
                 </H3>
-                <Button
-                    type="button"
-                    variant="light"
-                    size="icon"
-                    color="text"
-                    onClick={() => {
-                        setShowFilter((prevShowFilter) => !prevShowFilter);
-                    }}
-                >
-                    <Icon icon="Filter" />
-                </Button>
+                <div>
+                    <ToolTipButton
+                        type="button"
+                        variant="outlined"
+                        size="icon"
+                        color="primary"
+                        disabled={!isBookHasNoTags ? false : true}
+                        style={{
+                            cursor: downloadLoading
+                                ? "progress"
+                                : isBookHasNoTags
+                                ? "default"
+                                : "pointer",
+                        }}
+                        onClick={handleDownloadClick}
+                    >
+                        {!isBookHasNoTags && (
+                            <ToolTipText className="tooltiptext">
+                                Click to download tags as Zip
+                            </ToolTipText>
+                        )}
+                        <Icon icon="Download" />
+                    </ToolTipButton>
+                    <Button
+                        type="button"
+                        variant="outlined"
+                        size="icon"
+                        color="primary"
+                        onClick={() => {
+                            setShowFilter((prevShowFilter) => !prevShowFilter);
+                        }}
+                    >
+                        <Icon icon="Filter" />
+                    </Button>
+                </div>
             </Box>
-            <Container>
+            <Container className="tagsContainer">
                 {bookChoosed ? (
                     compareLoading == true ? (
                         <Loader />

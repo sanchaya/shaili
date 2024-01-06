@@ -9,6 +9,13 @@ import path from "path";
 import * as url from "url";
 import { mkdir } from "node:fs/promises";
 import { Languages } from "../db/models/Languages.js";
+import archiver from "archiver";
+
+interface MakeTagsZipResult {
+    status: boolean;
+    url?: string;
+    error?: string;
+}
 
 export const getLetterTypes = async (req: Request, res: Response) => {
     const letterTypes = await LetterTypes.findAll({
@@ -107,6 +114,11 @@ const deleteTaggedLetter = async (req: Request, res: Response) => {
                 if (err) {
                     throw new Error();
                 } else {
+                    const dir = path.dirname(tagPath);
+                    const filesInDirectory = fs.readdirSync(dir);
+                    if (filesInDirectory.length === 0) {
+                        fs.rmdirSync(dir);
+                    }
                     await TaggedLetters.destroy({
                         where: { id: taggedLetterId },
                     });
@@ -315,6 +327,81 @@ const getTagsDirectory = () => {
     return path.resolve(currentDirectory, "../public");
 };
 
+const makeTagsZip = async (bookId): Promise<MakeTagsZipResult> => {
+    const book = await Books.findOne({
+        where: { id: bookId },
+    });
+    const bookName = book?.dataValues.name;
+    const bookTags = await TaggedLetters.findAll({
+        where: { book_id: bookId },
+    });
+
+    if (bookTags.length > 0) {
+        const tagsDirectory = getTagsDirectory();
+        const filesInTagsDirectory = fs.readdirSync(
+            `${tagsDirectory}/tags/${bookName}`
+        );
+
+        if (filesInTagsDirectory.length > 0) {
+            const output = fs.createWriteStream(
+                `${tagsDirectory}/${bookName}.zip`
+            );
+            const archive = archiver("zip", {
+                zlib: { level: 9 },
+            });
+
+            archive.on("error", (err) => {
+                throw err;
+            });
+
+            archive.pipe(output);
+
+            archive.directory(`${tagsDirectory}/tags/${bookName}/`, false);
+            return new Promise((resolve, reject) => {
+                output.on("close", () => {
+                    resolve({
+                        status: true,
+                        url: `${tagsDirectory}/${bookName}.zip`,
+                    });
+                });
+
+                archive.finalize();
+            });
+        } else {
+            return { status: false, error: "No files found" };
+        }
+    } else {
+        return { status: false, error: "No tags found" };
+    }
+};
+
+const downloadTags = async (req: Request, res: Response) => {
+    const bookId = req.query.bookId;
+    const result = await makeTagsZip(bookId);
+    if (!result.status) {
+        res.status(500).json(result);
+    } else if (result.url) {
+        const filename = path.basename(result.url);
+        res.status(200).json({ status: "success", url: "/" + filename });
+        const filePathToDelete = result.url;
+        const delayInMilliseconds = 3 * 60 * 1000;
+        deleteFileAfterDownload(filePathToDelete, delayInMilliseconds);
+    }
+};
+
+const deleteFileAfterDownload = (
+    filePath: string,
+    delayInMilliseconds: number
+) => {
+    setTimeout(() => {
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error(`Error deleting file: ${err}`);
+            }
+        });
+    }, delayInMilliseconds);
+};
+
 export default {
     getLetterTypes,
     getLetters,
@@ -324,4 +411,5 @@ export default {
     updateTag,
     getTaggedLetterByUser,
     calculateTagPercentage,
+    downloadTags,
 };

@@ -42,6 +42,7 @@ const AddLetter = () => {
                     label: language.language,
                 })
             );
+            languages.sort((a, b) => a.label.localeCompare(b.label));
             setLanguageOptions(languages);
             getLetterTypes();
         });
@@ -70,6 +71,9 @@ const AddLetter = () => {
                     });
                 }
             );
+            Object.keys(letterTypes).forEach((key) => {
+                letterTypes[key].sort((a, b) => a.label.localeCompare(b.label));
+            });
             setLetterTypeOptions(letterTypes);
         });
     };

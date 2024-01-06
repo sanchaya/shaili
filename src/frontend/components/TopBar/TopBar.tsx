@@ -16,6 +16,10 @@ const NavBar = styled(Box)<BoxProps>`
     z-index: 99;
 `;
 
+const LogoBox = styled(Box)<BoxProps>`
+    padding: 0px 8px 0px 8px;
+`;
+
 NavBar.defaultProps = {
     className: cssClass("NavBar"),
 };
@@ -33,7 +37,7 @@ const TopBar: React.FC<Props> = (props) => {
 
     return (
         <NavBar data-css="topbar">
-            <Box
+            <LogoBox
                 py="lg"
                 px={["default", "lg"]}
                 onClick={toggleSidebar}
@@ -44,7 +48,7 @@ const TopBar: React.FC<Props> = (props) => {
                 <Box display={["none", "none", "block", "block", "block"]}>
                     <SidebarBranding branding={branding} />
                 </Box>
-            </Box>
+            </LogoBox>
             <Version versions={versions} />
             {session && session.email ? (
                 <LoggedIn session={session} paths={paths} />
