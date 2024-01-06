@@ -17,6 +17,7 @@ import {
 import csvParser from "csv-parser";
 import fs from "fs";
 import { Languages } from "../db/models/Languages.js";
+import { Op } from "sequelize";
 
 const isAccessible = (context: ActionContext, role: number[]) => {
     const { currentAdmin } = context;
@@ -57,6 +58,18 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
 
     for await (const data of parser) {
         if (data.language && data.name && data.identifier && data.url) {
+            
+            const existsBooks = await Books.findOne({
+                where: {
+                    [Op.or]: [
+                        { name: data.name },
+                        { identifier: data.identifier },
+                        { url: data.url },
+                    ],
+                },
+            });
+
+            if(!existsBooks){
             const language = await Languages.findOne({
                 where: { language_code: data.language.toLowerCase() },
             });
@@ -65,6 +78,7 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
                 data.language = data.language.toLowerCase();
                 result.push(data);
             }
+         }
         }
     }
 
