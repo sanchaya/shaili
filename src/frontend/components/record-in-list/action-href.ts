@@ -1,6 +1,11 @@
-import { ActionJSON, DifferentActionParams, RecordActionParams, ViewHelpers } from "adminjs"
+import { ActionJSON, ActionParams, BulkActionParams, RecordActionParams, ViewHelpers } from "adminjs"
 
-
+interface DifferentActionParams {
+  resourceId: ActionParams['resourceId'];
+  recordId?: string | undefined;
+  recordIds?: BulkActionParams['recordIds'];
+  search?: string;
+}
 const h = new ViewHelpers()
 
 export const actionHref = (
