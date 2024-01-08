@@ -401,7 +401,7 @@ const FilterDrawer = ({
             });
 
             if (mode === "compare") {
-                setCompareBook(null);
+                setCompareBook(record);
                 setCompareBookData(sortedData);
                 setShowFilter(false);
                 setPrinterLocation(undefined);
