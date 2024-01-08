@@ -6,7 +6,6 @@ import axios from "axios";
 
 const CompareItem = styled.div`
     width: calc(50% - 15px);
-    overflow: overlay;
     background-color: #f0f0f0;
     text-align: center;
     box-sizing: border-box;
@@ -234,8 +233,9 @@ const Compare = () => {
                     </Button>
                 </div>
             </Box>
+            <div className="tagsContainerWrap">
             <Container className="tagsContainer">
-                {bookChoosed ? (
+                {bookChoosed && compareBook ? (
                     compareLoading == true ? (
                         <Loader />
                     ) : Object.keys(compareBookData).length > 0 ? (
@@ -297,6 +297,7 @@ const Compare = () => {
                     </NotFoundDiv>
                 )}
             </Container>
+            </div>
             {showFilter && (
                 <FilterDrawer
                     setShowFilter={setShowFilter}

@@ -282,6 +282,10 @@ html,
     overflow: auto;
 }
 
+.tagsContainerWrap {
+    overflow: overlay;
+}
+
 .tagsContainer::-webkit-scrollbar {
     display: block;
     width: 1px;
