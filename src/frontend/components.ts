@@ -54,6 +54,10 @@ const Components = {
         "RecordInList",
         "./components/record-in-list/record-in-list"
     ),
+    DefaultListAction: componentLoader.override(
+        "DefaultListAction",
+        "./components/List/List"
+    )
 };
 
 export { componentLoader, Components };
