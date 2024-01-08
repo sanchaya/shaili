@@ -139,8 +139,8 @@ const ToolTipText = styled.span`
 `;
 
 export interface IBookOptions {
-    value: number;
-    label: string;
+    value: number | string;
+    label: string | number;
 }
 
 interface TagData {
