@@ -91,9 +91,9 @@ dependencies:
   react:
     specifier: ^18.2.0
     version: 18.2.0
-  react-advanced-cropper:
-    specifier: ^0.19.4
-    version: 0.19.4(react@18.2.0)
+  react-cropper:
+    specifier: ^2.3.3
+    version: 2.3.3(react@18.2.0)
   react-redux:
     specifier: ^8.1.3
     version: 8.1.3(@types/react@18.2.25)(react@18.2.0)
@@ -2916,13 +2916,6 @@ packages:
       - supports-color
     dev: false
 
-  /advanced-cropper@0.18.0:
-    resolution: {integrity: sha512-Bo0fiW8F+kI4f8zEm8YXIDkGNi+aXaQPxqDijU7hY+1ETACbvFnNCxssspgAwHBy9RpFlcXMmjcq+LImUOhaqQ==}
-    engines: {node: '>=8', npm: '>=5'}
-    dependencies:
-      tslib: 2.6.2
-    dev: false
-
   /agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
@@ -3555,6 +3548,10 @@ packages:
 
   /crelt@1.0.6:
     resolution: {integrity: sha512-VQ2MBenTq1fWZUH9DJNGti7kKv6EeAuYr3cLwxUWhIu1baTaXh4Ib5W2CqHVqib4/MqbYGJqiL3Zb8GJZr3l4g==}
+    dev: false
+
+  /cropperjs@1.6.1:
+    resolution: {integrity: sha512-F4wsi+XkDHCOMrHMYjrTEE4QBOrsHHN5/2VsVAaRq8P7E5z7xQpT75S+f/9WikmBEailas3+yo+6zPIomW+NOA==}
     dev: false
 
   /cross-fetch@3.1.6:
@@ -5565,16 +5562,13 @@ packages:
       unpipe: 1.0.0
     dev: false
 
-  /react-advanced-cropper@0.19.4(react@18.2.0):
-    resolution: {integrity: sha512-CJAeOyg5gMvrhZoaMKcP6XJf10xanUCHqRCFXUtIiKxcHgSGAVGedd/zjvCIG4E1hMoFwaaFazS/Hw0Odhtjmw==}
-    engines: {node: '>=8', npm: '>=5'}
+  /react-cropper@2.3.3(react@18.2.0):
+    resolution: {integrity: sha512-zghiEYkUb41kqtu+2jpX2Ntigf+Jj1dF9ew4lAobPzI2adaPE31z0p+5TcWngK6TvmWQUwK3lj4G+NDh1PDQ1w==}
     peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react: '>=17.0.2'
     dependencies:
-      advanced-cropper: 0.18.0
-      classnames: 2.3.2
+      cropperjs: 1.6.1
       react: 18.2.0
-      tslib: 2.6.2
     dev: false
 
   /react-currency-input-field@3.6.11(react@18.2.0):

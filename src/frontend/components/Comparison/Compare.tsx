@@ -178,42 +178,57 @@ const Compare = () => {
             })
             .catch((error) => {
                 setDownloadLoading(false);
-                alert("There is no tags in this book to download now.");
+                alert(error.error);
             });
     };
-    const isBookHasNoTags =
-        Object.keys(compareBookData).length === 0 &&
-        compareBookData.constructor === Object;
+    const isBookHasNoTags = Object.values(compareBookData).some((tags) =>
+        Object.values(tags).some((letters) =>
+            letters.some((letter) => letter.image !== "-")
+        )
+    );
 
     return (
         <CompareItem style={{ position: "relative" }}>
             <Box
                 flex
                 justifyContent="space-between"
-                style={{ margin: "10px auto" }}
+                alignItems="center"
+                style={{ margin: "15px auto" }}
             >
-                <H3 style={{ margin: 0 }}>
-                    {compareBook
-                        ? "Selected book :" + compareBook.label
-                        : "Select a book"}
-                </H3>
-                <div>
+                <div
+                    style={{
+                        width: "80%",
+                        textAlign: "left",
+                    }}
+                >
+                    <H3 style={{ margin: 0 }}>
+                        {compareBook
+                            ? "Selected book :" + compareBook.label
+                            : "Select a book"}
+                    </H3>
+                </div>
+                <div
+                    style={{
+                        width: "20%",
+                        textAlign: "right",
+                    }}
+                >
                     <ToolTipButton
                         type="button"
                         variant="outlined"
                         size="icon"
                         color="primary"
-                        disabled={!isBookHasNoTags ? false : true}
+                        disabled={!isBookHasNoTags}
                         style={{
                             cursor: downloadLoading
                                 ? "progress"
-                                : isBookHasNoTags
+                                : !isBookHasNoTags
                                 ? "default"
                                 : "pointer",
                         }}
                         onClick={handleDownloadClick}
                     >
-                        {!isBookHasNoTags && (
+                        {isBookHasNoTags && (
                             <ToolTipText className="tooltiptext">
                                 Click to download tags as Zip
                             </ToolTipText>
@@ -234,69 +249,74 @@ const Compare = () => {
                 </div>
             </Box>
             <div className="tagsContainerWrap">
-            <Container className="tagsContainer">
-                {bookChoosed && compareBook ? (
-                    compareLoading == true ? (
-                        <Loader />
-                    ) : Object.keys(compareBookData).length > 0 ? (
-                        Object.entries(compareBookData).map(
-                            ([language, tags]) => (
-                                <div key={language}>
-                                    <Language>Language: {language}</Language>
-                                    {Object.entries(
-                                        tags as {
-                                            [key: string]: TagData[];
-                                        }
-                                    ).map(([letterType, consonants]) => (
-                                        <LetterTypeDiv key={letterType}>
-                                            <LetterType>
-                                                {letterType}
-                                            </LetterType>
-                                            <Letters>
-                                                {consonants.map(
-                                                    (consonant, innerIndex) => (
-                                                        <LetterDiv
-                                                            key={innerIndex}
-                                                        >
-                                                            <Letter>
-                                                                {
-                                                                    consonant.letter
-                                                                }
-                                                            </Letter>
-                                                            {consonant.image ===
-                                                            "-" ? (
-                                                                <EmptyTag>
+                <Container className="tagsContainer">
+                    {bookChoosed && compareBook ? (
+                        compareLoading == true ? (
+                            <Loader />
+                        ) : Object.keys(compareBookData).length > 0 ? (
+                            Object.entries(compareBookData).map(
+                                ([language, tags]) => (
+                                    <div key={language}>
+                                        <Language>
+                                            Language: {language}
+                                        </Language>
+                                        {Object.entries(
+                                            tags as {
+                                                [key: string]: TagData[];
+                                            }
+                                        ).map(([letterType, consonants]) => (
+                                            <LetterTypeDiv key={letterType}>
+                                                <LetterType>
+                                                    {letterType}
+                                                </LetterType>
+                                                <Letters>
+                                                    {consonants.map(
+                                                        (
+                                                            consonant,
+                                                            innerIndex
+                                                        ) => (
+                                                            <LetterDiv
+                                                                key={innerIndex}
+                                                            >
+                                                                <Letter>
                                                                     {
-                                                                        consonant.image
+                                                                        consonant.letter
                                                                     }
-                                                                </EmptyTag>
-                                                            ) : (
-                                                                <LetterImage
-                                                                    src={
-                                                                        consonant.image
-                                                                    }
-                                                                    alt={`Image for ${consonant.letter}`}
-                                                                />
-                                                            )}
-                                                        </LetterDiv>
-                                                    )
-                                                )}
-                                            </Letters>
-                                        </LetterTypeDiv>
-                                    ))}
-                                </div>
+                                                                </Letter>
+                                                                {consonant.image ===
+                                                                "-" ? (
+                                                                    <EmptyTag>
+                                                                        {
+                                                                            consonant.image
+                                                                        }
+                                                                    </EmptyTag>
+                                                                ) : (
+                                                                    <LetterImage
+                                                                        src={
+                                                                            consonant.image
+                                                                        }
+                                                                        alt={`Image for ${consonant.letter}`}
+                                                                    />
+                                                                )}
+                                                            </LetterDiv>
+                                                        )
+                                                    )}
+                                                </Letters>
+                                            </LetterTypeDiv>
+                                        ))}
+                                    </div>
+                                )
                             )
+                        ) : (
+                            <NotFoundDiv>No Tags available.</NotFoundDiv>
                         )
                     ) : (
-                        <NotFoundDiv>No Tags available.</NotFoundDiv>
-                    )
-                ) : (
-                    <NotFoundDiv>
-                        Choose publishedyear/ printername/ printerlocation/ book
-                        to compare tags
-                    </NotFoundDiv>
-                )}
-            </Container>
+                        <NotFoundDiv>
+                            Choose publishedyear/ printername/ printerlocation/
+                            book to compare tags
+                        </NotFoundDiv>
+                    )}
+                </Container>
             </div>
             {showFilter && (
                 <FilterDrawer

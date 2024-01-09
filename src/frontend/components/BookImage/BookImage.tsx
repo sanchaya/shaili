@@ -1,7 +1,7 @@
-import React, { Dispatch, SetStateAction, useRef } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
-import { Loader, Icon } from "@adminjs/design-system";
-import { Cropper, CropperRef } from "react-advanced-cropper";
+import { Loader, Icon, Button } from "@adminjs/design-system";
+import { Cropper, ReactCropperElement } from "react-cropper";
 
 const CropIcon = styled.div`
     position: absolute;
@@ -9,9 +9,10 @@ const CropIcon = styled.div`
     z-index: 2;
     top: 10px;
     user-select: none;
-    border-radius: 2;
     background: #fff;
     box-shadow: 0px 2px 6px rgba(53, 67, 93, 0.32);
+    display: flex;
+    flex-direction: column;
 `;
 
 const ActionIcons = styled.div`
@@ -20,16 +21,15 @@ const ActionIcons = styled.div`
     z-index: 2;
     top: 10px;
     user-select: none;
-    border-radius: 2;
     background: #fff;
+    display: flex;
+    flex-direction: column;
     box-shadow: 0px 2px 6px rgba(53, 67, 93, 0.32);
 `;
 
-const ActionIcon = styled.div`
-    text-align: center;
-    cursor: pointer;
-    height: 40;
-    width: 40;
+const ActionButton = styled(Button)`
+    background: #fff;
+    border-radius: 0px;
     border-bottom: 1px solid #ccc;
 `;
 
@@ -56,48 +56,53 @@ export const BookImage = ({
     capturing,
     setTag,
 }: IBookImageProps) => {
-    const cropperRef = useRef<CropperRef>(null);
+    const cropperRef = useRef<ReactCropperElement>(null);
 
-    const resetStencil = () => {
-        cropperRef.current?.setCoordinates({
-            width: 400,
-            height: 400,
-            left: 1007.5,
-            top: 1472.5,
-        });
+    useEffect(() => {
+        const handleKeyPress = (e: KeyboardEvent) => {
+            if (e.key === "Enter" && capturing) {
+                cropImage();
+            } else if (e.key === "Escape") {
+                setCapturing(false);
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyPress);
+        return () => {
+            document.removeEventListener("keydown", handleKeyPress);
+        };
+    }, [capturing]);
+
+    const onCropStart = () => {
+        setCapturing(true);
     };
 
     const resetAll = () => {
-        if (cropperRef.current) {
-            cropperRef.current.setCoordinates(({ imageSize }) => imageSize);
-            setCapturing(false);
-            resetStencil();
+        const cropper = cropperRef.current?.cropper;
+        if (cropper) {
+            cropper.reset();
+            cropper.clear();
         }
     };
 
     const zoom = (factor: number) => () => {
-        const cropper = cropperRef.current;
+        const cropper = cropperRef.current?.cropper;
         if (cropper) {
-            cropper.zoomImage(factor);
-        }
-    };
-
-    const handleCapture = () => {
-        if (!capturing) {
-            setCapturing(true);
-        } else {
-            setCapturing(false);
+            cropper.zoom(factor);
         }
     };
 
     const cropImage = () => {
         if (cropperRef.current) {
-            const image = cropperRef.current.getCanvas()?.toDataURL();
+            const cropper = cropperRef.current?.cropper;
+            const image = cropper.getCroppedCanvas().toDataURL();
             if (image) {
                 setTag(image);
                 setCapturing(false);
-                resetAll();
-                resetStencil();
+                const cropper = cropperRef.current?.cropper;
+                if (cropper) {
+                    cropper.clear();
+                }
             }
         }
     };
@@ -105,89 +110,71 @@ export const BookImage = ({
     return (
         <>
             <ActionIcons>
-                <ActionIcon onClick={zoom(2)}>
+                <ActionButton
+                    onClick={zoom(0.1)}
+                    variant="text"
+                    color="primary"
+                    size="icon"
+                    disabled={!image}
+                >
                     <Icon
                         icon="ZoomIn"
                         style={{
                             height: "100%",
                             width: "100%",
-                            padding: 10,
-                            boxSizing: "border-box",
-                            color: "#4C68C1",
                         }}
                     />
-                </ActionIcon>
-                <ActionIcon onClick={zoom(0.5)}>
+                </ActionButton>
+                <ActionButton
+                    onClick={zoom(-0.1)}
+                    variant="text"
+                    color="primary"
+                    size="icon"
+                    disabled={!image}
+                >
                     <Icon
                         icon="ZoomOut"
                         style={{
                             height: "100%",
                             width: "100%",
-                            padding: 10,
-                            boxSizing: "border-box",
-                            color: "#4C68C1",
                         }}
                     />
-                </ActionIcon>
-                <ActionIcon
+                </ActionButton>
+                <ActionButton
                     onClick={resetAll}
                     style={{
                         borderBottom: "none",
                     }}
+                    variant="text"
+                    color="primary"
+                    size="icon"
+                    disabled={!image}
                 >
                     <Icon
                         icon="RefreshCcw"
                         style={{
                             height: "100%",
                             width: "100%",
-                            padding: 10,
-                            boxSizing: "border-box",
-                            color: "#4C68C1",
                         }}
                     />
-                </ActionIcon>
+                </ActionButton>
             </ActionIcons>
             <CropIcon>
-                <ActionIcon onClick={handleCapture}>
+                <ActionButton
+                    onClick={cropImage}
+                    variant="text"
+                    color="primary"
+                    size="icon"
+                    disabled={!capturing}
+                >
                     <Icon
-                        icon="Crop"
+                        icon="Save"
                         style={{
                             height: "100%",
                             width: "100%",
-                            padding: 10,
-                            boxSizing: "border-box",
-                            color: "#4C68C1",
                         }}
                     />
-                </ActionIcon>
-                {capturing && (
-                    <>
-                        <ActionIcon onClick={cropImage}>
-                            <Icon
-                                icon="Save"
-                                style={{
-                                    height: "100%",
-                                    width: "100%",
-                                    padding: 10,
-                                    boxSizing: "border-box",
-                                    color: "#4C68C1",
-                                }}
-                            />
-                        </ActionIcon>
-                        <ActionIcon onClick={handleCapture}>
-                            <Icon
-                                icon="X"
-                                style={{
-                                    height: "100%",
-                                    width: "100%",
-                                    padding: 10,
-                                    boxSizing: "border-box",
-                                    color: "#4C68C1",
-                                }}
-                            />
-                        </ActionIcon>
-                    </>
-                )}
+                </ActionButton>
             </CropIcon>
             <ImageInnerWrap
                 onContextMenu={(e: { preventDefault: () => void }) => {
@@ -198,33 +185,20 @@ export const BookImage = ({
                     <Loader />
                 ) : (
                     <Cropper
-                        ref={cropperRef}
                         src={image}
-                        stencilProps={{
-                            movable: capturing,
-                            resizable: capturing,
-                            scalable: capturing,
-                            lines: capturing,
-                            handlers: capturing
-                                ? {
-                                      eastNorth: true,
-                                      north: false,
-                                      westNorth: true,
-                                      west: false,
-                                      westSouth: true,
-                                      south: false,
-                                      eastSouth: true,
-                                      east: false,
-                                  }
-                                : "",
-                            overlayClassName: !capturing
-                                ? "advanced-cropper-stencil-overlay--faded"
-                                : "",
-                        }}
-                        defaultSize={{
-                            width: 400,
-                            height: 400,
-                        }}
+                        autoCrop={false}
+                        aspectRatio={0}
+                        style={{ height: 720, width: "100%" }}
+                        guides={true}
+                        dragMode={"crop"}
+                        ref={cropperRef}
+                        viewMode={2}
+                        minCropBoxHeight={10}
+                        minCropBoxWidth={10}
+                        background={false}
+                        responsive={true}
+                        restore={false}
+                        cropstart={onCropStart}
                     />
                 )}
             </ImageInnerWrap>
