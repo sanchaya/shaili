@@ -64,6 +64,5 @@ Comments.init(
         timestamps: true,
         tableName: "comments",
         modelName: "Comments",
-        paranoid: true,
     }
 );

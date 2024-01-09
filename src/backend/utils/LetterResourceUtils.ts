@@ -11,7 +11,6 @@ export const LetterDeleteBefore = async (
     if (letterId) {
         const taggedLetters = await TaggedLetters.findAll({
             where: { letter_id: letterId },
-            paranoid: false,
         });
 
         if (taggedLetters.length > 0) {

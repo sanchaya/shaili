@@ -114,6 +114,5 @@ Books.init(
         underscored: true,
         tableName: "books",
         modelName: "books",
-        paranoid: true,
     }
 );

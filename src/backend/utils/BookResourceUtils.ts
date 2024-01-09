@@ -6,6 +6,17 @@ import TaggedLetterController from "../controllers/TaggedLetterController.js";
 import fs from "fs";
 import { mkdir, rename } from "node:fs/promises";
 
+const getTimeStamp = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const hours = String(now.getHours()).padStart(2, "0");
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0");
+    return `${year}${month}${day}_${hours}${minutes}${seconds}`;
+};
+
 export const BookDeleteBefore = async (
     request: ActionRequest,
     context: ActionContext
@@ -25,10 +36,12 @@ export const BookDeleteHandler = async (props) => {
         const bookTags = await TaggedLetters.findAll({
             where: { book_id: request.params.recordId },
         });
-        if (bookTags) {
+        if (bookTags.length > 0) {
             const tagsDirectory = TaggedLetterController.getTagsDirectory();
             const bookTagDirectory = `${tagsDirectory}/tags/${book?.dataValues.name}/`;
-            const deletedPath = `${tagsDirectory}/tags/deleted/${book?.dataValues.name}/`;
+            const deletedPath = `${tagsDirectory}/tags/deleted/${getTimeStamp()}_${
+                book?.dataValues.name
+            }/`;
             if (!fs.existsSync(deletedPath)) {
                 await mkdir(deletedPath, {
                     recursive: true,
@@ -38,21 +51,20 @@ export const BookDeleteHandler = async (props) => {
             if (filesInTagsDirectory.length > 0) {
                 await rename(bookTagDirectory, deletedPath);
             }
-
-            await TaggedLetters.destroy({
-                where: { book_id: request.params.recordId },
-            });
-
-            await Comments.destroy({
-                where: { book: request.params.recordId },
-            });
-
-            await Books.destroy({
-                where: {
-                    id: request.params.recordId,
-                },
-            });
         }
+        await TaggedLetters.destroy({
+            where: { book_id: request.params.recordId },
+        });
+
+        await Comments.destroy({
+            where: { book: request.params.recordId },
+        });
+
+        await Books.destroy({
+            where: {
+                id: request.params.recordId,
+            },
+        });
         const deletedBook = await Books.findOne({
             where: {
                 id: request.params.recordId,
