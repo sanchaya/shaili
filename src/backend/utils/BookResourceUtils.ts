@@ -5,7 +5,6 @@ import { Comments } from "../db/models/Comments.js";
 import TaggedLetterController from "../controllers/TaggedLetterController.js";
 import fs from "fs";
 import { mkdir, rename } from "node:fs/promises";
-import path from "path";
 
 export const BookDeleteBefore = async (
     request: ActionRequest,
