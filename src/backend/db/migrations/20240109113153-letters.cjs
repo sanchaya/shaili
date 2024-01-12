@@ -60,7 +60,6 @@ module.exports = {
             letter: {
                 type: Sequelize.STRING,
                 allowNull: false,
-                unique: true,
             },
             language: {
                 type: Sequelize.STRING,

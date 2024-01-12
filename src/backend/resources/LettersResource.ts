@@ -58,10 +58,13 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
     const parser = fs.createReadStream(filePath).pipe(csvParser());
 
     for await (const data of parser) {
-        data.letter = data.letter.replace(/\s+/g, " ").trim();
-        data.letter_type = data.letter_type.replace(/\s+/g, " ").trim();
-        data.language = data.language.toLowerCase().replace(/\s+/g, " ").trim();
-        if (data.letter && data.letter_type) {
+        if (data.letter && data.letter_type && data.language) {
+            data.letter = data.letter.replace(/\s+/g, " ").trim();
+            data.letter_type = data.letter_type.replace(/\s+/g, " ").trim();
+            data.language = data.language
+                .toLowerCase()
+                .replace(/\s+/g, " ")
+                .trim();
             const letter = await Letters.findOne({
                 where: { letter: data.letter },
             });
@@ -87,24 +90,35 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
 };
 
 const importHandler = async (props) => {
-    const records = await Letters.bulkCreate(props.result);
-    const { context } = props;
-    const { resource, h } = context;
-    const createdRecords = records.map((record) => record.dataValues.letter);
+    try {
+        const records = await Letters.bulkCreate(props.result);
+        const { context } = props;
+        const { resource, h } = context;
+        const createdRecords = records.map(
+            (record) => record.dataValues.letter
+        );
 
-    if (records) {
+        if (records) {
+            return {
+                redirectUrl: h.resourceUrl({
+                    resourceId: resource._decorated?.id() || resource.id(),
+                }),
+                notice: {
+                    message:
+                        createdRecords.length == 1
+                            ? createdRecords.length + " Letter added"
+                            : createdRecords.length + " Letters added",
+                    type: "success",
+                },
+                createdRecords: createdRecords.length,
+            };
+        }
+    } catch (error) {
         return {
-            redirectUrl: h.resourceUrl({
-                resourceId: resource._decorated?.id() || resource.id(),
-            }),
             notice: {
-                message:
-                    createdRecords.length == 1
-                        ? createdRecords.length + " Letter added"
-                        : createdRecords.length + " Letters added",
-                type: "success",
+                message: "Something went wrong try again later.",
+                type: "error",
             },
-            createdRecords: createdRecords.length,
         };
     }
 };
