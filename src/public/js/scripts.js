@@ -87,7 +87,8 @@ jQuery("#reset-password").on("submit", function (e) {
 });
 
 function isValidPassword(password) {
-    pattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\s)(?=.*[!@#$*])/;
+   const pattern =
+       /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[~`!@#$%^&*()-_+={}[\]|\\:;"'<>,.?/]).{8,}$/;
     return pattern.test(password);
 }
 

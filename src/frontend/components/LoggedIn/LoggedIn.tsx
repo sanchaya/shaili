@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     CurrentUserNav,
     Box,
@@ -6,6 +6,7 @@ import {
 } from "@adminjs/design-system";
 import { CurrentAdmin, useTranslation } from "adminjs";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export type LoggedInProps = {
     session: CurrentAdmin;
@@ -18,6 +19,8 @@ const LoggedIn: React.FC<LoggedInProps> = (props) => {
     const { session, paths } = props;
     const { translateButton } = useTranslation();
     const navigate = useNavigate();
+    const BASE_URL = (window as any).AdminJS.env.BASE_URL;
+    const [email, setEmail] = useState(session.email);
 
     const dropActions: CurrentUserNavProps["dropActions"] = [
         {
@@ -37,10 +40,20 @@ const LoggedIn: React.FC<LoggedInProps> = (props) => {
             icon: "LogOut",
         },
     ];
+    useEffect(() => {
+        axios
+            .get(`${BASE_URL}/api/resources/users/records/${session.id}/show`)
+            .then((response) => {
+                if (response.data.record.params.email != email) {
+                    setEmail(response.data.record.params.email);
+                }
+            });
+    });
+
     return (
         <Box flexShrink={0} data-css="logged-in" style={{ cursor: "pointer" }}>
             <CurrentUserNav
-                name={session.email}
+                name={email}
                 title={session.title}
                 avatarUrl={session.avatarUrl}
                 dropActions={dropActions}
