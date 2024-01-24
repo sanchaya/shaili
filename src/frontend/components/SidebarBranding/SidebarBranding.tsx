@@ -1,0 +1,57 @@
+import React from "react";
+import { Link } from "react-router-dom";
+import { cssClass, themeGet } from "@adminjs/design-system";
+import { styled } from "@adminjs/design-system/styled-components";
+import { BrandingOptions } from "adminjs";
+
+type Props = {
+    branding: BrandingOptions;
+};
+
+export const StyledLogo = styled(Link)`
+    text-align: center;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: auto;
+    padding: 5px 0;
+    text-decoration: none;
+
+    & > h1 {
+        text-decoration: none;
+        font-weight: ${themeGet("fontWeights", "bolder")};
+        font-size: ${themeGet("fontWeights", "bolder")};
+        color: ${themeGet("colors", "grey80")};
+        font-size: ${themeGet("fontSizes", "xl")};
+        line-height: ${themeGet("lineHeights", "xl")};
+    }
+
+    & > img {
+        max-width: 170px;
+    }
+
+    &:hover h1 {
+        color: ${themeGet("colors", "primary100")};
+    }
+`;
+
+const SidebarBranding: React.FC<Props> = (props) => {
+    const { branding } = props;
+    const { logo, companyName } = branding;
+    return (
+        <StyledLogo
+            className={cssClass("Logo")}
+            to={"/admin"}
+            data-css="sidebar-logo"
+        >
+            {logo ? (
+                <img src={logo} alt={companyName} />
+            ) : (
+                <h1>{companyName}</h1>
+            )}
+        </StyledLogo>
+    );
+};
+
+export default SidebarBranding;
