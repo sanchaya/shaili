@@ -13,9 +13,10 @@ import {
     Button,
     Text,
 } from "@adminjs/design-system";
-import { useTranslation } from "adminjs";
+import { ReduxState, useTranslation } from "adminjs";
 import { LoginTemplateAttributes } from "adminjs/bundler";
 import { ThemeProvider } from "styled-components";
+import { useSelector } from "react-redux";
 
 const Wrapper = styled(Box)<BoxProps>`
     align-items: center;
@@ -34,6 +35,12 @@ const IllustrationsWrapper = styled(Box)<BoxProps>`
     }
     & svg [fill="#3040D6"] {
         fill: rgba(255, 255, 255, 1);
+    }
+`;
+
+const StyledH5 = styled(H5)`
+    @media (max-width: 769px) {
+        text-align: center;
     }
 `;
 
@@ -56,6 +63,7 @@ export const Login: React.FC<LoginProps> = () => {
         translateProperty,
         translateMessage,
     } = useTranslation();
+    const branding = useSelector((state: ReduxState) => state.branding);
 
     const validateEmail = (email: string): boolean => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -141,8 +149,22 @@ export const Login: React.FC<LoginProps> = () => {
                         width={["100%", "100%", "480px"]}
                         onSubmit={handleSubmit}
                     >
-                        <h1 className="pageTitle">Login</h1>
-                        <H5 marginBottom="xxl">Type Extract</H5>
+                        <StyledH5 marginBottom="xxl">
+                            {branding.logo ? (
+                                <>
+                                    <img
+                                        src={branding.logo}
+                                        alt={branding.companyName}
+                                        style={{
+                                            maxWidth: "170px",
+                                        }}
+                                    />
+                                    <h1 className="pageTitle">| Login</h1>
+                                </>
+                            ) : (
+                                branding.companyName
+                            )}
+                        </StyledH5>
                         {error && (
                             <div className="loginError">
                                 {error.split(" ").length > 1

@@ -52,8 +52,9 @@ const start = async () => {
     const admin = new AdminJS({
         branding: {
             companyName: "Type Extract",
-            logo: "/images/logo.png",
+            logo: "/images/type_extract_logo.jpeg",
             withMadeWithLove: false,
+            favicon: "/images/type_extract_favicon.jpeg",
         },
         resources: [
             UsersResource,
