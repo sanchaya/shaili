@@ -77,6 +77,7 @@ html,
     margin-bottom: 32px;
     text-align: center;
     display: none;
+    margin-left: 10px;
 }
 
 .loginError {
@@ -314,7 +315,7 @@ html,
         height: auto;
     }
     .pageTitle {
-        display: block;
+        display: inline;
     }
 }
 
