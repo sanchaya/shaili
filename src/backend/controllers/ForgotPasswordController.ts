@@ -20,12 +20,7 @@ export const handleForgotPasswordSubmission = async (
     const email = req.body.email;
     const user = await Users.findOne({ where: { email: email } });
 
-    if (!user) {
-        res.status(404).send({
-            statusCode: 404,
-            message: `No account with that email address exists.`,
-        });
-    } else {
+    if (user && user.is_active) {
         const token = crypto.randomBytes(20).toString("hex");
         const currentDate = new Date();
         const expires = new Date(
@@ -67,6 +62,11 @@ export const handleForgotPasswordSubmission = async (
         res.status(200).send({
             statusCode: 200,
             message: `An e-mail has been sent to ${user.email} with further instructions.`,
+        });
+    } else {
+        res.status(404).send({
+            statusCode: 404,
+            message: `No account with that email address exists.`,
         });
     }
 };

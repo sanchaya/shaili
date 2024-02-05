@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Verify Email | Type Extract</title>
+  <link rel="shortcut icon" type="image/x-icon" href="/images/type_extract_favicon.jpeg">
+  <link href="/css/bootstrap.css" rel="stylesheet">
+  <link href="/css/styles.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style id="dynamicStyles"></style>
+</head>
+
+<body>
+  <div id="app">
+    <section class="sectionWrap">
+      <section class="sectionInnerWrap">
+        <section class="sectionLeft">
+          <div class="text-start w-100">
+            <h1>Verify Email</h1>
+          </div>
+        </section>
+        <div class="sectionRight">
+            <div class="mb-5 mb-md-0">
+                <div class="mb-2 mb-md-4"><img src="/images/type_extract_logo.jpeg" style="width:170px;"/></div>
+                <h1 class="pageTitle mt-3 mb-0 ms-0">Verify Email</h1>
+            </div>
+          <div class="form-container">
+            @if(alreadyVerified)
+              <h6 class="text-start">Your account is already verified.</h6>
+                <div class="back-to-login">
+                  <a href="/admin/login">Back to login</a>
+                </div>
+            @end
+            @if(notFound)
+                <h6 class="text-start">The verification link appears to be invalid.</h6>
+                <div class="back-to-login">
+                  <a href="/admin/login">Back to login</a>
+                </div>
+            @elseif(expired)
+                <h6 class="text-start">The verification link you provided is expired.</h6>
+                <div class="back-to-login">
+                  <a href="/admin/login">Back to login</a>
+                </div>
+            @elseif(valid)
+                <h6 class="text-start">Congratulations! Your email address has been successfully verified.Click below button to login with your credentials.</h6>
+                <div class="submitWrap">
+                    <a href="/admin/login">Login</a>
+                </div>
+            @end
+          </div>
+        </div>
+      </section>
+    </section>
+  </div>
+
+  <script src="/config.js"></script>
+  <script src="/js/bootstrap.bundle.js"></script>
+  <script src="/js/jQuery.js"></script>
+  <script src="/js/scripts.js"></script>
+</body>
+
+</html>

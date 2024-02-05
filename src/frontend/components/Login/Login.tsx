@@ -232,11 +232,25 @@ export const Login: React.FC<LoginProps> = () => {
                                 {translateButton("login")}
                             </Button>
                         </Text>
-                        <Text mt="lg" textAlign="center">
-                            <a href="/admin/forgot-password">
-                                {translateMessage("Forgot Password?")}
-                            </a>
-                        </Text>
+                        <Box
+                            display="flex"
+                            mr="default"
+                            justifyContent="center"
+                        >
+                            <Text mt="lg" textAlign="center">
+                                <a href="/admin/signup">
+                                    {translateMessage("Create account")}
+                                </a>
+                            </Text>
+                            <Text mt="lg" mx="sm" textAlign="center">
+                                |
+                            </Text>
+                            <Text mt="lg" textAlign="center">
+                                <a href="/admin/forgot-password">
+                                    {translateMessage("Forgot Password?")}
+                                </a>
+                            </Text>
+                        </Box>
                     </Box>
                 </Box>
             </Wrapper>
