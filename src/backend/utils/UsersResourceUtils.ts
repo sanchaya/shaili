@@ -70,6 +70,7 @@ export const hashPassword = async (request, context) => {
             request.payload.newPassword
         );
     }
+    request.payload.is_active = 1;
     return request;
 };
 
