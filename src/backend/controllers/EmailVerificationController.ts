@@ -10,20 +10,10 @@ export const renderEmailVerificationPage = async (
     const { key, expires } = req.query as { key: string; expires: string };
     const currentTime: number = new Date().getTime();
 
-    const isUserActive = await Users.findOne({
-        where: { is_active: true },
-    });
-
     const isTokenFound = await Users.findOne({
         where: { email_verification_token: key },
     });
 
-    if (isUserActive) {
-        const html = await edge.render("Pages::VerifyEmail", {
-            alreadyVerified: true,
-        });
-        return res.send(html);
-    }
     if (!isTokenFound) {
         const html = await edge.render("Pages::VerifyEmail", {
             notFound: true,
