@@ -25,12 +25,6 @@
                 <h1 class="pageTitle mt-3 mb-0 ms-0">Verify Email</h1>
             </div>
           <div class="form-container">
-            @if(alreadyVerified)
-              <h6 class="text-start">Your account is already verified.</h6>
-                <div class="back-to-login">
-                  <a href="/admin/login">Back to login</a>
-                </div>
-            @end
             @if(notFound)
                 <h6 class="text-start">The verification link appears to be invalid.</h6>
                 <div class="back-to-login">

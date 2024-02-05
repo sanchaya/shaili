@@ -16,19 +16,19 @@ jQuery("#sign-up").on("submit", function (e) {
     if (!name) {
         jQuery(".error.nameInput")
             .removeClass("d-none")
-            .text("Enter your name.");
+            .text("Enter your name");
     }
 
     if (!newPassword) {
         jQuery(".error.newPasswordInput")
             .removeClass("d-none")
-            .text("Enter new password.");
+            .text("Enter new password");
     }
 
     if (!confirmPassword) {
         jQuery(".error.confirmPasswordInput")
             .removeClass("d-none")
-            .text("Enter new password again.");
+            .text("Enter new password again");
     }
 
     if (!email || !name || !newPassword || !confirmPassword) {
