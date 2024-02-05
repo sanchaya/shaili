@@ -16,7 +16,7 @@ jQuery("#sign-up").on("submit", function (e) {
     if (!name) {
         jQuery(".error.nameInput")
             .removeClass("d-none")
-            .text("Enter new password.");
+            .text("Enter your name.");
     }
 
     if (!newPassword) {
