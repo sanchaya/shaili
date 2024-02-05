@@ -22,7 +22,11 @@ const PORT = 8000;
 
 const authenticate = async (email: string, password: string) => {
     const user = await Users.findOne({ where: { email } });
-    if (user && (await user.comparePassword(user?.password, password))) {
+    if (
+        user &&
+        user.is_active &&
+        (await user.comparePassword(user.password, password))
+    ) {
         return user;
     }
     return null;
@@ -52,8 +56,9 @@ const start = async () => {
     const admin = new AdminJS({
         branding: {
             companyName: "Type Extract",
-            logo: "/images/logo.png",
+            logo: "/images/type_extract_logo.jpeg",
             withMadeWithLove: false,
+            favicon: "/images/type_extract_favicon.jpeg",
         },
         resources: [
             UsersResource,

@@ -55,6 +55,20 @@ const ImportComponent: FC<ActionProps> = ({ resource }) => {
         return <Loader />;
     }
 
+    const getDownloadUrl = () => {
+        if (resource.id === "books") {
+            return "/sample-books.csv";
+        } else if (resource.id === "letters") {
+            return "/sample-letters.csv";
+        }
+        return "#";
+    };
+
+    const handleDownload = () => {
+        const downloadUrl = getDownloadUrl();
+        window.location.href = downloadUrl;
+    };
+
     return (
         <Box
             margin="auto"
@@ -72,6 +86,7 @@ const ImportComponent: FC<ActionProps> = ({ resource }) => {
             >
                 Supported file format - CSV
             </p>
+
             <DropZone files={[]} onChange={onUpload} multiple={false} />
             {file && (
                 <DropZoneItem
@@ -81,8 +96,16 @@ const ImportComponent: FC<ActionProps> = ({ resource }) => {
                 />
             )}
             <Box display="flex" justifyContent="center" m={10}>
-                <Button onClick={onSubmit} disabled={!file || isFetching}>
+                <Button
+                    onClick={onSubmit}
+                    disabled={!file || isFetching}
+                    mr={10}
+                    variant={"contained"}
+                >
                     Upload
+                </Button>
+                <Button onClick={handleDownload} variant={"contained"}>
+                    Download Sample file
                 </Button>
             </Box>
         </Box>

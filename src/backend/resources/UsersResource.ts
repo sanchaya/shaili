@@ -32,6 +32,8 @@ export const UsersResource = {
         listProperties: ["name", "email", "role"],
         filterProperties: ["name", "email", "role"],
         showProperties: ["name", "email", "role"],
+        editProperties: ["name", "email", "role", "newPassword"],
+        newProperties: ["name", "email", "role", "newPassword"],
         properties: {
             password: { isVisible: false },
             newPassword: { isRequired: true },

@@ -36,7 +36,7 @@ html,
     font-size: 14px;
     font-weight: normal;
     background-color: rgb(255, 255, 255);
-    height: 440px;
+    min-height: 440px;
     width: 100%;
     box-shadow: rgba(137, 138, 154, 0.15) 0px 15px 24px 0px;
 }
@@ -77,6 +77,7 @@ html,
     margin-bottom: 32px;
     text-align: center;
     display: none;
+    margin-left: 10px;
 }
 
 .loginError {
@@ -181,7 +182,8 @@ html,
     margin-top: 24px;
 }
 
-.sectionRight .submitWrap button {
+.sectionRight .submitWrap button,
+.sectionRight .submitWrap a {
     appearance: none;
     display: inline-block;
     background-color: transparent;
@@ -202,12 +204,14 @@ html,
     line-height: 24px;
 }
 
-.sectionRight .submitWrap button:hover {
+.sectionRight .submitWrap button:hover,
+.sectionRight .submitWrap a:hover {
     background-color: rgba(48, 64, 214, 0.05);
     color: rgb(48, 64, 214);
 }
 
-.sectionRight .submitWrap button:focus {
+.sectionRight .submitWrap button:focus,
+.sectionRight .submitWrap a:focus {
     box-shadow: none;
 }
 
@@ -314,7 +318,7 @@ html,
         height: auto;
     }
     .pageTitle {
-        display: block;
+        display: inline;
     }
 }
 
