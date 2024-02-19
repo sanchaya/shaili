@@ -39,6 +39,7 @@ const SignInWithGmailController = async (req: Request, res: Response) => {
                     role: 3,
                     email: email,
                     is_active: true,
+                    is_google_sign_on: true,
                 });
                 sendWelcomeEmail(email, userName);
                 return res.status(200).json({

@@ -92,7 +92,7 @@ export const Login: React.FC<LoginProps> = () => {
         setError("");
     };
 
-    const HandleGmailLogin = async (credentialResponse) => {
+    const handleGmailLogin = async (credentialResponse) => {
         const userDetails = {
             token: credentialResponse,
         };
@@ -274,7 +274,7 @@ export const Login: React.FC<LoginProps> = () => {
                                 </Text>
                                 <GoogleLogin
                                     onSuccess={(credentialResponse) => {
-                                        HandleGmailLogin(credentialResponse);
+                                        handleGmailLogin(credentialResponse);
                                     }}
                                     onError={() => {
                                         setError(

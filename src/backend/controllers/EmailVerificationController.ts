@@ -53,13 +53,13 @@ export const renderEmailVerificationPage = async (
 
 export const sendWelcomeEmail = async (email: string, userName: string) => {
     const mailHtml = await edge.render("Templates::WelcomeEmail", {
-        name: userName,
+        userName: userName,
         url: process.env.BASE_URL,
     });
     const mailOptions = {
         to: email,
         from: `${process.env.MAIL_FROM_NAME} <${process.env.MAIL_FROM_ADDRESS}>`,
-        subject: "Welcome to Type Extract",
+        subject: "Welcome to Type Extract!",
         html: mailHtml,
     };
 

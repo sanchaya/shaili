@@ -22,17 +22,23 @@ const PORT = 8000;
 
 const authenticate = async (email: string, password?: string) => {
     const user = await Users.findOne({ where: { email } });
+
+    if (!user || !user.is_active) {
+        return null;
+    }
+
+    if (user.is_google_sign_on && !password) {
+        return user;
+    }
+
     if (
-        user &&
-        user.is_active &&
+        !user.is_google_sign_on &&
         password &&
         (await user.comparePassword(user.password, password))
     ) {
         return user;
     }
-    if (user && user.is_active && email) {
-        return user;
-    }
+
     return null;
 };
 

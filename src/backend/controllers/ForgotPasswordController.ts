@@ -47,13 +47,13 @@ export const handleForgotPasswordSubmission = async (
         }
 
         const mailHtml = await edge.render("Templates::ForgotPasswordEmail", {
-            email: user.email,
+            userName: user.name,
             url: url,
         });
         const mailOptions = {
             to: user.email,
             from: `${process.env.MAIL_FROM_NAME} <${process.env.MAIL_FROM_ADDRESS}>`,
-            subject: "Password Reset",
+            subject: "Password Reset Request",
             html: mailHtml,
         };
 
