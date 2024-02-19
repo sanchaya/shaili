@@ -20,13 +20,17 @@ import fs from "fs";
 
 const PORT = 8000;
 
-const authenticate = async (email: string, password: string) => {
+const authenticate = async (email: string, password?: string) => {
     const user = await Users.findOne({ where: { email } });
     if (
         user &&
         user.is_active &&
+        password &&
         (await user.comparePassword(user.password, password))
     ) {
+        return user;
+    }
+    if (user && user.is_active && email) {
         return user;
     }
     return null;
@@ -83,6 +87,7 @@ const start = async () => {
         },
         env: {
             BASE_URL: process.env.BASE_URL || "",
+            GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID || "",
         },
         locale: {
             language: "en",

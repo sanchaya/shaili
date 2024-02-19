@@ -45,21 +45,25 @@ export const renderEmailVerificationPage = async (
             valid: true,
         });
 
-        const mailHtml = await edge.render("Templates::WelcomeEmail", {
-            name: user?.name,
-            url: process.env.BASE_URL,
-        });
-        const mailOptions = {
-            to: user?.email,
-            from: `${process.env.MAIL_FROM_NAME} <${process.env.MAIL_FROM_ADDRESS}>`,
-            subject: "Welcome to Type Extract",
-            html: mailHtml,
-        };
-
-        await MailerService.sendMail(mailOptions);
+        if (user?.email && user?.name) sendWelcomeEmail(user.email, user.name);
 
         res.send(html);
     }
+};
+
+export const sendWelcomeEmail = async (email: string, userName: string) => {
+    const mailHtml = await edge.render("Templates::WelcomeEmail", {
+        name: userName,
+        url: process.env.BASE_URL,
+    });
+    const mailOptions = {
+        to: email,
+        from: `${process.env.MAIL_FROM_NAME} <${process.env.MAIL_FROM_ADDRESS}>`,
+        subject: "Welcome to Type Extract",
+        html: mailHtml,
+    };
+
+    await MailerService.sendMail(mailOptions);
 };
 
 export default { renderEmailVerificationPage };
