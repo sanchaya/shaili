@@ -11,11 +11,12 @@ interface IUserAttributes {
     email_verification_token: string | null;
     email_verified_at: Date;
     is_active: boolean;
+    is_google_sign_on: boolean;
 }
 
 type UserCreationAttributes = Optional<
     IUserAttributes,
-    "id" | "email_verified_at" | "is_active"
+    "id" | "email_verified_at" | "is_active" | "password" | "is_google_sign_on"
 >;
 
 class Users extends Model<IUserAttributes, UserCreationAttributes> {
@@ -27,6 +28,7 @@ class Users extends Model<IUserAttributes, UserCreationAttributes> {
     declare email_verification_token: string | null;
     declare email_verified_at: Date;
     declare is_active: boolean;
+    declare is_google_sign_on: boolean;
 
     public async comparePassword(password: string, inputPassword: string) {
         const isMatch = await argon2.verify(password, inputPassword);
@@ -66,7 +68,7 @@ Users.init(
         },
         password: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: true,
         },
         email_verification_token: {
             type: DataTypes.STRING,
@@ -77,6 +79,11 @@ Users.init(
             allowNull: true,
         },
         is_active: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
+        is_google_sign_on: {
             type: DataTypes.BOOLEAN,
             allowNull: false,
             defaultValue: false,
