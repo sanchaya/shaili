@@ -93,7 +93,19 @@ const LanguageShow: React.FC<ILanguageShowProps> = ({ record }) => {
             }
         };
 
-        const groupedLetters: { [key: number]: ILetterType[] } = {};
+        const order = [
+            "Vowels",
+            "Consonants",
+            "Numerals",
+            "Consonants",
+            "Compounds",
+            "Conjuncts",
+            "Special Symbols",
+            "Custom Symbols",
+        ];
+
+        const groupedLetters: { [key: string]: ILetterType[] } = {};
+
         if (letters && letters.length) {
             letters.forEach((letter: any) => {
                 letter.letter_type = getLetterTypeName(letter.letter_type);
@@ -101,10 +113,25 @@ const LanguageShow: React.FC<ILanguageShowProps> = ({ record }) => {
                     groupedLetters[letter.letter_type] = [];
                 }
                 groupedLetters[letter.letter_type].push(letter);
-                setLoading(false);
             });
+
+            const orderedGroupedLetters: { [key: string]: ILetterType[] } = {};
+
+            order.forEach((type) => {
+                if (groupedLetters[type]) {
+                    orderedGroupedLetters[type] = groupedLetters[type];
+                    delete groupedLetters[type];
+                }
+            });
+
+            for (const remainingType in groupedLetters) {
+                orderedGroupedLetters[remainingType] =
+                    groupedLetters[remainingType];
+            }
+
+            setGroupedLetters(orderedGroupedLetters);
+            setLoading(false);
         }
-        setGroupedLetters(groupedLetters);
     }, [letters, letterTypes]);
 
     const handleCreateClick = () => {
