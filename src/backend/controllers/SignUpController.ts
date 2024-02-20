@@ -53,13 +53,14 @@ export const handleSignUpSubmission = async (req: Request, res: Response) => {
             "Templates::EmailVerificationEmail",
             {
                 email: email,
+                userName: name,
                 url: url,
             }
         );
         const mailOptions = {
             to: email,
             from: `${process.env.MAIL_FROM_NAME} <${process.env.MAIL_FROM_ADDRESS}>`,
-            subject: "Email Verification",
+            subject: "Registration Confirmation",
             html: mailHtml,
         };
 

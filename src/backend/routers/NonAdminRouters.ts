@@ -3,6 +3,7 @@ import PasswordResetController from "../controllers/ForgotPasswordController.js"
 import ResetPasswordController from "../controllers/ResetPasswordController.js";
 import SignUpController from "../controllers/SignUpController.js";
 import EmailVerificationController from "../controllers/EmailVerificationController.js";
+import GoogleSignInController from "../controllers/GoogleSignInController.js";
 
 const NonAdminRouter = express.Router();
 
@@ -33,6 +34,11 @@ NonAdminRouter.post("/signup", SignUpController.handleSignUpSubmission);
 NonAdminRouter.get(
     "/verify-email",
     EmailVerificationController.renderEmailVerificationPage
+);
+
+NonAdminRouter.post(
+    "/signin-with-gmail",
+    GoogleSignInController.SignInWithGmailController
 );
 
 export default NonAdminRouter;

@@ -21,25 +21,28 @@ const LoggedIn: React.FC<LoggedInProps> = (props) => {
     const navigate = useNavigate();
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const [email, setEmail] = useState(session.email);
+    const dropActions: CurrentUserNavProps["dropActions"] = [];
 
-    const dropActions: CurrentUserNavProps["dropActions"] = [
-        {
+    if (!session.is_google_sign_on) {
+        dropActions.push({
             label: translateButton("edit profile"),
             onClick: (event: Event): void => {
                 event.preventDefault();
                 navigate(`admin/resources/users/records/${session.id}/edit`);
             },
             icon: "Edit",
+        });
+    }
+
+    dropActions.push({
+        label: translateButton("logout"),
+        onClick: (event: Event): void => {
+            event.preventDefault();
+            window.location.href = paths.logoutPath;
         },
-        {
-            label: translateButton("logout"),
-            onClick: (event: Event): void => {
-                event.preventDefault();
-                window.location.href = paths.logoutPath;
-            },
-            icon: "LogOut",
-        },
-    ];
+        icon: "LogOut",
+    });
+
     useEffect(() => {
         axios
             .get(`${BASE_URL}/api/resources/users/records/${session.id}/show`)
