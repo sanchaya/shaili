@@ -50,8 +50,10 @@ const TagModal: React.FC<ITagModalProps> = ({
     const addNotice = useNotice();
     const { addTag, updateTag } = useLetterTagContext();
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
+        setIsLoading(true);
         axios.get(`${BASE_URL}/get-letters`).then((response) => {
             let letters = response.data.map(
                 (letter: { id: number; letter: string }) => ({
@@ -64,6 +66,7 @@ const TagModal: React.FC<ITagModalProps> = ({
                     a.label > b.label ? 1 : -1
             );
             setLetters(sortedLetters);
+            setIsLoading(false);
             if (mode === "edit") {
                 const selectedLetter = letters.find(
                     (option) => option.value === letterId
@@ -160,6 +163,10 @@ const TagModal: React.FC<ITagModalProps> = ({
                                     value={letter}
                                     options={letters}
                                     isClearable={false}
+                                    isLoading={isLoading}
+                                    loadingMessage={() => {
+                                        return "Fetching Letters";
+                                    }}
                                     backspaceRemovesValue={true}
                                     onChange={(newValue) =>
                                         setLetter(newValue ?? null)
