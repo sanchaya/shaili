@@ -283,7 +283,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                     </ProgressWrap>
                     <NavWrap>
                         <NavWrapLeft>
-                            <GoToPage>
+                            <GoToPage className="goToInput">
                                 <GoToInput
                                     max={totalPages}
                                     min={1}
