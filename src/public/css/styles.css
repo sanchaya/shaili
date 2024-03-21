@@ -347,3 +347,13 @@ html,
         padding: 4px 9px;
     }
 }
+
+.goToInput input::-webkit-outer-spin-button,
+.goToInput input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.goToInput input[type="number"] {
+    -moz-appearance: textfield;
+}
