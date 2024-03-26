@@ -162,7 +162,6 @@ const RightSideBar = ({
                                                             accordion.language
                                                         )
                                                     }
-                                                    key={accordion.id}
                                                 >
                                                     <span>
                                                         {accordion.title}
@@ -239,7 +238,11 @@ const RightSideBar = ({
                                                                         letter: ILettersData,
                                                                         index: number
                                                                     ) => (
-                                                                        <>
+                                                                        <div
+                                                                            key={
+                                                                                index
+                                                                            }
+                                                                        >
                                                                             {tags.taggedLetters.some(
                                                                                 (
                                                                                     taggedLetter: any
@@ -320,7 +323,7 @@ const RightSideBar = ({
                                                                                     </StyledDiv>
                                                                                 </>
                                                                             )}
-                                                                        </>
+                                                                        </div>
                                                                     )
                                                                 )}
                                                         </TagsWrap>

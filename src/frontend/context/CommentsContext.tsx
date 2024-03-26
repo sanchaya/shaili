@@ -2,7 +2,7 @@ import React, { createContext, useContext, useReducer, ReactNode } from "react";
 import axios from "axios";
 import { Comments } from "../../backend/db/models/Comments.js";
 
-interface IComments {
+export interface IComments {
     comments: Comments[];
 }
 
