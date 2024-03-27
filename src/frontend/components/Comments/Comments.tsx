@@ -156,7 +156,7 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
         <CommentsWrap>
             <Text
                 style={{
-                    fontSize: "26px",
+                    fontSize: "28px",
                     fontWeight: "400",
                     marginBottom: "10px",
                 }}

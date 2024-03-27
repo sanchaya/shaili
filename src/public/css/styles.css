@@ -357,3 +357,27 @@ html,
 .goToInput input[type="number"] {
     -moz-appearance: textfield;
 }
+
+[data-css="languages-show-action-header"] .hcGGWN.adminjs_Box {
+    display: block;
+}
+
+[data-css="languages-show-action-header"] .ciRvMa.adminjs_Box {
+    display: none;
+}
+
+[data-css="languages-show-action-header"] .oAYmF.adminjs_Box {
+    float: right;
+}
+
+.language-show .WfYT.adminjs_Header {
+    margin-top: 23px;
+}
+
+.adminjs_ActionHeader .dgJiMC.adminjs_H2 {
+    font-size: 28px;
+}
+
+h4.sc-ilEZps.hhnezv.sc-gXSCqU.letterTypeHeader {
+    margin: 25px 0px;
+}
