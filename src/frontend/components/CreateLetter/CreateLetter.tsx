@@ -175,9 +175,9 @@ const CreateLetter: React.FC<ICreateLetter> = ({
 
     return (
         <>
-            <Header.H3 textAlign="center" marginTop="default" marginBottom="xl">
+            <Header.H5 textAlign="center" marginTop="default" marginBottom="xl">
                 Create Letter - "{newLetter}"
-            </Header.H3>
+            </Header.H5>
             <LetterSelectWrap>
                 <div style={{ width: "100%" }}>
                     <Select

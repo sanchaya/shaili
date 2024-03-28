@@ -57,7 +57,7 @@ const Components = {
     DefaultListAction: componentLoader.override(
         "DefaultListAction",
         "./components/List/List"
-    )
+    ),
 };
 
 export { componentLoader, Components };
