@@ -75,3 +75,15 @@ export const LetterDeleteHandler = async (props) => {
         }
     }
 };
+
+export const beforeLettersShowHook = (request, context) => {
+    const { record } = context;
+    const values = record.params;
+
+    for (let key in values) {
+        if (values[key] === "" || values[key] === null) {
+            values[key] = "-";
+        }
+    }
+    return context;
+};

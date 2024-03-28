@@ -31,6 +31,7 @@ const AddLetter = () => {
     } | null>(null);
     const [currentAdmin] = useCurrentAdmin();
     const [lettername, setLettername] = useState("");
+    const [unicode, setUniCode] = useState("");
     const navigate = useNavigate();
     const addNotice = useNotice();
 
@@ -85,6 +86,7 @@ const AddLetter = () => {
     const saveLetter = async () => {
         const data = {
             letter: lettername,
+            unicode: unicode ?? "",
             language: language?.value,
             letter_type: letterType?.value,
             created_by: Number(currentAdmin?.id),
@@ -117,6 +119,10 @@ const AddLetter = () => {
         setLettername(event.target.value);
     };
 
+    const handleUniCodeChange = (event) => {
+        setUniCode(event.target.value);
+    };
+
     return (
         <Box
             padding="20px"
@@ -133,6 +139,16 @@ const AddLetter = () => {
                         value={lettername}
                         onChange={handleLetternameChange}
                         required
+                    ></Input>
+                </FormGroup>
+                <FormGroup>
+                    <Label>Unicode</Label>
+                    <Input
+                        id="unicode"
+                        name="unicode"
+                        value={unicode}
+                        onChange={handleUniCodeChange}
+                        maxLength={5}
                     ></Input>
                 </FormGroup>
                 <FormGroup>

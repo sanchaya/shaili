@@ -6,6 +6,7 @@ import { ActionContext, ActionRequest } from "adminjs";
 import {
     LetterDeleteBefore,
     LetterDeleteHandler,
+    beforeLettersShowHook,
 } from "../utils/LetterResourceUtils.js";
 import csvParser from "csv-parser";
 import fs from "fs";
@@ -127,16 +128,29 @@ export const LetterResource = {
     resource: Letters,
     options: {
         navigation: menu.Letters,
-        listProperties: ["letter", "language", "letter_type", "user_defined"],
+        listProperties: [
+            "letter",
+            "unicode",
+            "language",
+            "letter_type",
+            "user_defined",
+        ],
         showProperties: [
             "letter",
+            "unicode",
             "language",
             "letter_type",
             "user_defined",
             "created_by",
             "updated_by",
         ],
-        filterProperties: ["letter", "language", "letter_type", "user_defined"],
+        filterProperties: [
+            "letter",
+            "unicode",
+            "language",
+            "letter_type",
+            "user_defined",
+        ],
         actions: {
             bulkDelete: { isAccessible: false },
             list: {
@@ -151,6 +165,7 @@ export const LetterResource = {
             show: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, 1),
+                before: [beforeLettersShowHook],
             },
             delete: {
                 isAccessible: (context: ActionContext) =>
@@ -178,6 +193,11 @@ export const LetterResource = {
         properties: {
             language: {
                 reference: "languages",
+            },
+            unicode: {
+                components: {
+                    list: Components.LettersInList,
+                },
             },
         },
     },

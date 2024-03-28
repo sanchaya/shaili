@@ -32,11 +32,13 @@ const EditLetter = (props) => {
     } | null>(null);
     const [currentAdmin] = useCurrentAdmin();
     const [lettername, setLettername] = useState(null);
+    const [unicode, setUniCode] = useState("");
     const addNotice = useNotice();
     const navigate = useNavigate();
 
     useEffect(() => {
         setLettername(record.params.letter);
+        setUniCode(record.params.unicode);
         const fetchData = async () => {
             try {
                 const [languagesResponse, letterTypesResponse] =
@@ -110,6 +112,7 @@ const EditLetter = (props) => {
         const data = {
             id: record.params.id,
             letter: lettername == "" ? record.params.letter : lettername,
+            unicode: unicode,
             language: language?.value,
             letter_type: letterType?.value,
             created_by: Number(currentAdmin?.id),
@@ -146,6 +149,10 @@ const EditLetter = (props) => {
         setLettername(event.target.value);
     };
 
+    const handleUniCodeChange = (event) => {
+        setUniCode(event.target.value);
+    };
+
     return (
         <Box
             padding="20px"
@@ -163,6 +170,16 @@ const EditLetter = (props) => {
                             value={lettername ? lettername : ""}
                             onChange={handleLetternameChange}
                         />
+                    </FormGroup>
+                    <FormGroup>
+                        <Label>Unicode</Label>
+                        <Input
+                            id="unicode"
+                            name="unicode"
+                            value={unicode ? unicode : ""}
+                            onChange={handleUniCodeChange}
+                            maxLength={5}
+                        ></Input>
                     </FormGroup>
                     <FormGroup>
                         <Label required>Language</Label>

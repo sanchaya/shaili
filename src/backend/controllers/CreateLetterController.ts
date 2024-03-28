@@ -31,6 +31,7 @@ const addLetter = async (req: any, res: Response) => {
     try {
         const {
             letter,
+            unicode,
             letter_type,
             language,
             created_by,
@@ -44,8 +45,15 @@ const addLetter = async (req: any, res: Response) => {
         if (isExists) {
             return res.status(422).json("Letter already exists");
         }
+        const isUnicodeExists = await Letters.findOne({
+            where: { unicode: unicode },
+        });
+        if (isUnicodeExists) {
+            return res.status(422).json("Unicode already exists");
+        }
         const response = await Letters.create({
             letter,
+            unicode,
             letter_type,
             language,
             created_by,
@@ -64,6 +72,7 @@ const editLetter = async (req: any, res: Response) => {
         const {
             id,
             letter,
+            unicode,
             letter_type,
             language,
             created_by,
@@ -76,9 +85,16 @@ const editLetter = async (req: any, res: Response) => {
         if (isExists) {
             return res.status(422).json("Letter already exists");
         }
+        const isUnicodeExists = await Letters.findOne({
+            where: { unicode: unicode },
+        });
+        if (isUnicodeExists) {
+            return res.status(422).json("Unicode already exists");
+        }
         const response = await Letters.update(
             {
                 letter,
+                unicode,
                 letter_type,
                 language,
                 created_by,
