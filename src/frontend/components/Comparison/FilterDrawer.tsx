@@ -10,7 +10,6 @@ import {
     Button,
     Drawer,
     DrawerContent,
-    DrawerFooter,
     FormGroup,
     H3,
     Icon,
@@ -20,6 +19,7 @@ import Select from "react-select";
 import axios from "axios";
 import { styled } from "@adminjs/design-system/styled-components";
 import { IBookOptions, LanguageData } from "./Compare.js";
+import { Comments } from "../../../backend/db/models/Comments.js";
 
 interface IData {
     id: number;
@@ -41,7 +41,7 @@ interface ILanguage {
     language_code: string;
 }
 
-interface IBooks {
+export interface IBooks {
     id: number;
     name: string;
     status: number;
@@ -65,6 +65,8 @@ interface IFilterProps {
     setPrinterName: Dispatch<SetStateAction<string | undefined>>;
     publishedYear?: string;
     setPublishedYear: Dispatch<SetStateAction<string | undefined>>;
+    setSelectedBookData: Dispatch<SetStateAction<IBooks[] | undefined>>;
+    setLocalComments: Dispatch<SetStateAction<Comments[] | undefined>>;
 }
 
 const CustomSelect = styled(Select)`
@@ -85,6 +87,8 @@ const FilterDrawer = ({
     setPrinterName,
     publishedYear,
     setPublishedYear,
+    setSelectedBookData,
+    setLocalComments,
 }: IFilterProps) => {
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const [letters, setLetters] = useState<any>();
@@ -404,8 +408,6 @@ const FilterDrawer = ({
     };
 
     const fetchTag = async (record: IBookOptions, mode: string) => {
-        setCompareLoading(true);
-
         const primaryLanguage = getIdLanguage(Number(record.value));
         try {
             const response = await axios.get(
@@ -496,9 +498,17 @@ const FilterDrawer = ({
             });
 
             if (mode === "compare") {
+                const selectedBook = books?.filter((book) => {
+                    return record?.value === book.id;
+                });
+                setSelectedBookData(selectedBook);
                 setCompareBook(record);
+                const response = await axios.get(
+                    (`${BASE_URL}/get-comments?bookId=` +
+                        record.value) as string
+                );
+                setLocalComments(response.data);
                 setCompareBookData(sortedData);
-                setShowFilter(false);
                 setPrinterLocation(undefined);
                 setPrinterName(undefined);
                 setPublishedYear(undefined);
@@ -519,7 +529,7 @@ const FilterDrawer = ({
         <Drawer variant="filter" style={{ position: "absolute", zIndex: "48" }}>
             <DrawerContent>
                 <Box flex justifyContent="space-between">
-                    <H3>Choose a book</H3>
+                    <H3 style={{ fontSize: "26px" }}>Choose a book</H3>
                     <Button
                         type="button"
                         variant="light"
@@ -584,6 +594,8 @@ const FilterDrawer = ({
                             value={compareBook}
                             options={bookOptions}
                             onChange={(newValue) => {
+                                setShowFilter(false);
+                                setCompareLoading(true);
                                 setCompareBook(newValue);
                                 fetchTag(newValue, "compare");
                                 setBookChoosed(true);

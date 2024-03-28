@@ -14,10 +14,10 @@ const getComments = async (req: Request, res: Response) => {
         const bookId = req.query.bookId;
         const comments = await Comments.findAll({
             where: { book: Number(bookId) },
+            order: [["updated_at", "DESC"]],
         });
         return res.status(200).send(comments);
     } catch (error) {
-        console.log(error);
         return res.status(500).send("Something went wrong. Try again later.");
     }
 };

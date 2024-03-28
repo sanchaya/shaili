@@ -171,9 +171,9 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                         (showAll
                             ? data.comments
                             : data.comments.slice(0, 4)
-                        ).map((comment) => (
-                            <>
-                                <Comment key={comment.id}>
+                        ).map((comment, index) => (
+                            <React.Fragment key={index}>
+                                <Comment>
                                     {editedCommentId === comment.id ? (
                                         <EditCommentWrap>
                                             <textarea
@@ -276,7 +276,7 @@ const Comments = (props: { bookId: number; loading: boolean }) => {
                                         borderTop: "1px solid #00000021",
                                     }}
                                 />
-                            </>
+                            </React.Fragment>
                         ))
                     ) : (
                         <CommentContent style={{ textAlign: "center" }}>

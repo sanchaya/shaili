@@ -70,7 +70,6 @@ jQuery("#sign-up").on("submit", function (e) {
             }
         },
         error: function (response) {
-            console.log(response);
             showMessage(response.responseJSON.message, false);
         },
     });
