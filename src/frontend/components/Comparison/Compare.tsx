@@ -1,20 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, H3, Icon, Loader } from "@adminjs/design-system";
 import { styled } from "@adminjs/design-system/styled-components";
-import FilterDrawer from "./FilterDrawer.js";
+import FilterDrawer, { IBooks } from "./FilterDrawer.js";
 import axios from "axios";
-
-const CompareItem = styled.div`
-    width: calc(50% - 15px);
-    background-color: #f0f0f0;
-    text-align: center;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    padding: 20px;
-    @media (max-width: 800px) {
-        padding: 8px;
-    }
-`;
+import CompareComments from "./CompareComments.js";
+import { Comments } from "../../../backend/db/models/Comments.js";
 
 const Container = styled.div`
     text-align: left;
@@ -60,13 +50,13 @@ const EmptyTag = styled.div`
 
 const Language = styled.h2`
     font-size: 20px;
-    font-weight: 500;
+    font-weight: 400;
     color: #000;
     line-height: 1.2;
 `;
 
 const LetterType = styled.h3`
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 400;
     color: #000;
     line-height: 1.2;
@@ -137,6 +127,34 @@ const ToolTipText = styled.span`
     }
 `;
 
+const BookAdditionalDetails = styled.div`
+    background: #f8f9f9;
+    border-radius: 3px;
+    padding: 20px;
+    margin-bottom: 10px;
+`;
+
+const BookAdditionalDetail = styled.div`
+    display: flex;
+    gap: 10px;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.5;
+`;
+
+const CommentsContainer = styled.div`
+    text-align: left;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #fff;
+    box-sizing: border-box;
+    border: 1px solid rgb(204, 204, 204);
+    overflow-y: auto;
+    @media (max-width: 800px) {
+        padding: 15px;
+    }
+`;
+
 export interface IBookOptions {
     value: number | string;
     label: string | number;
@@ -145,6 +163,11 @@ export interface IBookOptions {
 interface TagData {
     letter: string;
     image: string;
+}
+
+interface IUser {
+    id: number;
+    name: string;
 }
 
 export interface LanguageData {
@@ -164,6 +187,15 @@ const Compare = () => {
     const [publishedYear, setPublishedYear] = useState<string>();
     const [bookChoosed, setBookChoosed] = useState<boolean>(false);
     const [downloadLoading, setDownloadLoading] = useState<boolean>(false);
+    const [selectedBookData, setSelectedBookData] = useState<IBooks[]>();
+    const [comments, setLocalComments] = useState<Comments[] | undefined>();
+    const [users, setUsers] = useState<IUser[]>([]);
+
+    useEffect(() => {
+        axios.get(`${BASE_URL}/get-users`).then((response) => {
+            setUsers(response.data);
+        });
+    });
 
     const handleDownloadClick = () => {
         setDownloadLoading(true);
@@ -188,7 +220,7 @@ const Compare = () => {
     );
 
     return (
-        <CompareItem style={{ position: "relative" }}>
+        <>
             <Box
                 flex
                 justifyContent="space-between"
@@ -201,8 +233,8 @@ const Compare = () => {
                         textAlign: "left",
                     }}
                 >
-                    <H3 style={{ margin: 0 }}>
-                        {compareBook
+                    <H3 style={{ margin: 0, fontSize: "22px" }}>
+                        {compareBook && selectedBookData
                             ? "Selected book :" + compareBook.label
                             : "Select a book"}
                     </H3>
@@ -248,6 +280,22 @@ const Compare = () => {
                     </Button>
                 </div>
             </Box>
+            {compareBook && selectedBookData && (
+                <BookAdditionalDetails>
+                    <BookAdditionalDetail>
+                        <p>Published year :</p>
+                        <p>{selectedBookData[0].published_year ?? "-"}</p>
+                    </BookAdditionalDetail>
+                    <BookAdditionalDetail>
+                        <p>Printer name :</p>
+                        <p>{selectedBookData[0].printer_name ?? "-"}</p>
+                    </BookAdditionalDetail>
+                    <BookAdditionalDetail>
+                        <p>Printer location :</p>
+                        <p>{selectedBookData[0].printer_location ?? "-"}</p>
+                    </BookAdditionalDetail>
+                </BookAdditionalDetails>
+            )}
             <div className="tagsContainerWrap">
                 <Container className="tagsContainer">
                     {bookChoosed && compareBook ? (
@@ -333,9 +381,22 @@ const Compare = () => {
                     publishedYear={publishedYear}
                     setPublishedYear={setPublishedYear}
                     setBookChoosed={setBookChoosed}
+                    setSelectedBookData={setSelectedBookData}
+                    setLocalComments={setLocalComments}
                 />
             )}
-        </CompareItem>
+
+            {comments && selectedBookData && (
+                <CommentsContainer>
+                    <CompareComments
+                        users={users}
+                        comments={comments}
+                        bookId={selectedBookData[0].id}
+                        setLocalComments={setLocalComments}
+                    />
+                </CommentsContainer>
+            )}
+        </>
     );
 };
 

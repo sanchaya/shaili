@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { styled } from "styled-components";
-import { Button, Icon, InfoBox, Loader } from "@adminjs/design-system";
+import { Button, Header, Icon, InfoBox, Loader } from "@adminjs/design-system";
 import { useNavigate } from "react-router-dom";
 
 interface ILanguageShowProps {
@@ -40,12 +40,6 @@ const LetterDiv = styled.div`
     &:hover {
         box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
     }
-`;
-
-const LetterType = styled.h2`
-    font-size: 25px;
-    margin-top: 25px;
-    margin-bottom: 25px;
 `;
 
 const LanguageShow: React.FC<ILanguageShowProps> = ({ record }) => {
@@ -139,44 +133,51 @@ const LanguageShow: React.FC<ILanguageShowProps> = ({ record }) => {
     };
 
     return (
-        <div>
-            {loading ? (
-                <Loader />
-            ) : letters && letters?.length > 0 ? (
-                Object.keys(groupedLetters).map((type: string) => (
-                    <div key={type}>
-                        <LetterType>{type}</LetterType>
-                        <div
-                            style={{
-                                display: "flex",
-                                flexWrap: "wrap",
-                                gap: "10px",
-                            }}
-                        >
-                            {groupedLetters[type].map((letter: any) => (
-                                <LetterDiv key={letter.id}>
-                                    {letter.letter}
-                                </LetterDiv>
-                            ))}
+        <>
+            <div className="language-show">
+                <Header.H3>Language : {record.params.language}</Header.H3>
+                {loading ? (
+                    <Loader />
+                ) : letters && letters?.length > 0 ? (
+                    Object.keys(groupedLetters).map((type: string) => (
+                        <div key={type}>
+                            <Header.H4 className="letterTypeHeader">
+                                {type}
+                            </Header.H4>
+                            <div
+                                style={{
+                                    display: "flex",
+                                    flexWrap: "wrap",
+                                    gap: "10px",
+                                }}
+                            >
+                                {groupedLetters[type].map((letter: any) => (
+                                    <LetterDiv key={letter.id}>
+                                        {letter.letter}
+                                    </LetterDiv>
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                ))
-            ) : (
-                <InfoBox
-                    title={"There are no letters in the language " + language}
-                    illustration="NotFound"
-                >
-                    <Button
-                        variant="contained"
-                        mt="lg"
-                        onClick={handleCreateClick}
+                    ))
+                ) : (
+                    <InfoBox
+                        title={
+                            "There are no letters in the language " + language
+                        }
+                        illustration="NotFound"
                     >
-                        <Icon icon="Plus" />
-                        Create Letter
-                    </Button>
-                </InfoBox>
-            )}
-        </div>
+                        <Button
+                            variant="contained"
+                            mt="lg"
+                            onClick={handleCreateClick}
+                        >
+                            <Icon icon="Plus" />
+                            Create Letter
+                        </Button>
+                    </InfoBox>
+                )}
+            </div>
+        </>
     );
 };
 
