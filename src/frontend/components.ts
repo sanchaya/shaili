@@ -58,6 +58,10 @@ const Components = {
         "DefaultListAction",
         "./components/List/List"
     ),
+    LettersInList: componentLoader.add(
+        "LettersInList",
+        "./components/Letters/LettersInList"
+    ),
 };
 
 export { componentLoader, Components };
