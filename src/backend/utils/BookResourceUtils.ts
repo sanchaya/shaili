@@ -38,9 +38,9 @@ export const BookDeleteHandler = async (props) => {
         });
         if (bookTags.length > 0) {
             const tagsDirectory = TaggedLetterController.getTagsDirectory();
-            const bookTagDirectory = `${tagsDirectory}/tags/${book?.dataValues.name}/`;
+            const bookTagDirectory = `${tagsDirectory}/tags/${book?.dataValues.identifier}/`;
             const deletedPath = `${tagsDirectory}/tags/deleted/${getTimeStamp()}_${
-                book?.dataValues.name
+                book?.dataValues.identifier
             }/`;
             if (!fs.existsSync(deletedPath)) {
                 await mkdir(deletedPath, {

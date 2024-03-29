@@ -238,13 +238,13 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
 };
 
 const storeTagImage = async (bookData, letterData, croppedImage) => {
-    const bookName = bookData.dataValues.name;
+    const bookIdentifier = bookData.dataValues.identifier;
     const letter = letterData.dataValues.letter;
     const letterLanguageCode = letterData.dataValues.language;
     const tagsDirectory = getTagsDirectory();
     const base64Data = croppedImage.replace(/^data:image\/\w+;base64,/, "");
     const bufferData = Buffer.from(base64Data, "base64");
-    const bookDirectory = tagsDirectory + "/tags/" + bookName;
+    const bookDirectory = tagsDirectory + "/tags/" + bookIdentifier;
     const letterLanguage = await Languages.findOne({
         where: { language_code: letterLanguageCode },
     });
@@ -270,7 +270,9 @@ const storeTagImage = async (bookData, letterData, croppedImage) => {
             if (err) {
                 reject("Error storing tag");
             } else {
-                resolve("/tags/" + bookName + "/" + path.basename(filePath));
+                resolve(
+                    "/tags/" + bookIdentifier + "/" + path.basename(filePath)
+                );
             }
         });
     });
@@ -331,7 +333,7 @@ const makeTagsZip = async (bookId): Promise<MakeTagsZipResult> => {
     const book = await Books.findOne({
         where: { id: bookId },
     });
-    const bookName = book?.dataValues.name;
+    const bookIdentifier = book?.dataValues.identifier;
     const bookTags = await TaggedLetters.findAll({
         where: { book_id: bookId },
     });
@@ -339,12 +341,12 @@ const makeTagsZip = async (bookId): Promise<MakeTagsZipResult> => {
     if (bookTags.length > 0) {
         const tagsDirectory = getTagsDirectory();
         const filesInTagsDirectory = fs.readdirSync(
-            `${tagsDirectory}/tags/${bookName}`
+            `${tagsDirectory}/tags/${bookIdentifier}`
         );
 
         if (filesInTagsDirectory.length > 0) {
             const output = fs.createWriteStream(
-                `${tagsDirectory}/${bookName}.zip`
+                `${tagsDirectory}/${bookIdentifier}.zip`
             );
             const archive = archiver("zip", {
                 zlib: { level: 9 },
@@ -356,12 +358,15 @@ const makeTagsZip = async (bookId): Promise<MakeTagsZipResult> => {
 
             archive.pipe(output);
 
-            archive.directory(`${tagsDirectory}/tags/${bookName}/`, false);
+            archive.directory(
+                `${tagsDirectory}/tags/${bookIdentifier}/`,
+                false
+            );
             return new Promise((resolve, reject) => {
                 output.on("close", () => {
                     resolve({
                         status: true,
-                        url: `${tagsDirectory}/${bookName}.zip`,
+                        url: `${tagsDirectory}/${bookIdentifier}.zip`,
                     });
                 });
 
