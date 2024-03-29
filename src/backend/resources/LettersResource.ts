@@ -136,7 +136,7 @@ export const LetterResource = {
             "created_by",
             "updated_by",
         ],
-        filterProperties: ["letter", "language", "letter_type", "user_defined"],
+        filterProperties: ["letter", "letter_type", "user_defined"],
         actions: {
             bulkDelete: { isAccessible: false },
             list: {
@@ -178,6 +178,11 @@ export const LetterResource = {
         properties: {
             language: {
                 reference: "languages",
+            },
+            letter_type: {
+                components: {
+                    filter: Components.LetterTypeInFilter,
+                },
             },
         },
     },

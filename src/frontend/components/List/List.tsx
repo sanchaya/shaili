@@ -2,7 +2,7 @@ import { Box, Pagination, Text } from '@adminjs/design-system'
 import { ActionProps, RecordsTable, useRecords, useSelectedRecords } from 'adminjs'
 import React, { useEffect } from 'react'
 import { useLocation } from 'react-router'
-import { getActionElementCss } from '../record-in-list/data-css-name.js'
+import { getActionElementCss } from '../RecordInList/data-css-name.js'
 import { useQueryParams } from './use-query-params.js'
 
 const List: React.FC<ActionProps> = ({ resource, setTag }) => {
