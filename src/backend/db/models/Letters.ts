@@ -7,6 +7,7 @@ import { Languages } from "./Languages.js";
 interface ILetters {
     id: number;
     letter: string;
+    unicode: string;
     letter_type: string;
     language: string;
     user_defined: boolean;
@@ -14,11 +15,12 @@ interface ILetters {
     updated_by: number;
 }
 
-type LettersCreationAttributes = Optional<ILetters, "id">;
+type LettersCreationAttributes = Optional<ILetters, "id" | "unicode">;
 
 export class Letters extends Model<ILetters, LettersCreationAttributes> {
     declare id: number;
     declare letter: string;
+    declare unicode: string;
     declare letter_type: string;
     declare language: string;
     declare user_defined: boolean;
@@ -51,6 +53,11 @@ Letters.init(
         letter: {
             type: new DataTypes.STRING(),
             allowNull: false,
+        },
+        unicode: {
+            type: new DataTypes.STRING(),
+            allowNull: true,
+            unique: true,
         },
         letter_type: {
             type: new DataTypes.INTEGER(),

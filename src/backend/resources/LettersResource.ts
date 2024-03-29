@@ -6,6 +6,7 @@ import { ActionContext, ActionRequest } from "adminjs";
 import {
     LetterDeleteBefore,
     LetterDeleteHandler,
+    beforeLettersShowHook,
 } from "../utils/LetterResourceUtils.js";
 import csvParser from "csv-parser";
 import fs from "fs";
@@ -79,6 +80,7 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
                     data.letter_type = letterType;
                     data.created_by = currentAdmin?.id;
                     data.updated_by = currentAdmin?.id;
+                    data.unicode = data.unicode ? data.unicode : null;
                     data.user_defined = 0;
                     result.push(data);
                 }
@@ -97,7 +99,6 @@ const importHandler = async (props) => {
         const createdRecords = records.map(
             (record) => record.dataValues.letter
         );
-
         if (records) {
             return {
                 redirectUrl: h.resourceUrl({
@@ -127,16 +128,23 @@ export const LetterResource = {
     resource: Letters,
     options: {
         navigation: menu.Letters,
-        listProperties: ["letter", "language", "letter_type", "user_defined"],
+        listProperties: [
+            "letter",
+            "unicode",
+            "language",
+            "letter_type",
+            "user_defined",
+        ],
         showProperties: [
             "letter",
+            "unicode",
             "language",
             "letter_type",
             "user_defined",
             "created_by",
             "updated_by",
         ],
-        filterProperties: ["letter", "letter_type", "user_defined"],
+        filterProperties: ["letter", "unicode", "letter_type", "user_defined"],
         actions: {
             bulkDelete: { isAccessible: false },
             list: {
@@ -151,6 +159,7 @@ export const LetterResource = {
             show: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, 1),
+                before: [beforeLettersShowHook],
             },
             delete: {
                 isAccessible: (context: ActionContext) =>
@@ -178,6 +187,11 @@ export const LetterResource = {
         properties: {
             language: {
                 reference: "languages",
+            },
+            unicode: {
+                components: {
+                    list: Components.LettersInList,
+                },
             },
             letter_type: {
                 components: {
