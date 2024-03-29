@@ -31,7 +31,7 @@ const AddLetter = () => {
     } | null>(null);
     const [currentAdmin] = useCurrentAdmin();
     const [lettername, setLettername] = useState("");
-    const [unicode, setUniCode] = useState("");
+    const [unicode, setUniCode] = useState(null);
     const navigate = useNavigate();
     const addNotice = useNotice();
 
@@ -86,7 +86,7 @@ const AddLetter = () => {
     const saveLetter = async () => {
         const data = {
             letter: lettername,
-            unicode: unicode ?? "",
+            unicode: unicode,
             language: language?.value,
             letter_type: letterType?.value,
             created_by: Number(currentAdmin?.id),
@@ -120,7 +120,7 @@ const AddLetter = () => {
     };
 
     const handleUniCodeChange = (event) => {
-        setUniCode(event.target.value);
+        setUniCode(event.target.value ? event.target.value : null);
     };
 
     return (

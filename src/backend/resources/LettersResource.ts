@@ -80,6 +80,7 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
                     data.letter_type = letterType;
                     data.created_by = currentAdmin?.id;
                     data.updated_by = currentAdmin?.id;
+                    data.unicode = data.unicode ? data.unicode : null;
                     data.user_defined = 0;
                     result.push(data);
                 }
@@ -98,7 +99,6 @@ const importHandler = async (props) => {
         const createdRecords = records.map(
             (record) => record.dataValues.letter
         );
-
         if (records) {
             return {
                 redirectUrl: h.resourceUrl({

@@ -150,7 +150,7 @@ const EditLetter = (props) => {
     };
 
     const handleUniCodeChange = (event) => {
-        setUniCode(event.target.value);
+        setUniCode(event.target.value ? event.target.value : null);
     };
 
     return (
