@@ -52,7 +52,7 @@ const Components = {
     ),
     RecordInList: componentLoader.override(
         "RecordInList",
-        "./components/record-in-list/record-in-list"
+        "./components/RecordInList/record-in-list"
     ),
     DefaultListAction: componentLoader.override(
         "DefaultListAction",
@@ -61,6 +61,10 @@ const Components = {
     LettersInList: componentLoader.add(
         "LettersInList",
         "./components/Letters/LettersInList"
+    ),
+    LetterTypeInFilter: componentLoader.add(
+        "LetterTypeInFilter",
+        "./components/LetterTypeInFilter/LetterTypeInFilter"
     ),
 };
 
