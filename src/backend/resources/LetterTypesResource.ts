@@ -9,6 +9,7 @@ import {
     LetterTypeEditBefore,
     LetterTypeEditHandler,
 } from "../utils/LetterTypesResourceUtils.js";
+import { Components } from "../../frontend/components.js";
 
 const isAccessible = (context: ActionContext, role: number) => {
     const { currentAdmin } = context;
@@ -20,10 +21,13 @@ export const LetterTypesResource = {
     options: {
         navigation: menu.LettersType,
         editProperties: ["type", "language"],
-        listProperties: ["type", "language"],
+        listProperties: ["type", "language", "status"],
         showProperties: ["type", "language", "created_by", "updated_by"],
         filterProperties: ["type", "language"],
         timestamps: true,
+        sort: {
+            sortBy: "language",
+        },
         actions: {
             bulkDelete: { isAccessible: false },
             list: {
@@ -56,6 +60,11 @@ export const LetterTypesResource = {
         properties: {
             language: {
                 reference: "languages",
+            },
+            status: {
+                components: {
+                    list: Components.LetterTypeStatus,
+                },
             },
         },
     },

@@ -66,6 +66,10 @@ const Components = {
         "LetterTypeInFilter",
         "./components/LetterTypeInFilter/LetterTypeInFilter"
     ),
+    LetterTypeStatus: componentLoader.add(
+        "LetterTypeStatus",
+        "./components/LetterTypeStatus/LetterTypeStatus"
+    ),
 };
 
 export { componentLoader, Components };

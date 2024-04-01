@@ -7,7 +7,6 @@ export const getTotalPages = async (req: Request, res: Response) => {
         const bookIdentifier = req.query.identifier;
         const scanDataUrl = `https://archive.org/download/${bookIdentifier}_scandata.xml`;
         const bookData = await axios.get(scanDataUrl);
-
         xml2js.parseString(
             bookData.data,
             (

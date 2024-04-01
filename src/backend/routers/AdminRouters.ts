@@ -5,6 +5,7 @@ import CreateLetterController from "../controllers/CreateLetterController.js";
 import DashboardController from "../controllers/DashboardController.js";
 import CommentsController from "../controllers/CommentsController.js";
 import PdfController from "../controllers/PdfController.js";
+import LetterTypeController from "../controllers/LetterTypeController.js";
 
 const AdminRouter = express.Router();
 
@@ -29,5 +30,6 @@ AdminRouter.post("/add-comment", CommentsController.addComment);
 AdminRouter.get("/get-users", CommentsController.getUsers);
 AdminRouter.post("/edit-comment", CommentsController.editComment);
 AdminRouter.get("/download-tags-zip", TaggedLetterController.downloadTags);
+AdminRouter.post("/update-letter-type-status", LetterTypeController.updateLetterTypeStatus)
 
 export default AdminRouter;

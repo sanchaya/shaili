@@ -7,6 +7,7 @@ interface ILetterTypes {
     id: number;
     type: string;
     language: string;
+    status: boolean;
     created_by: number;
     updated_by: number;
 }
@@ -20,6 +21,7 @@ export class LetterTypes extends Model<
     declare id: number;
     declare type: string;
     declare language: string;
+    declare status: boolean;
     declare created_by: number;
     declare updated_by: number;
 
@@ -45,7 +47,7 @@ LetterTypes.init(
             allowNull: false,
         },
         id: {
-            type: DataTypes.INTEGER,
+            type: new DataTypes.INTEGER(),
             autoIncrement: true,
             primaryKey: true,
         },
@@ -56,6 +58,11 @@ LetterTypes.init(
                 model: "languages",
                 key: "language_code",
             },
+        },
+        status: {
+            type: new DataTypes.BOOLEAN(),
+            allowNull: false,
+            defaultValue: true,
         },
         created_by: {
             type: new DataTypes.INTEGER(),
