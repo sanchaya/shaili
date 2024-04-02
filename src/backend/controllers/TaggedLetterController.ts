@@ -100,6 +100,13 @@ const getTaggedLetter = async (req: Request, res: Response) => {
                 model: Letters,
                 as: "letter",
                 attributes: ["letter", "letter_type"],
+                where: {
+                    letter_type: {
+                        [Op.in]: sequelize.literal(
+                            `(SELECT id FROM letter_types WHERE status = true)`
+                        ),
+                    },
+                },
             },
             order: [["updated_at", "DESC"]],
         });
@@ -192,6 +199,13 @@ const getTaggedLetterByUser = async (req: Request, res: Response) => {
                     model: Letters,
                     as: "letter",
                     attributes: ["letter", "letter_type"],
+                    where: {
+                        letter_type: {
+                            [Op.in]: sequelize.literal(
+                                `(SELECT id FROM letter_types WHERE status = true)`
+                            ),
+                        },
+                    },
                 },
                 {
                     model: Books,
@@ -240,6 +254,11 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
             },
             where: {
                 language: bookLanguage?.dataValues.language,
+                letter_type: {
+                    [Op.in]: sequelize.literal(
+                        `(SELECT id FROM letter_types WHERE status = true)`
+                    ),
+                },
             },
         });
 

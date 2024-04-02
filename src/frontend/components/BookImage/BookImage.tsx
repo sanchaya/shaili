@@ -1,4 +1,10 @@
-import React, { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import React, {
+    Dispatch,
+    SetStateAction,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
 import { styled } from "@adminjs/design-system/styled-components";
 import { Loader, Icon, Button } from "@adminjs/design-system";
 import { Cropper, ReactCropperElement } from "react-cropper";
@@ -57,6 +63,8 @@ export const BookImage = ({
     setTag,
 }: IBookImageProps) => {
     const cropperRef = useRef<ReactCropperElement>(null);
+    const [zoomCount, setZoomCount] = useState(1);
+    const [cropperMode, setCropperMode] = useState<string>("crop");
 
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
@@ -64,6 +72,7 @@ export const BookImage = ({
                 cropImage();
             } else if (e.key === "Escape") {
                 setCapturing(false);
+                resetAll();
             }
         };
 
@@ -82,13 +91,19 @@ export const BookImage = ({
         if (cropper) {
             cropper.reset();
             cropper.clear();
+            setCapturing(false);
         }
     };
 
-    const zoom = (factor: number) => () => {
+    const zoom = (factor: number, mode: "in" | "out") => () => {
         const cropper = cropperRef.current?.cropper;
         if (cropper) {
-            cropper.zoom(factor);
+            if (zoomCount < 5 && mode == "in") {
+                cropper.zoom(factor);
+                setZoomCount((prevCount) => prevCount + 1);
+            } else if (mode == "out") {
+                cropper.zoom(factor);
+            }
         }
     };
 
@@ -98,12 +113,23 @@ export const BookImage = ({
             const image = cropper.getCroppedCanvas().toDataURL();
             if (image) {
                 setTag(image);
+                resetAll();
                 setCapturing(false);
-                const cropper = cropperRef.current?.cropper;
-                if (cropper) {
-                    cropper.clear();
-                }
             }
+        }
+    };
+
+    const wheelZoom = (event) => {
+        if (event.detail.ratio > 2) {
+            event.preventDefault();
+        }
+    };
+
+    const changeMode = (mode: "crop" | "move") => () => {
+        const cropper = cropperRef.current?.cropper;
+        if (cropper) {
+            setCropperMode(mode);
+            cropper.setDragMode(mode);
         }
     };
 
@@ -111,11 +137,12 @@ export const BookImage = ({
         <>
             <ActionIcons>
                 <ActionButton
-                    onClick={zoom(0.1)}
+                    onClick={zoom(1, "in")}
                     variant="text"
                     color="primary"
                     size="icon"
                     disabled={!image}
+                    title="Zoom In"
                 >
                     <Icon
                         icon="ZoomIn"
@@ -126,11 +153,12 @@ export const BookImage = ({
                     />
                 </ActionButton>
                 <ActionButton
-                    onClick={zoom(-0.1)}
+                    onClick={zoom(-1, "out")}
                     variant="text"
                     color="primary"
                     size="icon"
                     disabled={!image}
+                    title="Zoom Out"
                 >
                     <Icon
                         icon="ZoomOut"
@@ -149,6 +177,7 @@ export const BookImage = ({
                     color="primary"
                     size="icon"
                     disabled={!image}
+                    title="Reset"
                 >
                     <Icon
                         icon="RefreshCcw"
@@ -166,9 +195,42 @@ export const BookImage = ({
                     color="primary"
                     size="icon"
                     disabled={!capturing}
+                    title="Save"
                 >
                     <Icon
                         icon="Save"
+                        style={{
+                            height: "100%",
+                            width: "100%",
+                        }}
+                    />
+                </ActionButton>
+                <ActionButton
+                    onClick={changeMode("crop")}
+                    variant="text"
+                    color="primary"
+                    size="icon"
+                    disabled={!image || cropperMode === "crop"}
+                    title="Toggle crop mode"
+                >
+                    <Icon
+                        icon="Crop"
+                        style={{
+                            height: "100%",
+                            width: "100%",
+                        }}
+                    />
+                </ActionButton>
+                <ActionButton
+                    onClick={changeMode("move")}
+                    variant="text"
+                    color="primary"
+                    size="icon"
+                    disabled={!image || cropperMode === "move"}
+                    title="Toggle Move mode"
+                >
+                    <Icon
+                        icon="Move"
                         style={{
                             height: "100%",
                             width: "100%",
@@ -187,9 +249,9 @@ export const BookImage = ({
                     <Cropper
                         src={image}
                         autoCrop={false}
-                        aspectRatio={0}
+                        aspectRatio={1}
                         style={{ height: 720, width: "100%" }}
-                        guides={true}
+                        guides={false}
                         dragMode={"crop"}
                         ref={cropperRef}
                         viewMode={2}
@@ -198,7 +260,9 @@ export const BookImage = ({
                         background={false}
                         responsive={true}
                         restore={false}
+                        wheelZoomRatio={1}
                         cropstart={onCropStart}
+                        zoom={wheelZoom}
                     />
                 )}
             </ImageInnerWrap>
