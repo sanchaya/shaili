@@ -9,6 +9,7 @@ import { LetterTypes } from "../db/models/LetterTypes.js";
 import fs from "fs";
 import path from "path";
 import * as url from "url";
+import sequelize, { Op } from "sequelize";
 
 interface IData {
     id: number;
@@ -146,6 +147,13 @@ const createPdf = async (req: Request, res: Response) => {
 
     const letters = await Letters.findAll({
         attributes: ["id", "letter", "language", "letter_type"],
+        where: {
+            letter_type: {
+                [Op.in]: sequelize.literal(
+                    `(SELECT id FROM letter_types WHERE status = true)`
+                ),
+            },
+        },
     });
 
     const languages = await Languages.findAll({
@@ -154,6 +162,7 @@ const createPdf = async (req: Request, res: Response) => {
 
     const letterTypes = await LetterTypes.findAll({
         attributes: ["id", "type", "language"],
+        where: { status: true },
     });
 
     const bookDetails = await Books.findOne({
@@ -178,7 +187,7 @@ const createPdf = async (req: Request, res: Response) => {
         languageValue?.dataValues.language,
         letters
     );
- 
+
     const templateData = {
         bookName: bookDetails?.dataValues.name,
         publisher: bookDetails?.dataValues.publisher_name,

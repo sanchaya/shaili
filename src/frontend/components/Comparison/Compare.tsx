@@ -195,7 +195,7 @@ const Compare = () => {
         axios.get(`${BASE_URL}/get-users`).then((response) => {
             setUsers(response.data);
         });
-    });
+    }, []);
 
     const handleDownloadClick = () => {
         setDownloadLoading(true);

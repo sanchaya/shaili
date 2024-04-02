@@ -70,6 +70,7 @@ export const LetterTypeCreateHandler = async (props) => {
 
             const newRecord = await LetterTypes.create({
                 ...request.payload,
+                status: true,
                 created_by: currentAdmin.id,
                 updated_by: currentAdmin.id,
             });
@@ -202,7 +203,7 @@ export const LetterTypeDeleteBefore = async (
                 },
             },
         });
-        
+
         if (taggedLetters.length > 0) {
             return {
                 error: true,
@@ -227,7 +228,6 @@ export const LetterTypeDeleteHandler = async (props) => {
     } else {
         const { record, resource, currentAdmin, h } = context;
         if (request.params.recordId) {
-
             await Letters.destroy({
                 where: {
                     letter_type: request.params.recordId,

@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, Op, Optional, Sequelize, where } from "sequelize";
 import { sequelize } from "../config/config.js";
 import { LetterTypes } from "./LetterTypes.js";
 import Users from "./Users.js";
@@ -99,5 +99,38 @@ Letters.init(
         modelName: "Letters",
         underscored: true,
         timestamps: true,
+        hooks: {
+            beforeFindAfterExpandIncludeAll: async (options) => {
+                const letterTypes = await LetterTypes.findAll({
+                    where: {
+                        status: true,
+                    },
+                    attributes: ["id"],
+                    raw: true,
+                });
+
+                const ids = letterTypes.map((letterType) => letterType.id);
+
+                if (
+                    !options.where ||
+                    (options.where && !("letter_type" in options.where))
+                ) {
+                    options.where = {
+                        ...options.where,
+                        letter_type: ids,
+                    };
+                } else {
+                    options.where = {
+                        ...options.where,
+                        letter_type: {
+                            [Op.and]: [
+                                { [Op.in]: ids },
+                                options.where.letter_type,
+                            ],
+                        },
+                    };
+                }
+            },
+        },
     }
 );

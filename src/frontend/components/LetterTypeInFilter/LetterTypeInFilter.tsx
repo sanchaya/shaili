@@ -123,7 +123,6 @@ const LetterTypeInFilter: React.FC<FilterPropertyProps> = (props) => {
                                 ? "Select a letter type"
                                 : "Select a language first"
                         }
-                        required
                     />
                 </FormGroup>
             )}

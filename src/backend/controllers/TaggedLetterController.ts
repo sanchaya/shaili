@@ -3,13 +3,14 @@ import { Letters } from "../db/models/Letters.js";
 import { TaggedLetters } from "../db/models/TaggedLetters.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
 import { Books } from "../db/models/Books.js";
-import { Sequelize } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import fs from "fs";
 import path from "path";
 import * as url from "url";
 import { mkdir } from "node:fs/promises";
 import { Languages } from "../db/models/Languages.js";
 import archiver from "archiver";
+import sequelize from "sequelize";
 
 interface MakeTagsZipResult {
     status: boolean;
@@ -20,6 +21,7 @@ interface MakeTagsZipResult {
 export const getLetterTypes = async (req: Request, res: Response) => {
     const letterTypes = await LetterTypes.findAll({
         attributes: ["id", "type", "language"],
+        where: { status: true },
     });
     return res.status(200).send(letterTypes);
 };
@@ -27,6 +29,13 @@ export const getLetterTypes = async (req: Request, res: Response) => {
 export const getLetters = async (req: Request, res: Response) => {
     const letters = await Letters.findAll({
         attributes: ["id", "letter", "language", "letter_type"],
+        where: {
+            letter_type: {
+                [Op.in]: sequelize.literal(
+                    `(SELECT id FROM letter_types WHERE status = true)`
+                ),
+            },
+        },
     });
     return res.status(200).send(letters);
 };
@@ -208,7 +217,14 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
         });
 
         const totalLettersQuery = await Letters.count({
-            where: { language: bookLanguage?.dataValues.language },
+            where: {
+                language: bookLanguage?.dataValues.language,
+                letter_type: {
+                    [Op.in]: sequelize.literal(
+                        `(SELECT id FROM letter_types WHERE status = true)`
+                    ),
+                },
+            },
         });
 
         const totalTagsQuery = await Letters.count({
