@@ -13,6 +13,16 @@ const getLanguages = async (req: Request, res: Response) => {
 const addUserDefinedLetter = async (req: Request, res: Response) => {
     try {
         const { letter, language, letterType, createdBy } = req.body;
+        const isExists = await Letters.findOne({
+            where: {
+                letter: letter,
+                language: language,
+                letter_type: letterType,
+            },
+        });
+        if (isExists) {
+            return res.status(200).send(isExists);
+        }
         const userDefinedLeter = await Letters.create({
             letter: letter,
             language: language,

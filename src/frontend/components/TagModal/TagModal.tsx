@@ -1,4 +1,4 @@
-import { Modal, Header, Button } from "@adminjs/design-system";
+import { Modal, Header, Button, Icon } from "@adminjs/design-system";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
 import axios from "axios";
@@ -51,6 +51,7 @@ const TagModal: React.FC<ITagModalProps> = ({
     const { addTag, updateTag } = useLetterTagContext();
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const [isLoading, setIsLoading] = useState(false);
+    const [isButtonClicked, setIsButtonClicked] = useState(false);
 
     useEffect(() => {
         setIsLoading(true);
@@ -86,13 +87,14 @@ const TagModal: React.FC<ITagModalProps> = ({
         inputValue: string,
         callback: (options: ISelectedLetter[]) => void
     ) => {
-        const filteredOptions = letters.filter((option) =>
-            option.label.toLowerCase().includes(inputValue.toLowerCase())
+        const filteredOptions = letters.filter(
+            (option) => option.label.toLowerCase() === inputValue.toLowerCase()
         );
         callback(filteredOptions);
     };
 
     const saveTag = async () => {
+        setIsButtonClicked(true);
         if (mode === "add") {
             const data = {
                 book_id: bookId,
@@ -123,6 +125,7 @@ const TagModal: React.FC<ITagModalProps> = ({
                 letter_id: letter?.value,
                 tagged_by: Number(currentAdmin?.id),
             };
+
             updateTag(data)
                 .then(() => {
                     setTag("");
@@ -211,9 +214,21 @@ const TagModal: React.FC<ITagModalProps> = ({
                                 variant="contained"
                                 color="primary"
                                 onClick={saveTag}
-                                disabled={!letter}
+                                disabled={!letter || isButtonClicked}
                             >
-                                {mode === "add" ? `Save` : `Update`}
+                                {isButtonClicked ? (
+                                    <Icon
+                                        icon="Loader"
+                                        spin
+                                        style={{
+                                            color: "#FFFFFF",
+                                        }}
+                                    />
+                                ) : mode === "add" ? (
+                                    `Save`
+                                ) : (
+                                    `Update`
+                                )}
                             </Button>
                         </div>
                     </>

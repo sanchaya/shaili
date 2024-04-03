@@ -119,9 +119,9 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                     onCloseClick={() => setMessage("")}
                 />
             )}
-            <Header.H3 textAlign="center" marginTop="default" marginBottom="xl">
+            <Header.H5 textAlign="center" marginTop="default" marginBottom="xl">
                 Tags for "{letter?.letter.letter}"
-            </Header.H3>
+            </Header.H5>
             <Table>
                 <TableHead>
                     <TableRow>
@@ -136,7 +136,7 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                 <TableBody>
                     {paginatedData.map(
                         (taggedLetter: TaggedLetters, index: number) => (
-                            <>
+                            <React.Fragment key={taggedLetter.id}>
                                 <TableRow>
                                     <TableCell style={{ textAlign: "center" }}>
                                         <img
@@ -146,7 +146,6 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                                                 borderRadius: "10px",
                                             }}
                                             src={taggedLetter.tag_path}
-                                            key={index}
                                         />
                                     </TableCell>
                                     <TableCell style={{ textAlign: "center" }}>
@@ -230,19 +229,7 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                                         />
                                     </TableCell>
                                 </TableRow>
-                                {tag && (
-                                    <TagModal
-                                        tag={tag}
-                                        bookId={bookId}
-                                        mode={"edit"}
-                                        image={tag}
-                                        letterId={newLetterId}
-                                        tagId={tagId}
-                                        setTag={setTag}
-                                        setShowTags={setShowTags}
-                                    />
-                                )}
-                            </>
+                            </React.Fragment>
                         )
                     )}
                 </TableBody>
@@ -255,6 +242,18 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                     onChange={handlePaginationChange}
                 />
             </div>
+            {tag && (
+                <TagModal
+                    tag={tag}
+                    bookId={bookId}
+                    mode={"edit"}
+                    image={tag}
+                    letterId={newLetterId}
+                    tagId={tagId}
+                    setTag={setTag}
+                    setShowTags={setShowTags}
+                />
+            )}
         </TagListModal>
     );
 };
