@@ -261,7 +261,8 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
         setGoToPage(page);
     };
 
-    const handleGoToPage = () => {
+    const handleGoToPage = (event) => {
+        event.preventDefault();
         setImg("");
         setCurrentPage(goToPage);
         loadImage(goToPage);
