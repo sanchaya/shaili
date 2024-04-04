@@ -386,7 +386,7 @@ const Compare = () => {
                 />
             )}
 
-            {comments && selectedBookData && (
+            {compareBook && comments && selectedBookData && (
                 <CommentsContainer>
                     <CompareComments
                         users={users}

@@ -13,6 +13,7 @@ import { menu } from "../../common/menu.js";
 import {
     BookDeleteBefore,
     BookDeleteHandler,
+    BookEditBefore,
 } from "../utils/BookResourceUtils.js";
 import csvParser from "csv-parser";
 import fs from "fs";
@@ -58,7 +59,20 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
 
     for await (const data of parser) {
         if (data.language && data.name && data.identifier && data.url) {
-            
+            data.published_year =
+                data.publisher_city === "" ? null : data.published_year;
+            data.publisher_city =
+                data.publisher_city === "" ? null : data.publisher_city;
+            data.publisher_name =
+                data.publisher_name === "" ? null : data.publisher_name;
+            data.author_name =
+                data.author_name === "" ? null : data.author_name;
+            data.printer_location =
+                data.printer_location === "" ? null : data.printer_location;
+            data.printer_name =
+                data.printer_name === "" ? null : data.printer_name;
+            data.published_year =
+                data.published_year === "" ? null : data.published_year;
             const existsBooks = await Books.findOne({
                 where: {
                     [Op.or]: [
@@ -68,17 +82,17 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
                     ],
                 },
             });
-
-            if(!existsBooks){
-            const language = await Languages.findOne({
-                where: { language_code: data.language.toLowerCase() },
-            });
-            data.name = data.name.replace(/\s+/g, " ").trim();
-            if (language) {
-                data.language = data.language.toLowerCase();
-                result.push(data);
+            console.log(data);
+            if (!existsBooks) {
+                const language = await Languages.findOne({
+                    where: { language_code: data.language.toLowerCase() },
+                });
+                data.name = data.name.replace(/\s+/g, " ").trim();
+                if (language) {
+                    data.language = data.language.toLowerCase();
+                    result.push(data);
+                }
             }
-         }
         }
     }
 
@@ -138,6 +152,7 @@ export const BookResource = {
             edit: {
                 isAccessible: (context: ActionContext) =>
                     isAccessible(context, [1, 2]),
+                before: [BookEditBefore],
             },
             show: {
                 before: [beforeBooksShowHook],
