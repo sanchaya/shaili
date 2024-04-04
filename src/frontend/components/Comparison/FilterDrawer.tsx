@@ -105,10 +105,10 @@ const FilterDrawer = ({
     const [letterType, setLetterType] = useState<ILetterType[]>();
     const selectInputRef = useRef();
 
-    const calculateUniqueValues = (
+    const calculateUniqueValues = async (
         data: IBooks[],
         key: keyof IBooks
-    ): IBookOptions[] => {
+    ): Promise<IBookOptions[]> => {
         const sortedData = data.slice().sort((a, b) => {
             if (typeof a[key] === "number") {
                 return (a[key] as number) - (b[key] as number);
@@ -131,8 +131,12 @@ const FilterDrawer = ({
                     });
                 }
             });
+        const uniqueSortedArray = Array.from(uniqueValues.values()).sort(
+            (a: { label: string | number }, b: { label: string | number }) =>
+                a.label > b.label ? 1 : -1
+        );
 
-        return Array.from(uniqueValues.values());
+        return uniqueSortedArray;
     };
 
     useEffect(() => {
@@ -145,7 +149,7 @@ const FilterDrawer = ({
         axios.get(`${BASE_URL}/get-letters`).then((response) => {
             setLetters(response.data);
         });
-        axios.get(`${BASE_URL}/get-books`).then((response) => {
+        axios.get(`${BASE_URL}/get-books`).then(async (response) => {
             setBooks(response.data);
             setFilteredBooksData(response.data);
 
@@ -156,15 +160,15 @@ const FilterDrawer = ({
                 })
             );
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 response.data,
                 "published_year"
             );
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 response.data,
                 "printer_name"
             );
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 response.data,
                 "printer_location"
             );
@@ -187,9 +191,9 @@ const FilterDrawer = ({
         }
     }, []);
 
-    const handleLocationChange = (selectedLocation) => {
+    const handleLocationChange = async (selectedLocation) => {
         if (publishedYear == undefined && printerName === undefined) {
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.printer_location === selectedLocation.value
                 ),
@@ -197,7 +201,7 @@ const FilterDrawer = ({
             );
             setPrinterNameOptions(PrinterName as IBookOptions[]);
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.printer_location === selectedLocation.value
                 ),
@@ -210,7 +214,7 @@ const FilterDrawer = ({
             );
             setFilteredBooksData(filterData);
         } else {
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.printer_location === selectedLocation.value
                 ),
@@ -218,7 +222,7 @@ const FilterDrawer = ({
             );
             setPrinterNameOptions(PrinterName as IBookOptions[]);
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.printer_location === selectedLocation.value
                 ),
@@ -236,9 +240,9 @@ const FilterDrawer = ({
         updateBookOptions(selectedLocation, printerName, publishedYear);
     };
 
-    const handleNameChange = (selectedName) => {
+    const handleNameChange = async (selectedName) => {
         if (printerLocation == undefined && publishedYear === undefined) {
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.printer_name === selectedName.value
                 ),
@@ -246,7 +250,7 @@ const FilterDrawer = ({
             );
             setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.printer_name === selectedName.value
                 ),
@@ -259,7 +263,7 @@ const FilterDrawer = ({
             );
             setFilteredBooksData(filterData);
         } else {
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.printer_name === selectedName.value
                 ),
@@ -267,7 +271,7 @@ const FilterDrawer = ({
             );
             setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.printer_name === selectedName.value
                 ),
@@ -285,9 +289,9 @@ const FilterDrawer = ({
         updateBookOptions(printerLocation, selectedName, publishedYear);
     };
 
-    const handleYearChange = (selectedYear) => {
+    const handleYearChange = async (selectedYear) => {
         if (printerLocation == undefined && printerName === undefined) {
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.published_year === selectedYear.value
                 ),
@@ -295,7 +299,7 @@ const FilterDrawer = ({
             );
             setPrinterNameOptions(PrinterName as IBookOptions[]);
 
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.published_year === selectedYear.value
                 ),
@@ -308,7 +312,7 @@ const FilterDrawer = ({
             );
             setFilteredBooksData(filterData);
         } else {
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.published_year === selectedYear.value
                 ),
@@ -316,7 +320,7 @@ const FilterDrawer = ({
             );
             setPrinterNameOptions(PrinterName as IBookOptions[]);
 
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.published_year === selectedYear.value
                 ),
@@ -414,7 +418,7 @@ const FilterDrawer = ({
                 `${BASE_URL}/tagged-letter?bookId=` + record.value
             );
             const letterIdMap: Record<string, boolean> = {};
-            const mergedData: IData[] = letters
+            let mergedData: IData[] = letters
                 .map((letter) => {
                     const foundLetter = response.data.find(
                         (item) => item.letter_id === letter.id
@@ -463,6 +467,15 @@ const FilterDrawer = ({
                 })
                 .filter((item): item is IData => item !== null);
 
+            mergedData = mergedData.sort((a, b) => {
+                if (a.language === b.language) {
+                    if (a.type === b.type) {
+                        return a.letter.localeCompare(b.letter);
+                    }
+                    return a.type.localeCompare(b.type);
+                }
+                return a.language.localeCompare(b.language);
+            });
             const organizedData: Record<
                 string,
                 Record<string, { letter: string; image: string }[]>
