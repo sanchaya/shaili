@@ -233,7 +233,6 @@ export const LetterResource = {
                         });
                     } else {
                         const whereClause: any = {};
-                        console.log(filters);
                         if (filter.filters?.letter?.value) {
                             whereClause.letter = filter.filters.letter.value;
                         }

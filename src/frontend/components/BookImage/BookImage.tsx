@@ -63,7 +63,6 @@ export const BookImage = ({
     setTag,
 }: IBookImageProps) => {
     const cropperRef = useRef<ReactCropperElement>(null);
-    const [zoomCount, setZoomCount] = useState(1);
     const [cropperMode, setCropperMode] = useState<string>("crop");
 
     useEffect(() => {
@@ -95,15 +94,10 @@ export const BookImage = ({
         }
     };
 
-    const zoom = (factor: number, mode: "in" | "out") => () => {
+    const zoom = (factor: number) => () => {
         const cropper = cropperRef.current?.cropper;
         if (cropper) {
-            if (zoomCount < 5 && mode == "in") {
-                cropper.zoom(factor);
-                setZoomCount((prevCount) => prevCount + 1);
-            } else if (mode == "out") {
-                cropper.zoom(factor);
-            }
+            cropper.zoom(factor);
         }
     };
 
@@ -120,7 +114,7 @@ export const BookImage = ({
     };
 
     const wheelZoom = (event) => {
-        if (event.detail.ratio > 2) {
+        if (event.detail.ratio > 3) {
             event.preventDefault();
         }
     };
@@ -137,7 +131,7 @@ export const BookImage = ({
         <>
             <ActionIcons>
                 <ActionButton
-                    onClick={zoom(1, "in")}
+                    onClick={zoom(1)}
                     variant="text"
                     color="primary"
                     size="icon"
@@ -153,7 +147,7 @@ export const BookImage = ({
                     />
                 </ActionButton>
                 <ActionButton
-                    onClick={zoom(-1, "out")}
+                    onClick={zoom(-1)}
                     variant="text"
                     color="primary"
                     size="icon"
