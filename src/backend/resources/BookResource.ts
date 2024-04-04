@@ -51,6 +51,12 @@ const properties = [
     "status",
 ];
 
+const trimAndNullify = (value: string | undefined | null): string | null => {
+    return value && value.trim() !== ""
+        ? value.replace(/\s+/g, " ").trim()
+        : null;
+};
+
 const importBefore = async (request: ActionRequest, context: ActionContext) => {
     const filePath = request.payload?.file.path;
     const result: Books[] = [];
@@ -59,20 +65,12 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
 
     for await (const data of parser) {
         if (data.language && data.name && data.identifier && data.url) {
-            data.published_year =
-                data.publisher_city === "" ? null : data.published_year;
-            data.publisher_city =
-                data.publisher_city === "" ? null : data.publisher_city;
-            data.publisher_name =
-                data.publisher_name === "" ? null : data.publisher_name;
-            data.author_name =
-                data.author_name === "" ? null : data.author_name;
-            data.printer_location =
-                data.printer_location === "" ? null : data.printer_location;
-            data.printer_name =
-                data.printer_name === "" ? null : data.printer_name;
-            data.published_year =
-                data.published_year === "" ? null : data.published_year;
+            data.published_year = trimAndNullify(data.published_year);
+            data.publisher_city = trimAndNullify(data.publisher_city);
+            data.publisher_name = trimAndNullify(data.publisher_name);
+            data.author_name = trimAndNullify(data.author_name);
+            data.printer_location = trimAndNullify(data.printer_location);
+            data.printer_name = trimAndNullify(data.printer_name);
             const existsBooks = await Books.findOne({
                 where: {
                     [Op.or]: [
