@@ -132,8 +132,16 @@ const FilterDrawer = ({
                 }
             });
         const uniqueSortedArray = Array.from(uniqueValues.values()).sort(
-            (a: { label: string | number }, b: { label: string | number }) =>
-                a.label > b.label ? 1 : -1
+            (a, b) => {
+                if (key === "published_year") {
+                    return (b.label as number) - (a.label as number);
+                } else {
+                    return a.label
+                        .toString()
+                        .toLowerCase()
+                        .localeCompare(b.label.toString().toLowerCase());
+                }
+            }
         );
 
         return uniqueSortedArray;
@@ -467,15 +475,6 @@ const FilterDrawer = ({
                 })
                 .filter((item): item is IData => item !== null);
 
-            mergedData = mergedData.sort((a, b) => {
-                if (a.language === b.language) {
-                    if (a.type === b.type) {
-                        return a.letter.localeCompare(b.letter);
-                    }
-                    return a.type.localeCompare(b.type);
-                }
-                return a.language.localeCompare(b.language);
-            });
             const organizedData: Record<
                 string,
                 Record<string, { letter: string; image: string }[]>
