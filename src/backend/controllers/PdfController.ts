@@ -124,6 +124,14 @@ const fetchTagData = async (
         });
     });
 
+    for (const language in organizedData) {
+        for (const type in organizedData[language]) {
+            organizedData[language][type].sort((a, b) => {
+                return a.letter.localeCompare(b.letter);
+            });
+        }
+    }
+
     const sortedData: Record<
         string,
         Record<string, { letter: string; image: string }[]>

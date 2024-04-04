@@ -318,37 +318,45 @@ const Compare = () => {
                                                     {letterType}
                                                 </LetterType>
                                                 <Letters>
-                                                    {consonants.map(
-                                                        (
-                                                            consonant,
-                                                            innerIndex
-                                                        ) => (
-                                                            <LetterDiv
-                                                                key={innerIndex}
-                                                            >
-                                                                <Letter>
-                                                                    {
-                                                                        consonant.letter
+                                                    {consonants
+                                                        .sort((a, b) => {
+                                                            return a.letter.localeCompare(
+                                                                b.letter
+                                                            );
+                                                        })
+                                                        .map(
+                                                            (
+                                                                consonant,
+                                                                innerIndex
+                                                            ) => (
+                                                                <LetterDiv
+                                                                    key={
+                                                                        innerIndex
                                                                     }
-                                                                </Letter>
-                                                                {consonant.image ===
-                                                                "-" ? (
-                                                                    <EmptyTag>
+                                                                >
+                                                                    <Letter>
                                                                         {
-                                                                            consonant.image
+                                                                            consonant.letter
                                                                         }
-                                                                    </EmptyTag>
-                                                                ) : (
-                                                                    <LetterImage
-                                                                        src={
-                                                                            consonant.image
-                                                                        }
-                                                                        alt={`Image for ${consonant.letter}`}
-                                                                    />
-                                                                )}
-                                                            </LetterDiv>
-                                                        )
-                                                    )}
+                                                                    </Letter>
+                                                                    {consonant.image ===
+                                                                    "-" ? (
+                                                                        <EmptyTag>
+                                                                            {
+                                                                                consonant.image
+                                                                            }
+                                                                        </EmptyTag>
+                                                                    ) : (
+                                                                        <LetterImage
+                                                                            src={
+                                                                                consonant.image
+                                                                            }
+                                                                            alt={`Image for ${consonant.letter}`}
+                                                                        />
+                                                                    )}
+                                                                </LetterDiv>
+                                                            )
+                                                        )}
                                                 </Letters>
                                             </LetterTypeDiv>
                                         ))}
