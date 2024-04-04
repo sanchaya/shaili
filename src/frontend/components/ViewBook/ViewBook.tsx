@@ -190,7 +190,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                 loadImage(currentPage);
             });
         getLetterTypes();
-    }, [loading]);
+    }, []);
 
     const loadImage = (page: number) => {
         axios

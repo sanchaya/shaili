@@ -124,7 +124,7 @@ const FilterDrawer = ({
             .filter((item) => item[key] !== null)
             .forEach((item) => {
                 const value = item[key];
-                if (!uniqueValues.has(value)) {
+                if (!uniqueValues.has(value) && value != "") {
                     uniqueValues.set(value, {
                         value: value,
                         label: value,
