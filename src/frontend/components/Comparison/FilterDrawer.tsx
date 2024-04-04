@@ -117,7 +117,7 @@ const FilterDrawer = ({
             }
             return 0;
         });
-        console.log(sortedData);
+
         const uniqueValues: Map<string | number, IBookOptions> = new Map();
 
         sortedData

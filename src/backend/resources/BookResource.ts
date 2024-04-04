@@ -80,7 +80,7 @@ const importBefore = async (request: ActionRequest, context: ActionContext) => {
                     ],
                 },
             });
-            console.log(data);
+
             if (!existsBooks) {
                 const language = await Languages.findOne({
                     where: { language_code: data.language.toLowerCase() },
