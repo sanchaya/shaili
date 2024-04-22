@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import Select from "react-select";
 import { styled } from "styled-components";
-import { Button, Header } from "@adminjs/design-system";
+import { Button, Header, Icon } from "@adminjs/design-system";
 import axios from "axios";
 import { useCurrentAdmin, useNotice } from "adminjs";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
@@ -61,6 +61,7 @@ const CreateLetter: React.FC<ICreateLetter> = ({
         value: string;
         label: string;
     } | null>(null);
+    const [isButtonClicked, setIsButtonClicked] = useState(false);
 
     useEffect(() => {
         axios.get(`${BASE_URL}/get-languages`).then((response) => {
@@ -113,35 +114,36 @@ const CreateLetter: React.FC<ICreateLetter> = ({
     };
 
     const saveLetter = async () => {
+        setIsButtonClicked(true);
         const data = {
             letter: newLetter,
             language: language?.value,
             letterType: Number(letterType?.value),
             createdBy: Number(currentAdmin?.id),
         };
+
         const newLetterId = await addLetter(data);
         saveTag(newLetterId);
     };
 
     const saveTag = async (letterId: number) => {
         if (mode == "add") {
+            setIsButtonClicked(false);
             const data = {
                 book_id: bookId,
                 letter_id: letterId,
                 croppedImage: tag,
                 tagged_by: Number(currentAdmin?.id),
             };
-
+            setTag("");
             addTag(data)
                 .then(() => {
-                    setTag("");
                     addNotice({
                         message: "Tag added successfully",
                         type: "success",
                     });
                 })
                 .catch((error) => {
-                    setTag("");
                     addNotice({
                         message: "Error adding tag try again later",
                         type: "error",
@@ -154,9 +156,9 @@ const CreateLetter: React.FC<ICreateLetter> = ({
                 letter_id: letterId,
                 tagged_by: Number(currentAdmin?.id),
             };
+            setTag("");
             updateTag(data)
                 .then(() => {
-                    setTag("");
                     if (setShowTags) setShowTags(false);
                     addNotice({
                         message: "Tag updated successfully",
@@ -164,7 +166,6 @@ const CreateLetter: React.FC<ICreateLetter> = ({
                     });
                 })
                 .catch((error) => {
-                    setTag("");
                     addNotice({
                         message: "Error updating tag try again later",
                         type: "error",
@@ -175,9 +176,9 @@ const CreateLetter: React.FC<ICreateLetter> = ({
 
     return (
         <>
-            <Header.H3 textAlign="center" marginTop="default" marginBottom="xl">
+            <Header.H5 textAlign="center" marginTop="default" marginBottom="xl">
                 Create Letter - "{newLetter}"
-            </Header.H3>
+            </Header.H5>
             <LetterSelectWrap>
                 <div style={{ width: "100%" }}>
                     <Select
@@ -222,9 +223,19 @@ const CreateLetter: React.FC<ICreateLetter> = ({
                     variant="contained"
                     color="primary"
                     onClick={saveLetter}
-                    disabled={!letterType}
+                    disabled={isButtonClicked || !letterType}
                 >
-                    Create and Tag
+                    {isButtonClicked ? (
+                        <Icon
+                            icon="Loader"
+                            spin
+                            style={{
+                                color: "#FFFFFF",
+                            }}
+                        />
+                    ) : (
+                        "Create and Tag"
+                    )}
                 </Button>
             </div>
         </>

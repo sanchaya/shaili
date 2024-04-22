@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, Op, Optional, Sequelize, where } from "sequelize";
 import { sequelize } from "../config/config.js";
 import { LetterTypes } from "./LetterTypes.js";
 import Users from "./Users.js";
@@ -7,6 +7,7 @@ import { Languages } from "./Languages.js";
 interface ILetters {
     id: number;
     letter: string;
+    unicode: string;
     letter_type: string;
     language: string;
     user_defined: boolean;
@@ -14,11 +15,12 @@ interface ILetters {
     updated_by: number;
 }
 
-type LettersCreationAttributes = Optional<ILetters, "id">;
+type LettersCreationAttributes = Optional<ILetters, "id" | "unicode">;
 
 export class Letters extends Model<ILetters, LettersCreationAttributes> {
     declare id: number;
     declare letter: string;
+    declare unicode: string;
     declare letter_type: string;
     declare language: string;
     declare user_defined: boolean;
@@ -51,6 +53,11 @@ Letters.init(
         letter: {
             type: new DataTypes.STRING(),
             allowNull: false,
+        },
+        unicode: {
+            type: new DataTypes.STRING(),
+            allowNull: true,
+            unique: true,
         },
         letter_type: {
             type: new DataTypes.INTEGER(),
@@ -92,5 +99,38 @@ Letters.init(
         modelName: "Letters",
         underscored: true,
         timestamps: true,
+        hooks: {
+            beforeFindAfterExpandIncludeAll: async (options) => {
+                const letterTypes = await LetterTypes.findAll({
+                    where: {
+                        status: true,
+                    },
+                    attributes: ["id"],
+                    raw: true,
+                });
+
+                const ids = letterTypes.map((letterType) => letterType.id);
+
+                if (
+                    !options.where ||
+                    (options.where && !("letter_type" in options.where))
+                ) {
+                    options.where = {
+                        ...options.where,
+                        letter_type: ids,
+                    };
+                } else {
+                    options.where = {
+                        ...options.where,
+                        letter_type: {
+                            [Op.and]: [
+                                { [Op.in]: ids },
+                                options.where.letter_type,
+                            ],
+                        },
+                    };
+                }
+            },
+        },
     }
 );

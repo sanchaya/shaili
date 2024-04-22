@@ -3,13 +3,14 @@ import { Letters } from "../db/models/Letters.js";
 import { TaggedLetters } from "../db/models/TaggedLetters.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
 import { Books } from "../db/models/Books.js";
-import { Sequelize } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import fs from "fs";
 import path from "path";
 import * as url from "url";
 import { mkdir } from "node:fs/promises";
 import { Languages } from "../db/models/Languages.js";
 import archiver from "archiver";
+import sequelize from "sequelize";
 
 interface MakeTagsZipResult {
     status: boolean;
@@ -20,6 +21,7 @@ interface MakeTagsZipResult {
 export const getLetterTypes = async (req: Request, res: Response) => {
     const letterTypes = await LetterTypes.findAll({
         attributes: ["id", "type", "language"],
+        where: { status: true },
     });
     return res.status(200).send(letterTypes);
 };
@@ -27,6 +29,13 @@ export const getLetterTypes = async (req: Request, res: Response) => {
 export const getLetters = async (req: Request, res: Response) => {
     const letters = await Letters.findAll({
         attributes: ["id", "letter", "language", "letter_type"],
+        where: {
+            letter_type: {
+                [Op.in]: sequelize.literal(
+                    `(SELECT id FROM letter_types WHERE status = true)`
+                ),
+            },
+        },
     });
     return res.status(200).send(letters);
 };
@@ -91,6 +100,13 @@ const getTaggedLetter = async (req: Request, res: Response) => {
                 model: Letters,
                 as: "letter",
                 attributes: ["letter", "letter_type"],
+                where: {
+                    letter_type: {
+                        [Op.in]: sequelize.literal(
+                            `(SELECT id FROM letter_types WHERE status = true)`
+                        ),
+                    },
+                },
             },
             order: [["updated_at", "DESC"]],
         });
@@ -183,6 +199,13 @@ const getTaggedLetterByUser = async (req: Request, res: Response) => {
                     model: Letters,
                     as: "letter",
                     attributes: ["letter", "letter_type"],
+                    where: {
+                        letter_type: {
+                            [Op.in]: sequelize.literal(
+                                `(SELECT id FROM letter_types WHERE status = true)`
+                            ),
+                        },
+                    },
                 },
                 {
                     model: Books,
@@ -208,7 +231,14 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
         });
 
         const totalLettersQuery = await Letters.count({
-            where: { language: bookLanguage?.dataValues.language },
+            where: {
+                language: bookLanguage?.dataValues.language,
+                letter_type: {
+                    [Op.in]: sequelize.literal(
+                        `(SELECT id FROM letter_types WHERE status = true)`
+                    ),
+                },
+            },
         });
 
         const totalTagsQuery = await Letters.count({
@@ -224,6 +254,11 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
             },
             where: {
                 language: bookLanguage?.dataValues.language,
+                letter_type: {
+                    [Op.in]: sequelize.literal(
+                        `(SELECT id FROM letter_types WHERE status = true)`
+                    ),
+                },
             },
         });
 
@@ -238,13 +273,13 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
 };
 
 const storeTagImage = async (bookData, letterData, croppedImage) => {
-    const bookName = bookData.dataValues.name;
+    const bookIdentifier = bookData.dataValues.identifier;
     const letter = letterData.dataValues.letter;
     const letterLanguageCode = letterData.dataValues.language;
     const tagsDirectory = getTagsDirectory();
     const base64Data = croppedImage.replace(/^data:image\/\w+;base64,/, "");
     const bufferData = Buffer.from(base64Data, "base64");
-    const bookDirectory = tagsDirectory + "/tags/" + bookName;
+    const bookDirectory = tagsDirectory + "/tags/" + bookIdentifier;
     const letterLanguage = await Languages.findOne({
         where: { language_code: letterLanguageCode },
     });
@@ -270,7 +305,9 @@ const storeTagImage = async (bookData, letterData, croppedImage) => {
             if (err) {
                 reject("Error storing tag");
             } else {
-                resolve("/tags/" + bookName + "/" + path.basename(filePath));
+                resolve(
+                    "/tags/" + bookIdentifier + "/" + path.basename(filePath)
+                );
             }
         });
     });
@@ -331,7 +368,7 @@ const makeTagsZip = async (bookId): Promise<MakeTagsZipResult> => {
     const book = await Books.findOne({
         where: { id: bookId },
     });
-    const bookName = book?.dataValues.name;
+    const bookIdentifier = book?.dataValues.identifier;
     const bookTags = await TaggedLetters.findAll({
         where: { book_id: bookId },
     });
@@ -339,12 +376,12 @@ const makeTagsZip = async (bookId): Promise<MakeTagsZipResult> => {
     if (bookTags.length > 0) {
         const tagsDirectory = getTagsDirectory();
         const filesInTagsDirectory = fs.readdirSync(
-            `${tagsDirectory}/tags/${bookName}`
+            `${tagsDirectory}/tags/${bookIdentifier}`
         );
 
         if (filesInTagsDirectory.length > 0) {
             const output = fs.createWriteStream(
-                `${tagsDirectory}/${bookName}.zip`
+                `${tagsDirectory}/${bookIdentifier}.zip`
             );
             const archive = archiver("zip", {
                 zlib: { level: 9 },
@@ -356,12 +393,15 @@ const makeTagsZip = async (bookId): Promise<MakeTagsZipResult> => {
 
             archive.pipe(output);
 
-            archive.directory(`${tagsDirectory}/tags/${bookName}/`, false);
+            archive.directory(
+                `${tagsDirectory}/tags/${bookIdentifier}/`,
+                false
+            );
             return new Promise((resolve, reject) => {
                 output.on("close", () => {
                     resolve({
                         status: true,
-                        url: `${tagsDirectory}/${bookName}.zip`,
+                        url: `${tagsDirectory}/${bookIdentifier}.zip`,
                     });
                 });
 

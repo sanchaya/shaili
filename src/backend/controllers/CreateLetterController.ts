@@ -13,6 +13,16 @@ const getLanguages = async (req: Request, res: Response) => {
 const addUserDefinedLetter = async (req: Request, res: Response) => {
     try {
         const { letter, language, letterType, createdBy } = req.body;
+        const isExists = await Letters.findOne({
+            where: {
+                letter: letter,
+                language: language,
+                letter_type: letterType,
+            },
+        });
+        if (isExists) {
+            return res.status(200).send(isExists);
+        }
         const userDefinedLeter = await Letters.create({
             letter: letter,
             language: language,
@@ -31,6 +41,7 @@ const addLetter = async (req: any, res: Response) => {
     try {
         const {
             letter,
+            unicode,
             letter_type,
             language,
             created_by,
@@ -44,8 +55,17 @@ const addLetter = async (req: any, res: Response) => {
         if (isExists) {
             return res.status(422).json("Letter already exists");
         }
+        if (unicode) {
+            const isUnicodeExists = await Letters.findOne({
+                where: { unicode: unicode },
+            });
+            if (isUnicodeExists) {
+                return res.status(422).json("Unicode already exists");
+            }
+        }
         const response = await Letters.create({
             letter,
+            unicode,
             letter_type,
             language,
             created_by,
@@ -64,6 +84,7 @@ const editLetter = async (req: any, res: Response) => {
         const {
             id,
             letter,
+            unicode,
             letter_type,
             language,
             created_by,
@@ -76,9 +97,18 @@ const editLetter = async (req: any, res: Response) => {
         if (isExists) {
             return res.status(422).json("Letter already exists");
         }
+        if (unicode) {
+            const isUnicodeExists = await Letters.findOne({
+                where: { unicode: unicode },
+            });
+            if (isUnicodeExists) {
+                return res.status(422).json("Unicode already exists");
+            }
+        }
         const response = await Letters.update(
             {
                 letter,
+                unicode,
                 letter_type,
                 language,
                 created_by,

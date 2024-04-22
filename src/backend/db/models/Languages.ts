@@ -56,7 +56,7 @@ Languages.init(
             type: DataTypes.STRING,
         },
         description: {
-            type: DataTypes.STRING
+            type: DataTypes.STRING,
         },
         created_by: {
             type: new DataTypes.INTEGER(),
@@ -89,12 +89,48 @@ Languages.init(
 
 Languages.afterCreate(async (language) => {
     const defaultData = [
-      { type: "Vowels", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by},
-      { type: "Consonants", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
-      { type: "Conjuncts", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
-      { type: "Numerals", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
-      { type: "Special Symbols", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
-      { type: "Custom Symbols", language: language.language_code, created_by: language.created_by, updated_by: language.updated_by },
+        {
+            type: "Vowels",
+            language: language.language_code,
+            status: true,
+            created_by: language.created_by,
+            updated_by: language.updated_by,
+        },
+        {
+            type: "Consonants",
+            language: language.language_code,
+            status: true,
+            created_by: language.created_by,
+            updated_by: language.updated_by,
+        },
+        {
+            type: "Conjuncts",
+            language: language.language_code,
+            status: true,
+            created_by: language.created_by,
+            updated_by: language.updated_by,
+        },
+        {
+            type: "Numerals",
+            language: language.language_code,
+            status: true,
+            created_by: language.created_by,
+            updated_by: language.updated_by,
+        },
+        {
+            type: "Special Symbols",
+            language: language.language_code,
+            status: true,
+            created_by: language.created_by,
+            updated_by: language.updated_by,
+        },
+        {
+            type: "Custom Symbols",
+            language: language.language_code,
+            status: true,
+            created_by: language.created_by,
+            updated_by: language.updated_by,
+        },
     ];
     await LetterTypes.bulkCreate(defaultData);
 });

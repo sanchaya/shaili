@@ -10,7 +10,6 @@ import {
     Button,
     Drawer,
     DrawerContent,
-    DrawerFooter,
     FormGroup,
     H3,
     Icon,
@@ -20,6 +19,7 @@ import Select from "react-select";
 import axios from "axios";
 import { styled } from "@adminjs/design-system/styled-components";
 import { IBookOptions, LanguageData } from "./Compare.js";
+import { Comments } from "../../../backend/db/models/Comments.js";
 
 interface IData {
     id: number;
@@ -41,7 +41,7 @@ interface ILanguage {
     language_code: string;
 }
 
-interface IBooks {
+export interface IBooks {
     id: number;
     name: string;
     status: number;
@@ -65,6 +65,8 @@ interface IFilterProps {
     setPrinterName: Dispatch<SetStateAction<string | undefined>>;
     publishedYear?: string;
     setPublishedYear: Dispatch<SetStateAction<string | undefined>>;
+    setSelectedBookData: Dispatch<SetStateAction<IBooks[] | undefined>>;
+    setLocalComments: Dispatch<SetStateAction<Comments[] | undefined>>;
 }
 
 const CustomSelect = styled(Select)`
@@ -85,6 +87,8 @@ const FilterDrawer = ({
     setPrinterName,
     publishedYear,
     setPublishedYear,
+    setSelectedBookData,
+    setLocalComments,
 }: IFilterProps) => {
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const [letters, setLetters] = useState<any>();
@@ -101,10 +105,10 @@ const FilterDrawer = ({
     const [letterType, setLetterType] = useState<ILetterType[]>();
     const selectInputRef = useRef();
 
-    const calculateUniqueValues = (
+    const calculateUniqueValues = async (
         data: IBooks[],
         key: keyof IBooks
-    ): IBookOptions[] => {
+    ): Promise<IBookOptions[]> => {
         const sortedData = data.slice().sort((a, b) => {
             if (typeof a[key] === "number") {
                 return (a[key] as number) - (b[key] as number);
@@ -120,15 +124,27 @@ const FilterDrawer = ({
             .filter((item) => item[key] !== null)
             .forEach((item) => {
                 const value = item[key];
-                if (!uniqueValues.has(value)) {
+                if (!uniqueValues.has(value) && value != "") {
                     uniqueValues.set(value, {
                         value: value,
                         label: value,
                     });
                 }
             });
+        const uniqueSortedArray = Array.from(uniqueValues.values()).sort(
+            (a, b) => {
+                if (key === "published_year") {
+                    return (b.label as number) - (a.label as number);
+                } else {
+                    return a.label
+                        .toString()
+                        .toLowerCase()
+                        .localeCompare(b.label.toString().toLowerCase());
+                }
+            }
+        );
 
-        return Array.from(uniqueValues.values());
+        return uniqueSortedArray;
     };
 
     useEffect(() => {
@@ -141,7 +157,7 @@ const FilterDrawer = ({
         axios.get(`${BASE_URL}/get-letters`).then((response) => {
             setLetters(response.data);
         });
-        axios.get(`${BASE_URL}/get-books`).then((response) => {
+        axios.get(`${BASE_URL}/get-books`).then(async (response) => {
             setBooks(response.data);
             setFilteredBooksData(response.data);
 
@@ -152,15 +168,15 @@ const FilterDrawer = ({
                 })
             );
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 response.data,
                 "published_year"
             );
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 response.data,
                 "printer_name"
             );
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 response.data,
                 "printer_location"
             );
@@ -183,9 +199,9 @@ const FilterDrawer = ({
         }
     }, []);
 
-    const handleLocationChange = (selectedLocation) => {
+    const handleLocationChange = async (selectedLocation) => {
         if (publishedYear == undefined && printerName === undefined) {
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.printer_location === selectedLocation.value
                 ),
@@ -193,7 +209,7 @@ const FilterDrawer = ({
             );
             setPrinterNameOptions(PrinterName as IBookOptions[]);
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.printer_location === selectedLocation.value
                 ),
@@ -206,7 +222,7 @@ const FilterDrawer = ({
             );
             setFilteredBooksData(filterData);
         } else {
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.printer_location === selectedLocation.value
                 ),
@@ -214,7 +230,7 @@ const FilterDrawer = ({
             );
             setPrinterNameOptions(PrinterName as IBookOptions[]);
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.printer_location === selectedLocation.value
                 ),
@@ -232,9 +248,9 @@ const FilterDrawer = ({
         updateBookOptions(selectedLocation, printerName, publishedYear);
     };
 
-    const handleNameChange = (selectedName) => {
+    const handleNameChange = async (selectedName) => {
         if (printerLocation == undefined && publishedYear === undefined) {
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.printer_name === selectedName.value
                 ),
@@ -242,7 +258,7 @@ const FilterDrawer = ({
             );
             setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.printer_name === selectedName.value
                 ),
@@ -255,7 +271,7 @@ const FilterDrawer = ({
             );
             setFilteredBooksData(filterData);
         } else {
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.printer_name === selectedName.value
                 ),
@@ -263,7 +279,7 @@ const FilterDrawer = ({
             );
             setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
 
-            const PublishedYear = calculateUniqueValues(
+            const PublishedYear = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.printer_name === selectedName.value
                 ),
@@ -281,9 +297,9 @@ const FilterDrawer = ({
         updateBookOptions(printerLocation, selectedName, publishedYear);
     };
 
-    const handleYearChange = (selectedYear) => {
+    const handleYearChange = async (selectedYear) => {
         if (printerLocation == undefined && printerName === undefined) {
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.published_year === selectedYear.value
                 ),
@@ -291,7 +307,7 @@ const FilterDrawer = ({
             );
             setPrinterNameOptions(PrinterName as IBookOptions[]);
 
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 books!.filter(
                     (book) => book.published_year === selectedYear.value
                 ),
@@ -304,7 +320,7 @@ const FilterDrawer = ({
             );
             setFilteredBooksData(filterData);
         } else {
-            const PrinterName = calculateUniqueValues(
+            const PrinterName = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.published_year === selectedYear.value
                 ),
@@ -312,7 +328,7 @@ const FilterDrawer = ({
             );
             setPrinterNameOptions(PrinterName as IBookOptions[]);
 
-            const PrinterLocation = calculateUniqueValues(
+            const PrinterLocation = await calculateUniqueValues(
                 filteredBooksData!.filter(
                     (book) => book.published_year === selectedYear.value
                 ),
@@ -404,15 +420,13 @@ const FilterDrawer = ({
     };
 
     const fetchTag = async (record: IBookOptions, mode: string) => {
-        setCompareLoading(true);
-
         const primaryLanguage = getIdLanguage(Number(record.value));
         try {
             const response = await axios.get(
                 `${BASE_URL}/tagged-letter?bookId=` + record.value
             );
             const letterIdMap: Record<string, boolean> = {};
-            const mergedData: IData[] = letters
+            let mergedData: IData[] = letters
                 .map((letter) => {
                     const foundLetter = response.data.find(
                         (item) => item.letter_id === letter.id
@@ -496,9 +510,17 @@ const FilterDrawer = ({
             });
 
             if (mode === "compare") {
+                const selectedBook = books?.filter((book) => {
+                    return record?.value === book.id;
+                });
+                setSelectedBookData(selectedBook);
                 setCompareBook(record);
+                const response = await axios.get(
+                    (`${BASE_URL}/get-comments?bookId=` +
+                        record.value) as string
+                );
+                setLocalComments(response.data);
                 setCompareBookData(sortedData);
-                setShowFilter(false);
                 setPrinterLocation(undefined);
                 setPrinterName(undefined);
                 setPublishedYear(undefined);
@@ -519,7 +541,7 @@ const FilterDrawer = ({
         <Drawer variant="filter" style={{ position: "absolute", zIndex: "48" }}>
             <DrawerContent>
                 <Box flex justifyContent="space-between">
-                    <H3>Choose a book</H3>
+                    <H3 style={{ fontSize: "26px" }}>Choose a book</H3>
                     <Button
                         type="button"
                         variant="light"
@@ -584,6 +606,8 @@ const FilterDrawer = ({
                             value={compareBook}
                             options={bookOptions}
                             onChange={(newValue) => {
+                                setShowFilter(false);
+                                setCompareLoading(true);
                                 setCompareBook(newValue);
                                 fetchTag(newValue, "compare");
                                 setBookChoosed(true);

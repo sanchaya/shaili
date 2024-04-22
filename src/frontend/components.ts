@@ -52,12 +52,24 @@ const Components = {
     ),
     RecordInList: componentLoader.override(
         "RecordInList",
-        "./components/record-in-list/record-in-list"
+        "./components/RecordInList/record-in-list"
     ),
     DefaultListAction: componentLoader.override(
         "DefaultListAction",
         "./components/List/List"
-    )
+    ),
+    LettersInList: componentLoader.add(
+        "LettersInList",
+        "./components/Letters/LettersInList"
+    ),
+    LetterTypeInFilter: componentLoader.add(
+        "LetterTypeInFilter",
+        "./components/LetterTypeInFilter/LetterTypeInFilter"
+    ),
+    LetterTypeStatus: componentLoader.add(
+        "LetterTypeStatus",
+        "./components/LetterTypeStatus/LetterTypeStatus"
+    ),
 };
 
 export { componentLoader, Components };

@@ -38,9 +38,9 @@ export const BookDeleteHandler = async (props) => {
         });
         if (bookTags.length > 0) {
             const tagsDirectory = TaggedLetterController.getTagsDirectory();
-            const bookTagDirectory = `${tagsDirectory}/tags/${book?.dataValues.name}/`;
+            const bookTagDirectory = `${tagsDirectory}/tags/${book?.dataValues.identifier}/`;
             const deletedPath = `${tagsDirectory}/tags/deleted/${getTimeStamp()}_${
-                book?.dataValues.name
+                book?.dataValues.identifier
             }/`;
             if (!fs.existsSync(deletedPath)) {
                 await mkdir(deletedPath, {
@@ -95,4 +95,27 @@ export const BookDeleteHandler = async (props) => {
             };
         }
     }
+};
+
+export const BookEditBefore = async (request: ActionRequest) => {
+    const { payload = {} } = request;
+
+    if (request.method !== "post") return request;
+
+    payload.published_year =
+        payload.publisher_city === "" ? null : payload.published_year;
+    payload.publisher_city =
+        payload.publisher_city === "" ? null : payload.publisher_city;
+    payload.publisher_name =
+        payload.publisher_name === "" ? null : payload.publisher_name;
+    payload.author_name =
+        payload.author_name === "" ? null : payload.author_name;
+    payload.printer_location =
+        payload.printer_location === "" ? null : payload.printer_location;
+    payload.printer_name =
+        payload.printer_name === "" ? null : payload.printer_name;
+    payload.published_year =
+        payload.published_year === "" ? null : payload.published_year;
+
+    return request;
 };

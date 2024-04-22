@@ -190,7 +190,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                 loadImage(currentPage);
             });
         getLetterTypes();
-    }, [loading]);
+    }, []);
 
     const loadImage = (page: number) => {
         axios
@@ -261,7 +261,8 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
         setGoToPage(page);
     };
 
-    const handleGoToPage = () => {
+    const handleGoToPage = (event) => {
+        event.preventDefault();
         setImg("");
         setCurrentPage(goToPage);
         loadImage(goToPage);
@@ -283,7 +284,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                     </ProgressWrap>
                     <NavWrap>
                         <NavWrapLeft>
-                            <GoToPage>
+                            <GoToPage className="goToInput">
                                 <GoToInput
                                     max={totalPages}
                                     min={1}

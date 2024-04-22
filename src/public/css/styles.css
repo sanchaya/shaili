@@ -347,3 +347,80 @@ html,
         padding: 4px 9px;
     }
 }
+
+.goToInput input::-webkit-outer-spin-button,
+.goToInput input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.goToInput input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+[data-css="languages-show-action-header"] .hcGGWN.adminjs_Box {
+    display: block;
+}
+
+[data-css="languages-show-action-header"] .ciRvMa.adminjs_Box {
+    display: none;
+}
+
+[data-css="languages-show-action-header"] .oAYmF.adminjs_Box {
+    float: right;
+}
+
+.language-show .WfYT.adminjs_Header {
+    margin-top: 23px;
+}
+
+.adminjs_ActionHeader .dgJiMC.adminjs_H2 {
+    font-size: 28px;
+}
+
+h4.sc-ilEZps.hhnezv.sc-gXSCqU.letterTypeHeader {
+    margin: 25px 0px;
+}
+
+.status-toggle-switch {
+    display: none;
+}
+
+.status-toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    width: 60px;
+    height: 30px;
+    background: grey;
+    border-radius: 100px;
+    position: relative;
+    transition: background-color 0.2s;
+}
+
+.status-toggle-label .status-toggle-button {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 45px;
+    transition: 0.5s;
+    background: #fff;
+    box-shadow: 0 0 2px 0 rgba(10, 10, 10, 0.29);
+}
+
+.status-toggle-switch:checked + .status-toggle-label .status-toggle-button {
+    left: calc(100% - 2px);
+    transform: translateX(-100%);
+}
+
+.status-toggle-label:active .status-toggle-button {
+    width: 60px;
+}
+
+.status-toggle-label.checked {
+    background: green;
+}
