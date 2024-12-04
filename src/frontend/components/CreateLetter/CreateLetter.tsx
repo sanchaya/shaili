@@ -1,0 +1,245 @@
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import Select from "react-select";
+import { styled } from "styled-components";
+import { Button, Header, Icon } from "@adminjs/design-system";
+import axios from "axios";
+import { useCurrentAdmin, useNotice } from "adminjs";
+import { useLetterTagContext } from "../../context/LetterTagContext.js";
+import { useLettersContext } from "../../context/LettersContext.js";
+
+interface ICreateLetter {
+    mode: string;
+    tagId?: number;
+    setShowTags?: Dispatch<SetStateAction<boolean>>;
+    tag: string;
+    bookId: number;
+    newLetter: string;
+    setCreateLetter: Dispatch<SetStateAction<boolean>>;
+    setTag: Dispatch<SetStateAction<string>>;
+}
+
+interface ISelectOptions {
+    value: string;
+    label: string;
+}
+
+const LetterSelectWrap = styled.div`
+    display: flex;
+    -webkit-box-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    gap: 25px;
+    justify-content: center;
+    @media (max-width: 440px) {
+        flex-wrap: wrap;
+    }
+`;
+
+const CreateLetter: React.FC<ICreateLetter> = ({
+    mode,
+    tagId,
+    tag,
+    bookId,
+    newLetter,
+    setShowTags,
+    setCreateLetter,
+    setTag,
+}) => {
+    const BASE_URL = (window as any).AdminJS.env.BASE_URL;
+    const addNotice = useNotice();
+    const { addLetter } = useLettersContext();
+    const { addTag, updateTag } = useLetterTagContext();
+    const [currentAdmin] = useCurrentAdmin();
+    const [languageOptions, setLanguageOptions] = useState<ISelectOptions[]>();
+    const [letterTypeOptions, setLetterTypeOptions] =
+        useState<Record<string, { value: string; label: string }[]>>();
+    const [language, setLanguage] = useState<{
+        value: string;
+        label: string;
+    } | null>(null);
+    const [letterType, setLetterType] = useState<{
+        value: string;
+        label: string;
+    } | null>(null);
+    const [isButtonClicked, setIsButtonClicked] = useState(false);
+
+    useEffect(() => {
+        axios.get(`${BASE_URL}/get-languages`).then((response) => {
+            let languages = response.data.map(
+                (language: { language_code: string; language: string }) => ({
+                    value: language.language_code,
+                    label: language.language,
+                })
+            );
+            languages.sort((a, b) => a.label.localeCompare(b.label));
+            setLanguageOptions(languages);
+            getLetterTypes();
+        });
+    }, []);
+
+    const getLetterTypes = () => {
+        axios.get(`${BASE_URL}/get-lettertypes`).then((response) => {
+            let letterTypes: Record<
+                string,
+                { value: string; label: string }[]
+            > = {};
+
+            response.data.forEach(
+                (letterType: {
+                    id: number;
+                    type: string;
+                    language: string;
+                }) => {
+                    const languageKey = letterType.language.toLowerCase();
+                    if (!letterTypes[languageKey]) {
+                        letterTypes[languageKey] = [];
+                    }
+
+                    letterTypes[languageKey].push({
+                        value: letterType.id.toString(),
+                        label: letterType.type,
+                    });
+                }
+            );
+            Object.keys(letterTypes).forEach((key) => {
+                letterTypes[key].sort((a, b) => a.label.localeCompare(b.label));
+            });
+            setLetterTypeOptions(letterTypes);
+        });
+    };
+
+    const handleLanguageChange = (newValue: any) => {
+        setLanguage(newValue);
+        setLetterType(null);
+    };
+
+    const saveLetter = async () => {
+        setIsButtonClicked(true);
+        const data = {
+            letter: newLetter,
+            language: language?.value,
+            letterType: Number(letterType?.value),
+            createdBy: Number(currentAdmin?.id),
+        };
+
+        const newLetterId = await addLetter(data);
+        saveTag(newLetterId);
+    };
+
+    const saveTag = async (letterId: number) => {
+        if (mode == "add") {
+            setIsButtonClicked(false);
+            const data = {
+                book_id: bookId,
+                letter_id: letterId,
+                croppedImage: tag,
+                tagged_by: Number(currentAdmin?.id),
+            };
+            setTag("");
+            addTag(data)
+                .then(() => {
+                    addNotice({
+                        message: "Tag added successfully",
+                        type: "success",
+                    });
+                })
+                .catch((error) => {
+                    addNotice({
+                        message: "Error adding tag try again later",
+                        type: "error",
+                    });
+                });
+        } else {
+            const data = {
+                id: tagId!,
+                book_id: bookId,
+                letter_id: letterId,
+                tagged_by: Number(currentAdmin?.id),
+            };
+            setTag("");
+            updateTag(data)
+                .then(() => {
+                    if (setShowTags) setShowTags(false);
+                    addNotice({
+                        message: "Tag updated successfully",
+                        type: "success",
+                    });
+                })
+                .catch((error) => {
+                    addNotice({
+                        message: "Error updating tag try again later",
+                        type: "error",
+                    });
+                });
+        }
+    };
+
+    return (
+        <>
+            <Header.H5 textAlign="center" marginTop="default" marginBottom="xl">
+                Create Letter - "{newLetter}"
+            </Header.H5>
+            <LetterSelectWrap>
+                <div style={{ width: "100%" }}>
+                    <Select
+                        value={language}
+                        options={languageOptions}
+                        onChange={handleLanguageChange}
+                        placeholder="Select a language"
+                    />
+                </div>
+                {letterTypeOptions && (
+                    <div style={{ width: "100%" }}>
+                        <Select
+                            isDisabled={!language}
+                            value={letterType}
+                            options={
+                                letterTypeOptions[language?.value || ""] || []
+                            }
+                            onChange={(newValue) => setLetterType(newValue)}
+                            placeholder={
+                                language
+                                    ? "Select a tetter type"
+                                    : "Select a language first"
+                            }
+                        />
+                    </div>
+                )}
+            </LetterSelectWrap>
+            <div
+                style={{
+                    display: "flex",
+                    textAlign: "center",
+                    justifyContent: "flex-end",
+                    gap: "20px",
+                    marginTop: "25px",
+                }}
+                className="createLetterBtnWrap"
+            >
+                <Button color="primary" onClick={() => setCreateLetter(false)}>
+                    Go back
+                </Button>
+                <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={saveLetter}
+                    disabled={isButtonClicked || !letterType}
+                >
+                    {isButtonClicked ? (
+                        <Icon
+                            icon="Loader"
+                            spin
+                            style={{
+                                color: "#FFFFFF",
+                            }}
+                        />
+                    ) : (
+                        "Create and Tag"
+                    )}
+                </Button>
+            </div>
+        </>
+    );
+};
+
+export default CreateLetter;
