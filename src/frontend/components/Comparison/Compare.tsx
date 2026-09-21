@@ -177,7 +177,7 @@ export interface LanguageData {
 }
 
 const Compare = () => {
-    const BASE_URL = (window as any).AdminJS.env.BASE_URL;
+    const BASE_URL = (window as any).AdminJS?.env?.BASE_URL || '';
     const [compareBookData, setCompareBookData] = useState<LanguageData>({});
     const [compareBook, setCompareBook] = useState<IBookOptions | null>(null);
     const [compareLoading, setCompareLoading] = useState(false);
@@ -190,6 +190,7 @@ const Compare = () => {
     const [selectedBookData, setSelectedBookData] = useState<IBooks[]>();
     const [comments, setLocalComments] = useState<Comments[] | undefined>();
     const [users, setUsers] = useState<IUser[]>([]);
+    const [selectedLanguage, setSelectedLanguage] = useState<string | undefined>();
 
     useEffect(() => {
         axios.get(`${BASE_URL}/get-users`).then((response) => {
@@ -391,6 +392,8 @@ const Compare = () => {
                     setBookChoosed={setBookChoosed}
                     setSelectedBookData={setSelectedBookData}
                     setLocalComments={setLocalComments}
+                    selectedLanguage={selectedLanguage}
+                    setSelectedLanguage={setSelectedLanguage}
                 />
             )}
 

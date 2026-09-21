@@ -5,6 +5,7 @@ import MySQLStore from "express-mysql-session";
 import AdminRouter from "./backend/routers/AdminRouters.js";
 import { BookResource } from "./backend/resources/BookResource.js";
 import { LetterResource } from "./backend/resources/LettersResource.js";
+import { BookStatusResource } from "./backend/resources/BookStatusResource.js";
 import { componentLoader } from "./frontend/components.js";
 import { sequelize } from "./backend/db/config/config.js";
 import Users from "./backend/db/models/Users.js";
@@ -15,6 +16,8 @@ import { LetterTypesResource } from "./backend/resources/LetterTypesResource.js"
 import { LanguagesResource } from "./backend/resources/LanguagesResource.js";
 import { CommentsResource } from "./backend/resources/CommentsResource.js";
 import { UserRolesResource } from "./backend/resources/UserRolesResource.js";
+import HomeController from "./backend/controllers/HomeController.js";
+import { setupAssociations } from "./backend/db/models/associations.js";
 import { mkdir } from "node:fs/promises";
 import fs from "fs";
 
@@ -48,6 +51,9 @@ const start = async () => {
     try {
         await sequelize.authenticate();
         console.log("Connected Successfully");
+        
+        // Setup model associations
+        setupAssociations();
     } catch {
         console.log("error");
     }
@@ -77,6 +83,7 @@ const start = async () => {
             LetterTypesResource,
             LetterResource,
             BookResource,
+            BookStatusResource,
             CommentsResource,
         ],
         componentLoader,
@@ -86,6 +93,9 @@ const start = async () => {
         pages: {
             compare: {
                 component: "Comparison",
+            },
+            profile: {
+                component: "ProfilePage",
             },
         },
         assets: {
@@ -181,6 +191,12 @@ const start = async () => {
     }
 
     app.use(express.json({ limit: "50mb" }));
+    app.get("/", HomeController.renderHome);
+    // Ensure the admin bundle/assets are never cached so UI changes take effect immediately
+    app.use("/admin", (_req: any, res: any, next: any) => {
+        res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+        next();
+    });
     app.use("/admin", NonAdminRouter);
     app.use("/admin", AdminRouter);
     app.use(admin.options.rootPath, adminRouter);

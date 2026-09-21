@@ -4,6 +4,8 @@ import React, { useEffect } from 'react'
 import { useLocation } from 'react-router'
 import { getActionElementCss } from '../RecordInList/data-css-name.js'
 import { useQueryParams } from './use-query-params.js'
+import LanguageCards from '../LanguageCards/LanguageCards.js'
+import LettersGroupedList from '../Letters/LettersGroupedList.js'
 
 const List: React.FC<ActionProps> = ({ resource, setTag }) => {
     const {
@@ -25,7 +27,16 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
     } = useSelectedRecords(records)
     
     const location = useLocation()
-    const { storeParams } = useQueryParams()
+    const { storeParams, filters, clearParams } = useQueryParams()
+
+    // Show language cards (instead of the table) for these resources until a language filter is chosen
+    const languageCardResources = ['books', 'letters', 'letter_types']
+    const showLanguageCards =
+        languageCardResources.includes(resource.id) && !filters?.language
+    const showBackToLanguages =
+        languageCardResources.includes(resource.id) && !!filters?.language
+    const showGroupedLetters =
+        resource.id === 'letters' && !!filters?.language
 
     useEffect(() => {
         if (setTag) {
@@ -60,8 +71,57 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
 
     const contentTag = getActionElementCss(resource.id, 'list', 'table-wrapper')
 
+    if (showLanguageCards) {
+        return (
+            <Box variant="container" data-css={contentTag}>
+                <LanguageCards
+                    resourceId={resource.id}
+                    onLanguageSelect={(code) => storeParams({ filters: { language: code } })}
+                />
+            </Box>
+        )
+    }
+
+    if (showGroupedLetters) {
+        return (
+            <Box variant="container" data-css={contentTag}>
+                {showBackToLanguages && (
+                    <Box mb="lg">
+                        <Text
+                            as="span"
+                            onClick={() => clearParams('filters')}
+                            style={{
+                                cursor: 'pointer',
+                                color: '#3040d6',
+                                fontWeight: 600,
+                            }}
+                        >
+                            ‹ Back to all languages
+                        </Text>
+                    </Box>
+                )}
+                <LettersGroupedList languageCode={filters.language as string} />
+            </Box>
+        )
+    }
+
     return (
         <Box variant="container" data-css={contentTag}>
+            {showBackToLanguages && (
+                <Box mb="lg">
+                    <Text
+                        as="span"
+                        onClick={() => clearParams('filters')}
+                        style={{
+                            cursor: 'pointer',
+                            color: '#3040d6',
+                            fontWeight: 600,
+                        }}
+                    >
+                        ‹ Back to all languages
+                    </Text>
+                </Box>
+            )}
             <RecordsTable
                 resource={resource}
                 records={records}

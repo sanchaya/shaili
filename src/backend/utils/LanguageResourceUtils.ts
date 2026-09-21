@@ -70,11 +70,16 @@ export const LanguageCreateHandler = async (props) => {
 
             let record = await resource.build(params);
 
-            const newRecord = await Languages.create({
+            const payload = {
                 ...request.payload,
+                language_code: request.payload.language_code?.toLowerCase(),
+                speaker_count: request.payload.speaker_count ? parseInt(request.payload.speaker_count) : undefined,
+                direction: request.payload.direction || "ltr",
                 created_by: currentAdmin.id,
                 updated_by: currentAdmin.id,
-            });
+            };
+
+            const newRecord = await Languages.create(payload);
             if (newRecord) {
                 return {
                     redirectUrl: h.resourceUrl({
@@ -160,14 +165,16 @@ export const LanguageEditHandler = async (request, response, context) => {
         return { record: record.toJSON(currentAdmin) };
     }
 
+    const payload = {
+        ...request.payload,
+        language_code: request.payload.language_code?.toLowerCase(),
+        speaker_count: request.payload.speaker_count ? parseInt(request.payload.speaker_count) : undefined,
+        direction: request.payload.direction || "ltr",
+        updated_by: currentAdmin.id,
+    };
+
     const newRecord = await Languages.update(
-        {
-            language: request.payload.language,
-            language_code: request.payload.language_code,
-            alt_lang_code: request.payload.alt_lang_code,
-            description: request.payload.description,
-            updated_by: currentAdmin.id,
-        },
+        payload,
         { where: { id: request.payload.id } }
     );
     if (newRecord) {

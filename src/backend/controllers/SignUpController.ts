@@ -11,11 +11,17 @@ export const renderSignUpForm = async (req: Request, res: Response) => {
 };
 
 export const handleSignUpSubmission = async (req: Request, res: Response) => {
-    const { name, email, password } = req.body as {
+    const { name, email, password, role } = req.body as {
         name: string;
         email: string;
         password: string;
+        role: number;
     };
+
+    // Validate role - only allow specific roles for self-registration
+    const allowedRoles = [2, 3, 4, 5]; // Reviewer, User, QA, Developer
+    const userRole = allowedRoles.includes(role) ? role : 3;
+
     const isUserFound = await Users.findOne({
         where: { email: email },
     });
@@ -45,7 +51,7 @@ export const handleSignUpSubmission = async (req: Request, res: Response) => {
             name: name,
             email: email,
             password: userPassword,
-            role: 3,
+            role: userRole,
             email_verification_token: token,
         });
 

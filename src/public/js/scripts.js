@@ -2,6 +2,7 @@ jQuery("#sign-up").on("submit", function (e) {
     e.preventDefault();
     var email = jQuery("#emailInput").val();
     var name = jQuery("#nameInput").val();
+    var role = jQuery("#roleInput").val();
     var newPassword = jQuery("#newPasswordInput").val();
     var confirmPassword = jQuery("#confirmPasswordInput").val();
 
@@ -19,6 +20,12 @@ jQuery("#sign-up").on("submit", function (e) {
             .text("Enter your name");
     }
 
+    if (!role) {
+        jQuery(".error.roleInput")
+            .removeClass("d-none")
+            .text("Select an account type");
+    }
+
     if (!newPassword) {
         jQuery(".error.newPasswordInput")
             .removeClass("d-none")
@@ -31,7 +38,7 @@ jQuery("#sign-up").on("submit", function (e) {
             .text("Enter new password again");
     }
 
-    if (!email || !name || !newPassword || !confirmPassword) {
+    if (!email || !name || !role || !newPassword || !confirmPassword) {
         return;
     }
 
@@ -52,6 +59,7 @@ jQuery("#sign-up").on("submit", function (e) {
         name: name,
         email: email,
         password: newPassword,
+        role: parseInt(role),
     };
     jQuery.ajax({
         type: "POST",

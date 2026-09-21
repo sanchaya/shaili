@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { styled } from "styled-components";
-import { Button, Header, Icon, InfoBox, Loader } from "@adminjs/design-system";
-import { useNavigate } from "react-router-dom";
+import { Button, Header, Icon, InfoBox, Loader, Modal, ModalProps } from "@adminjs/design-system";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCurrentAdmin, useNotice } from "adminjs";
+import EditLetterModal from "../Letters/EditLetterModal.js";
 
 interface ILanguageShowProps {
     record: {
@@ -16,6 +18,7 @@ interface ILanguageShowProps {
 interface ILetter {
     id: number;
     letter: string;
+    unicode: string | null;
     language: string;
     letter_type: number;
 }
@@ -52,6 +55,8 @@ const LanguageShow: React.FC<ILanguageShowProps> = ({ record }) => {
 
     const [loading, setLoading] = useState<boolean>(true);
     const navigate = useNavigate();
+    const [currentAdmin] = useCurrentAdmin();
+    const addNotice = useNotice();
     const language = record.params.language;
     const languageCode = record.params.language_code;
     useEffect(() => {
@@ -128,6 +133,48 @@ const LanguageShow: React.FC<ILanguageShowProps> = ({ record }) => {
         }
     }, [letters, letterTypes]);
 
+    const [modalOpen, setModalOpen] = useState<ILetter | null>(null);
+
+    const openModal = (letter: ILetter) => {
+        setModalOpen(letter);
+    };
+
+    const closeModal = () => {
+        setModalOpen(null);
+    };
+
+    const saveLetter = async (letter: ILetter) => {
+        const data = {
+            id: letter.id,
+            letter: letter.letter,
+            unicode: letter.unicode,
+            language: language,
+            letter_type: letter.letter_type,
+            created_by: Number(currentAdmin?.id),
+            updated_by: Number(currentAdmin?.id),
+            user_defined: false,
+        };
+        try {
+            const response = await axios.post(`${BASE_URL}/edit-letter`, data, {
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response.status == 200) {
+                addNotice({
+                    message: "Letter updated successfully",
+                    type: "success",
+                });
+                closeModal();
+            }
+        } catch (error) {
+            addNotice({
+                message: error.response?.data || "Error updating letter",
+                type: "error",
+            });
+        }
+    };
+
     const handleCreateClick = () => {
         navigate("/admin/resources/letters/actions/new");
     };
@@ -152,7 +199,10 @@ const LanguageShow: React.FC<ILanguageShowProps> = ({ record }) => {
                                 }}
                             >
                                 {groupedLetters[type].map((letter: any) => (
-                                    <LetterDiv key={letter.id}>
+                                    <LetterDiv
+                                        key={letter.id}
+                                        onClick={() => openModal(letter)}
+                                    >
                                         {letter.letter}
                                     </LetterDiv>
                                 ))}
@@ -175,6 +225,13 @@ const LanguageShow: React.FC<ILanguageShowProps> = ({ record }) => {
                             Create Letter
                         </Button>
                     </InfoBox>
+                )}
+                {modalOpen && (
+                    <EditLetterModal
+                        record={{ params: { ...modalOpen, language_code: languageCode } }}
+                        onClose={closeModal}
+                        onSave={() => saveLetter(modalOpen)}
+                    />
                 )}
             </div>
         </>

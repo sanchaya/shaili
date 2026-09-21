@@ -21,6 +21,18 @@ const Components = {
         "EditLetter",
         "./components/Letters/EditLetter"
     ),
+    EditLetterModal: componentLoader.add(
+        "EditLetterModal",
+        "./components/Letters/EditLetterModal"
+    ),
+    ShowLetterModal: componentLoader.add(
+        "ShowLetterModal",
+        "./components/Letters/ShowLetterModal"
+    ),
+    EditLetterTypeModal: componentLoader.add(
+        "EditLetterTypeModal",
+        "./components/LetterTypes/EditLetterTypeModal"
+    ),
     Sidebar: componentLoader.override(
         "Sidebar",
         "./components/Sidebar/Sidebar"
@@ -62,6 +74,10 @@ const Components = {
         "LettersInList",
         "./components/Letters/LettersInList"
     ),
+    LanguageTileList: componentLoader.add(
+        "LanguageTileList",
+        "./components/Letters/LanguageTileList"
+    ),
     LetterTypeInFilter: componentLoader.add(
         "LetterTypeInFilter",
         "./components/LetterTypeInFilter/LetterTypeInFilter"
@@ -69,6 +85,14 @@ const Components = {
     LetterTypeStatus: componentLoader.add(
         "LetterTypeStatus",
         "./components/LetterTypeStatus/LetterTypeStatus"
+    ),
+    LanguageCards: componentLoader.add(
+        "LanguageCards",
+        "./components/LanguageCards/LanguageCards"
+    ),
+    ProfilePage: componentLoader.add(
+        "ProfilePage",
+        "./components/Profile/ProfilePage"
     ),
 };
 

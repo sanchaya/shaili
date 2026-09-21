@@ -23,7 +23,7 @@ export const LetterTypesResource = {
         editProperties: ["type", "language"],
         listProperties: ["type", "language", "status"],
         showProperties: ["type", "language", "created_by", "updated_by"],
-        filterProperties: ["type", "language"],
+        filterProperties: ["type", "language", "status"],
         timestamps: true,
         sort: {
             sortBy: "language",
@@ -65,6 +65,11 @@ export const LetterTypesResource = {
                 components: {
                     list: Components.LetterTypeStatus,
                 },
+                availableValues: [
+                    { value: "", label: "All", placeholder: true },
+                    { value: "true", label: "Active" },
+                    { value: "false", label: "Inactive" },
+                ],
             },
         },
     },

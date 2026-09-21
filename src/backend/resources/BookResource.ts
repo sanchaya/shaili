@@ -5,6 +5,10 @@ import {
     ActionResponse,
     BaseRecord,
     CurrentAdmin,
+    Filter,
+    SortSetter,
+    flat,
+    populator,
 } from "adminjs";
 import { Components, componentLoader } from "../../frontend/components.js";
 import { Books } from "../db/models/Books.js";
@@ -18,7 +22,7 @@ import {
 import csvParser from "csv-parser";
 import fs from "fs";
 import { Languages } from "../db/models/Languages.js";
-import { Op } from "sequelize";
+import sequelize, { Op } from "sequelize";
 
 const isAccessible = (context: ActionContext, role: number[]) => {
     const { currentAdmin } = context;
@@ -120,6 +124,18 @@ const importHandler = async (props) => {
     }
 };
 
+// Helper to get status options
+const getStatusOptions = async () => {
+    const statuses = await BookStatus.findAll({ attributes: ["id", "status"] });
+    const options = [
+        { value: "", label: "Select a status", placeholder: true },
+    ];
+    for (const status of statuses) {
+        options.push({ value: String(status.id), label: status.status, placeholder: false });
+    }
+    return options;
+};
+
 export const BookResource = {
     resource: Books,
     options: {
@@ -129,20 +145,19 @@ export const BookResource = {
         showProperties: properties,
         filterProperties: properties,
         timestamps: true,
+        sort: {
+            sortBy: "language",
+            direction: "asc",
+        },
         properties: {
             status: {
                 position: 1,
                 availableValues: [
                     { value: "", label: "Select a status", placeholder: true },
-                    ...(
-                        await BookStatus.findAll({
-                            attributes: ["id", "status"],
-                        })
-                    ).map((status) => ({
-                        value: status.id,
-                        label: status.status,
-                    })),
                 ],
+            },
+            language: {
+                reference: "languages",
             },
         },
         actions: {
@@ -175,6 +190,59 @@ export const BookResource = {
             bulkDelete: {
                 isAccessible: false,
             },
+            list: {
+handler: async (request: {
+                    filter?: any;
+                    pagination?: any;
+                    meta?: { sortBy?: string; sortDir?: "asc" | "desc" };
+                }): Promise<{
+                    resources: any[];
+                    total: number;
+                }> => {
+                    const { filter, pagination, meta } = request;
+                    const { sortBy, sortDir } = meta || {};
+
+                    // Status priority: Completed (4) and In Progress (2) first
+                    const statusPriority = sequelize.literal(
+                        "CASE status WHEN 4 THEN 0 WHEN 2 THEN 1 WHEN 3 THEN 2 ELSE 3 END"
+                    );
+
+                    let order: any[] = [];
+
+                    if (!sortBy) {
+                        // Default: status priority first, then language ASC
+                        order.push([statusPriority, "ASC"]);
+                        order.push(["language", "ASC"]);
+                    } else {
+                        // User clicked a column: use that sort purely
+                        order.push([sortBy, sortDir || "ASC"]);
+                    }
+
+                    // Build where clause from filter
+                    const where: any = {};
+                    if (filter) {
+                        if (filter.status) {
+                            where.status = filter.status;
+                        }
+                        if (filter.language) {
+                            where.language = filter.language;
+                        }
+                    }
+
+                    const offset = pagination?.offset || 0;
+                    const limit = pagination?.perPage || 20;
+
+                    const { count, rows: resources } = await Books.findAndCountAll({
+                        where,
+                        order,
+                        limit,
+                        offset,
+                    });
+
+                    return { resources, total: count };
+                },
+                isAccessible: (_: any, __: any) => true,
+            },
             ViewBook: {
                 actionType: "record",
                 component: Components.ViewBook,
@@ -195,5 +263,9 @@ export const BookResource = {
             },
         },
     },
-    features: [importExportFeature({ componentLoader })],
+    // Initialize status options after AdminJS is ready
+    async afterInit() {
+        const statusOptions = await getStatusOptions();
+        this.options.properties.status.availableValues = statusOptions;
+    }
 };

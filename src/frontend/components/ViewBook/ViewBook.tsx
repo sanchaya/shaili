@@ -139,6 +139,44 @@ const LanguageContainer = styled.div`
     align-items: center;
     justify-content: flex-end;
 `;
+
+const BookMetadata = styled.div`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: center;
+    background: #fff;
+    box-shadow: 0px 2px 2px 1px #ccc;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+`;
+
+const BookTitle = styled.h2`
+    font-size: 18px;
+    font-weight: 600;
+    color: #0c1e29;
+    margin: 0;
+    flex: 1 1 100%;
+`;
+
+const BookMetaItem = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+`;
+
+const BookMetaLabel = styled.span`
+    font-size: 11px;
+    color: #898a9a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+`;
+
+const BookMetaValue = styled.span`
+    font-size: 14px;
+    color: #0c1e29;
+    font-weight: 500;
+`;
 interface IViewBookProps {
     record: {
         params: {
@@ -163,10 +201,7 @@ interface ILetterTypes {
 const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
     const language = record.params.language;
     const bookUrl = record.params.url;
-    let splitUrl = bookUrl.split("/");
-    let lastPart = splitUrl[splitUrl.length - 1];
-    const bookIdentifier =
-        `${lastPart}/` + encodeURIComponent(record.params.identifier);
+    const bookIdentifier = record.params.identifier;
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const bookId = record.params.id;
     const [loading, setLoading] = useState(true);
@@ -179,6 +214,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
     const [letterTypes, setLetterTypes] = useState<ILetterTypes[]>([]);
     const [languages, setLanguages] = useState<any>(null);
     const [selectedLanguage, setSelectedLanguage] = useState(language);
+    const [bookInfo, setBookInfo] = useState<any>(null);
 
     useEffect(() => {
         axios
@@ -190,6 +226,16 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                 loadImage(currentPage);
             });
         getLetterTypes();
+        axios
+            .get(`${BASE_URL}/book-info`, {
+                params: { identifier: bookIdentifier },
+            })
+            .then((response) => {
+                setBookInfo(response.data);
+            })
+            .catch((error) => {
+                console.error("Error fetching book info:", error);
+            });
     }, []);
 
     const loadImage = (page: number) => {
@@ -282,6 +328,73 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             <ProgressBar />
                         </BookProgressProvider>
                     </ProgressWrap>
+                    <BookMetadata>
+                        <BookTitle>
+                            {bookInfo?.name || record.params.name}
+                        </BookTitle>
+                        {bookInfo?.author_name && (
+                            <BookMetaItem>
+                                <BookMetaLabel>Author</BookMetaLabel>
+                                <BookMetaValue>
+                                    {bookInfo.author_name}
+                                </BookMetaValue>
+                            </BookMetaItem>
+                        )}
+                        <BookMetaItem>
+                            <BookMetaLabel>Language</BookMetaLabel>
+                            <BookMetaValue>{selectedLanguage}</BookMetaValue>
+                        </BookMetaItem>
+                        {(bookInfo?.publisher_name || record.params.publisher_name) && (
+                            <BookMetaItem>
+                                <BookMetaLabel>Publisher</BookMetaLabel>
+                                <BookMetaValue>
+                                    {bookInfo?.publisher_name ||
+                                        record.params.publisher_name}
+                                </BookMetaValue>
+                            </BookMetaItem>
+                        )}
+                        {bookInfo?.publisher_city && (
+                            <BookMetaItem>
+                                <BookMetaLabel>Publisher City</BookMetaLabel>
+                                <BookMetaValue>
+                                    {bookInfo.publisher_city}
+                                </BookMetaValue>
+                            </BookMetaItem>
+                        )}
+                        {(bookInfo?.published_year || record.params.published_year) && (
+                            <BookMetaItem>
+                                <BookMetaLabel>Published Year</BookMetaLabel>
+                                <BookMetaValue>
+                                    {bookInfo?.published_year ||
+                                        record.params.published_year}
+                                </BookMetaValue>
+                            </BookMetaItem>
+                        )}
+                        {bookInfo?.printer_name && (
+                            <BookMetaItem>
+                                <BookMetaLabel>Printer</BookMetaLabel>
+                                <BookMetaValue>
+                                    {bookInfo.printer_name}
+                                </BookMetaValue>
+                            </BookMetaItem>
+                        )}
+                        {bookInfo?.printer_location && (
+                            <BookMetaItem>
+                                <BookMetaLabel>Printer Location</BookMetaLabel>
+                                <BookMetaValue>
+                                    {bookInfo.printer_location}
+                                </BookMetaValue>
+                            </BookMetaItem>
+                        )}
+                        <BookMetaItem>
+                            <BookMetaLabel>Identifier</BookMetaLabel>
+                            <BookMetaValue>{bookIdentifier}</BookMetaValue>
+                        </BookMetaItem>
+                        <BookMetaItem>
+                            <BookMetaLabel>Total Pages</BookMetaLabel>
+                            <BookMetaValue>{totalPages}</BookMetaValue>
+                        </BookMetaItem>
+                    </BookMetadata>
                     <NavWrap>
                         <NavWrapLeft>
                             <GoToPage className="goToInput">

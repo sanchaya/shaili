@@ -67,6 +67,8 @@ interface IFilterProps {
     setPublishedYear: Dispatch<SetStateAction<string | undefined>>;
     setSelectedBookData: Dispatch<SetStateAction<IBooks[] | undefined>>;
     setLocalComments: Dispatch<SetStateAction<Comments[] | undefined>>;
+    selectedLanguage?: string;
+    setSelectedLanguage: Dispatch<SetStateAction<string | undefined>>;
 }
 
 const CustomSelect = styled(Select)`
@@ -89,6 +91,8 @@ const FilterDrawer = ({
     setPublishedYear,
     setSelectedBookData,
     setLocalComments,
+    selectedLanguage,
+    setSelectedLanguage,
 }: IFilterProps) => {
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const [letters, setLetters] = useState<any>();
@@ -157,7 +161,8 @@ const FilterDrawer = ({
         axios.get(`${BASE_URL}/get-letters`).then((response) => {
             setLetters(response.data);
         });
-        axios.get(`${BASE_URL}/get-books`).then(async (response) => {
+        // Use get-books-with-tags to only show books with extracted characters
+        axios.get(`${BASE_URL}/get-books-with-tags`).then(async (response) => {
             setBooks(response.data);
             setFilteredBooksData(response.data);
 
@@ -198,6 +203,55 @@ const FilterDrawer = ({
             setPublishedYear(undefined);
         }
     }, []);
+
+    const handleLanguageChange = async (selectedLang) => {
+        if (!selectedLang) {
+            // Reset to all books
+            setFilteredBooksData(books);
+            const Books = books?.map((book) => ({
+                value: book.id,
+                label: book.name,
+            }));
+            setBookOptions(Books);
+            setSelectedLanguage(undefined);
+            return;
+        }
+
+        const filteredBooks = books?.filter(
+            (book) => book.language === selectedLang.value
+        );
+        setFilteredBooksData(filteredBooks);
+
+        const Books = filteredBooks?.map((book) => ({
+            value: book.id,
+            label: book.name,
+        }));
+        setBookOptions(Books);
+
+        // Update filter options based on filtered books
+        const PublishedYear = await calculateUniqueValues(
+            filteredBooks || [],
+            "published_year"
+        );
+        const PrinterName = await calculateUniqueValues(
+            filteredBooks || [],
+            "printer_name"
+        );
+        const PrinterLocation = await calculateUniqueValues(
+            filteredBooks || [],
+            "printer_location"
+        );
+
+        setPrinterNameOptions(PrinterName as IBookOptions[]);
+        setPrinterLocationOptions(PrinterLocation as IBookOptions[]);
+        setPublishedYearOptions(PublishedYear as IBookOptions[]);
+
+        setSelectedLanguage(selectedLang);
+        setPrinterLocation(undefined);
+        setPrinterName(undefined);
+        setPublishedYear(undefined);
+        setCompareBook(null);
+    };
 
     const handleLocationChange = async (selectedLocation) => {
         if (publishedYear == undefined && printerName === undefined) {
@@ -535,6 +589,7 @@ const FilterDrawer = ({
         setPrinterLocation(undefined);
         setPrinterName(undefined);
         setPublishedYear(undefined);
+        setSelectedLanguage(undefined);
         setShowFilter(false);
     };
     return (
@@ -555,6 +610,22 @@ const FilterDrawer = ({
                 </Box>
                 <Box my="x3">
                     <FormGroup>
+                        <Label style={{ textAlign: "left" }}>Language</Label>
+                        <CustomSelect
+                            isDisabled={compareLoading}
+                            isClearable={true}
+                            value={selectedLanguage}
+                            options={languageOptions?.map((lang) => ({
+                                value: lang.language_code,
+                                label: lang.language,
+                            }))}
+                            onChange={(newValue) => {
+                                handleLanguageChange(newValue);
+                            }}
+                            placeholder="All languages"
+                        />
+                    </FormGroup>
+                    <FormGroup>
                         <Label style={{ textAlign: "left" }}>
                             Published year
                         </Label>
@@ -566,7 +637,7 @@ const FilterDrawer = ({
                             onChange={(newValue) => {
                                 handleYearChange(newValue);
                             }}
-                            placeholder="Select a publised year"
+                            placeholder="Select a published year"
                         />
                     </FormGroup>
                     <FormGroup>

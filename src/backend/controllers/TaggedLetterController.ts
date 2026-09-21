@@ -230,13 +230,17 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
             attributes: ["language"],
         });
 
+        // Only count these letter types for the progress percentage to avoid
+        // too many uncertain combinations (Custom Symbols, Compounds excluded).
+        const progressLetterTypeFilter = sequelize.literal(
+            `(SELECT id FROM letter_types WHERE status = true AND type IN ('Vowels', 'Consonants', 'Conjuncts', 'Numerals', 'Special Symbols'))`
+        );
+
         const totalLettersQuery = await Letters.count({
             where: {
                 language: bookLanguage?.dataValues.language,
                 letter_type: {
-                    [Op.in]: sequelize.literal(
-                        `(SELECT id FROM letter_types WHERE status = true)`
-                    ),
+                    [Op.in]: progressLetterTypeFilter,
                 },
             },
         });
@@ -255,9 +259,7 @@ const calculateTagPercentage = async (req: Request, res: Response) => {
             where: {
                 language: bookLanguage?.dataValues.language,
                 letter_type: {
-                    [Op.in]: sequelize.literal(
-                        `(SELECT id FROM letter_types WHERE status = true)`
-                    ),
+                    [Op.in]: progressLetterTypeFilter,
                 },
             },
         });

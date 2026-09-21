@@ -23,6 +23,8 @@ import { buildActionClickHandler } from "./build-action-click-handler.js";
 import { actionsToButtonGroup } from "./actions-to-button-group.js";
 import { getResourceElementCss } from "./data-css-name.js";
 import { display } from "./display.js";
+import EditLetterModal from "../Letters/EditLetterModal.js";
+import EditLetterTypeModal from "../LetterTypes/EditLetterTypeModal.js";
 
 export type RecordInListProps = {
     resource: ResourceJSON;
@@ -47,6 +49,8 @@ const RecordInList: React.FC<RecordInListProps> = (props) => {
     const location = useLocation();
     const translateFunctions = useTranslation();
     const modalFunctions = useModal();
+
+    const [modalOpen, setModalOpen] = useState<RecordJSON | null>(null);
 
     const handleActionCallback = useCallback(
         (actionResponse: ActionResponse) => {
@@ -91,6 +95,20 @@ const RecordInList: React.FC<RecordInListProps> = (props) => {
         const targetTagName = (
             event.target as HTMLElement
         ).tagName.toLowerCase();
+
+        // Open a modal popup for letters and letter_types instead of navigating
+        if (
+            (resource.id === "letters" || resource.id === "letter_types") &&
+            targetTagName !== "a" &&
+            targetTagName !== "button" &&
+            targetTagName !== "svg"
+        ) {
+            event.preventDefault();
+            event.stopPropagation();
+            setModalOpen(record);
+            return;
+        }
+
         if (
             action &&
             targetTagName !== "a" &&
@@ -142,12 +160,13 @@ const RecordInList: React.FC<RecordInListProps> = (props) => {
     ];
     const contentTag = getResourceElementCss(resource.id, "table-row");
     return (
-        <TableRow
-            className={isSelected ? "selected" : "not-selected"}
-            onClick={handleClick}
-            data-id={record.id}
-            data-css={contentTag}
-        >
+        <>
+            <TableRow
+                className={isSelected ? "selected" : "not-selected"}
+                onClick={handleClick}
+                data-id={record.id}
+                data-css={contentTag}
+            >
             <TableCell width={0}>
                 {onSelect && record.bulkActions.length ? (
                     <CheckBox
@@ -185,7 +204,22 @@ const RecordInList: React.FC<RecordInListProps> = (props) => {
                     <ButtonGroup buttons={buttons} />
                 ) : null}
             </TableCell>
-        </TableRow>
+            </TableRow>
+            {modalOpen &&
+                (resource.id === "letters" ? (
+                    <EditLetterModal
+                        record={modalOpen}
+                        onClose={() => setModalOpen(null)}
+                        onSave={() => setModalOpen(null)}
+                    />
+                ) : resource.id === "letter_types" ? (
+                    <EditLetterTypeModal
+                        record={modalOpen}
+                        onClose={() => setModalOpen(null)}
+                        onSave={() => setModalOpen(null)}
+                    />
+                ) : null)}
+        </>
     );
 };
 

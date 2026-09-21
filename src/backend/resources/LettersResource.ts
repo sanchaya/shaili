@@ -2,6 +2,7 @@ import { Letters } from "../db/models/Letters.js";
 import importExportFeature from "@adminjs/import-export";
 import { Components, componentLoader } from "../../frontend/components.js";
 import { menu } from "../../common/menu.js";
+import LettersGroupedList from "../../frontend/components/Letters/LettersGroupedList.js";
 import {
     ActionContext,
     ActionQueryParameters,
@@ -154,7 +155,11 @@ export const LetterResource = {
             "created_by",
             "updated_by",
         ],
-        filterProperties: ["letter", "unicode", "letter_type", "user_defined"],
+        filterProperties: ["letter", "unicode", "language", "letter_type", "user_defined"],
+        sort: {
+            sortBy: "language",
+            direction: "asc",
+        },
         actions: {
             bulkDelete: { isAccessible: false },
             list: {
@@ -327,6 +332,13 @@ export const LetterResource = {
                 components: {
                     filter: Components.LetterTypeInFilter,
                 },
+            },
+            user_defined: {
+                availableValues: [
+                    { value: "", label: "All", placeholder: true },
+                    { value: "0", label: "System Defined" },
+                    { value: "1", label: "User Defined" },
+                ],
             },
         },
     },

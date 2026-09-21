@@ -1,1 +1,1 @@
-const BASE_URL = "http://localhost:8000/admin";
+const BASE_URL = "https://shaili.sanchaya.net/admin/";
