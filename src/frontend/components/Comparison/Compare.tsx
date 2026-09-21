@@ -328,8 +328,9 @@ const Compare = ({ languageCode }: CompareProps) => {
         if (loc) filtered = filtered.filter((b) => b.printer_location === loc.value);
         if (year) filtered = filtered.filter((b) => b.published_year === year.value);
         setBookOptions(sortOptions(filtered.map((b) => ({ value: b.id, label: b.name }))));
-        setPrinterLocationOptions(await calcUnique(filtered, "printer_location"));
-        setPublishedYearOptions(await calcUnique(filtered, "published_year"));
+        setPrinterNameOptions(await calcUnique(applyActiveFilters(null, loc, year), "printer_name"));
+        setPrinterLocationOptions(await calcUnique(applyActiveFilters(val, null, year), "printer_location"));
+        setPublishedYearOptions(await calcUnique(applyActiveFilters(val, loc, null), "published_year"));
         setCompareBook(null);
     };
 
@@ -342,8 +343,9 @@ const Compare = ({ languageCode }: CompareProps) => {
         if (val) filtered = filtered.filter((b) => b.printer_location === val.value);
         if (year) filtered = filtered.filter((b) => b.published_year === year.value);
         setBookOptions(sortOptions(filtered.map((b) => ({ value: b.id, label: b.name }))));
-        setPrinterNameOptions(await calcUnique(filtered, "printer_name"));
-        setPublishedYearOptions(await calcUnique(filtered, "published_year"));
+        setPrinterNameOptions(await calcUnique(applyActiveFilters(null, val, year), "printer_name"));
+        setPrinterLocationOptions(await calcUnique(applyActiveFilters(name, null, year), "printer_location"));
+        setPublishedYearOptions(await calcUnique(applyActiveFilters(name, val, null), "published_year"));
         setCompareBook(null);
     };
 
@@ -356,9 +358,18 @@ const Compare = ({ languageCode }: CompareProps) => {
         if (loc) filtered = filtered.filter((b) => b.printer_location === loc.value);
         if (val) filtered = filtered.filter((b) => b.published_year === val.value);
         setBookOptions(sortOptions(filtered.map((b) => ({ value: b.id, label: b.name }))));
-        setPrinterNameOptions(await calcUnique(filtered, "printer_name"));
-        setPrinterLocationOptions(await calcUnique(filtered, "printer_location"));
+        setPrinterNameOptions(await calcUnique(applyActiveFilters(name, null, val), "printer_name"));
+        setPrinterLocationOptions(await calcUnique(applyActiveFilters(null, loc, val), "printer_location"));
+        setPublishedYearOptions(await calcUnique(applyActiveFilters(name, loc, null), "published_year"));
         setCompareBook(null);
+    };
+
+    const applyActiveFilters = (name: IBookOptions | null, loc: IBookOptions | null, year: IBookOptions | null) => {
+        let filtered = books;
+        if (name) filtered = filtered.filter((b) => b.printer_name === name.value);
+        if (loc) filtered = filtered.filter((b) => b.printer_location === loc.value);
+        if (year) filtered = filtered.filter((b) => b.published_year === year.value);
+        return filtered;
     };
 
     const getIdLanguage = (id: number) => {

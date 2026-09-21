@@ -60,13 +60,13 @@ const CardBody = styled.div`
     padding: 0;
 `;
 
-const Flex = styled.div`
+const Flex = styled.div<{$justify?: string; $align?: string; $gap?: string; $wrap?: boolean}>`
     display: flex;
-    ${({ justify, align, gap, wrap }) => `
-        ${justify ? `justify-content: ${justify};` : ''}
-        ${align ? `align-items: ${align};` : ''}
-        ${gap ? `gap: ${gap};` : ''}
-        ${wrap ? `flex-wrap: wrap;` : ''}
+    ${({ $justify, $align, $gap, $wrap }) => `
+        ${$justify ? `justify-content: ${$justify};` : ''}
+        ${$align ? `align-items: ${$align};` : ''}
+        ${$gap ? `gap: ${$gap};` : ''}
+        ${$wrap ? `flex-wrap: wrap;` : ''}
     `}
 `;
 
@@ -77,7 +77,7 @@ interface IDashboardStats {
         total_letters: number;
         total_books: number;
     };
-    books_by_status: Array<{ status: string; count: number }>;
+    books_by_status: Array<{ status_id: number; status: string; count: number }>;
     books_by_language: Array<{ language: string; count: number }>;
     recent_books: Array<{ id: number; name: string; language: string; status: number; created_at: string }>;
     languages: Array<{
@@ -104,6 +104,7 @@ const Dashboard = () => {
     const [stats, setStats] = useState<IDashboardStats | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [showAllLangs, setShowAllLangs] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -145,9 +146,13 @@ const Dashboard = () => {
 
     const formatNumber = (num: number) => num.toLocaleString();
 
+    const langNameMap = Object.fromEntries(
+        stats.languages.map((l) => [l.language_code, l.language])
+    );
+
     return (
         <Box style={{ width: '100%', maxWidth: '1400px', margin: '0 auto', padding: '24px' }}>
-            <Flex justify="space-between" align="center" style={{ marginBottom: '32px' }}>
+            <Flex $justify="space-between" $align="center" style={{ marginBottom: '32px' }}>
                 <Text weight="bold" style={{ fontSize: '24px' }}>Dashboard</Text>
                 <Text size="sm" color="secondary">
                     Last updated: {new Date().toLocaleString()}
@@ -178,7 +183,7 @@ const Dashboard = () => {
                 </DashboardItem>
             </DashboardContainer>
 
-            <Flex gap="xl" style={{ marginBottom: '32px' }} wrap>
+            <Flex $gap="xl" style={{ marginBottom: '32px' }} $wrap>
                 {/* Books by Status */}
                 <Card style={{ flex: 1, minWidth: '300px' }}>
                     <CardHeader>Books by Status</CardHeader>
@@ -192,7 +197,7 @@ const Dashboard = () => {
                             </TableHead>
                             <TableBody>
                                 {stats.books_by_status.map((item, idx) => (
-                                    <TableRow key={idx}>
+                                    <TableRow key={idx} onClick={() => navigate(`/admin/resources/books?filters.status=${item.status_id}`)} style={{ cursor: 'pointer' }}>
                                         <TableCell>
                                             <Badge variant="info" style={{ marginRight: '8px' }}>{item.status}</Badge>
                                         </TableCell>
@@ -224,11 +229,11 @@ const Dashboard = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {stats.books_by_language.slice(0, 8).map((item, idx) => (
-                                    <TableRow key={idx}>
+                                {stats.books_by_language.slice(0, showAllLangs ? 10 : 3).map((item, idx) => (
+                                    <TableRow key={idx} onClick={() => navigate(`/admin/resources/books?filters.language=${item.language}`)} style={{ cursor: 'pointer' }}>
                                         <TableCell>
-                                            <Flex align="center" gap="sm">
-                                                <Badge variant="primary">{item.language}</Badge>
+                                            <Flex $align="center" $gap="sm">
+                                                <Badge variant="secondary">{langNameMap[item.language] || item.language}</Badge>
                                             </Flex>
                                         </TableCell>
                                         <TableCell style={{ textAlign: 'right', fontWeight: 600 }}>
@@ -238,11 +243,22 @@ const Dashboard = () => {
                                 ))}
                             </TableBody>
                         </Table>
+                        {stats.books_by_language.length > 3 && (
+                            <Box style={{ padding: '8px 12px', textAlign: 'center' }}>
+                                <Text
+                                    size="sm"
+                                    style={{ color: '#3b82f6', cursor: 'pointer', fontWeight: 500 }}
+                                    onClick={() => setShowAllLangs(!showAllLangs)}
+                                >
+                                    {showAllLangs ? 'Show less' : `Show all (${stats.books_by_language.length})`}
+                                </Text>
+                            </Box>
+                        )}
                     </CardBody>
                 </Card>
             </Flex>
 
-            <Flex gap="xl" wrap>
+            <Flex $gap="xl" $wrap>
                 {/* Recently Added Books */}
                 <Card style={{ flex: 1, minWidth: '400px', flexGrow: 1 }}>
                     <CardHeader>Recently Added Books</CardHeader>
@@ -267,7 +283,7 @@ const Dashboard = () => {
                                     stats.recent_books.map((book, idx) => (
                                         <TableRow key={idx}>
                                             <TableCell>
-                                                <Flex align="center" gap="sm">
+                                                <Flex $align="center" $gap="sm">
                                                     <Text weight="medium" style={{ maxWidth: '250px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
                                                         {book.name}
                                                     </Text>
@@ -277,7 +293,7 @@ const Dashboard = () => {
                                                 </Flex>
                                             </TableCell>
                                             <TableCell>
-                                                <Badge variant="primary">{book.language}</Badge>
+                                                <Badge variant="secondary">{book.language}</Badge>
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant="info">{book.status}</Badge>
@@ -313,9 +329,9 @@ const Dashboard = () => {
                                     .sort((a, b) => b.books_count - a.books_count)
                                     .slice(0, 15)
                                     .map((lang, idx) => (
-                                        <TableRow key={idx} onClick={() => navigate(`/admin/resources/languages/records/${lang.language_code}`)} style={{ cursor: 'pointer' }}>
+                                        <TableRow key={idx} onClick={() => navigate(`/admin/resources/books?filters.language=${lang.language_code}`)} style={{ cursor: 'pointer' }}>
                                             <TableCell>
-                                                <Flex align="center" gap="sm">
+                                                <Flex $align="center" $gap="sm">
                                                     <Text weight="medium">{lang.language}</Text>
                                                     <Text size="xs" color="secondary">({lang.language_code})</Text>
                                                 </Flex>
@@ -347,7 +363,7 @@ const Dashboard = () => {
                 </CardHeader>
                 <CardBody>
                     <Box style={{ padding: '24px' }}>
-                        <Flex justify="space-between" align="center" wrap gap="lg">
+                        <Flex $justify="space-between" $align="center" $wrap $gap="lg">
                             <div>
                                 <Text weight="bold" style={{ fontSize: '16px', marginBottom: '8px' }}>
                                     Help us improve Indian language text extraction

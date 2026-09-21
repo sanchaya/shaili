@@ -24,7 +24,7 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
         handleSelect,
         handleSelectAll,
         setSelectedRecords,
-    } = useSelectedRecords(records)
+    } = useSelectedRecords(records || [])
     
     const location = useLocation()
     const { storeParams, filters, clearParams } = useQueryParams()
@@ -122,17 +122,19 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
                     </Text>
                 </Box>
             )}
-            <RecordsTable
-                resource={resource}
-                records={records}
-                actionPerformed={handleActionPerformed}
-                onSelect={handleSelect}
-                onSelectAll={handleSelectAll}
-                selectedRecords={selectedRecords}
-                direction={direction}
-                sortBy={sortBy}
-                isLoading={loading}
-            />
+            {records && (
+                <RecordsTable
+                    resource={resource}
+                    records={records}
+                    actionPerformed={handleActionPerformed}
+                    onSelect={handleSelect}
+                    onSelectAll={handleSelectAll}
+                    selectedRecords={selectedRecords}
+                    direction={direction}
+                    sortBy={sortBy}
+                    isLoading={loading}
+                />
+            )}
             <Text mt="xl" textAlign="center">
                 <Pagination
                     page={page}

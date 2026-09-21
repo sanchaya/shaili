@@ -91,6 +91,7 @@ Languages.init(
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
+            primaryKey: false,
         },
         alt_lang_code: {
             type: DataTypes.STRING,

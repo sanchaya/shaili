@@ -57,7 +57,6 @@ Letters.init(
         unicode: {
             type: new DataTypes.STRING(),
             allowNull: true,
-            unique: true,
         },
         letter_type: {
             type: new DataTypes.INTEGER(),

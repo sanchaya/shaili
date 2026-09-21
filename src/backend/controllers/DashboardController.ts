@@ -105,6 +105,7 @@ const getDashboardStats = async (req: Request, res: Response) => {
         const statusNames = Object.fromEntries(statusMap.map(s => [s.id, s.status]));
 
         const booksByStatusFormatted = booksByStatus.map((b: any) => ({
+            status_id: b.status,
             status: statusNames[b.status] || `Status ${b.status}`,
             count: parseInt(b.count)
         }));

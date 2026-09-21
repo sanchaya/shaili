@@ -47,6 +47,24 @@ const CompareItem = styled.div`
     }
 `;
 
+const ToggleWrapper = styled.label`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #374151;
+    white-space: nowrap;
+    margin-left: auto;
+`;
+
+const ToggleInput = styled.input`
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+`;
+
 interface ILanguage {
     id: number;
     language: string;
@@ -58,6 +76,7 @@ const Comparison = () => {
     const [languages, setLanguages] = useState<ILanguage[]>([]);
     const [selectedLanguage, setSelectedLanguage] = useState<IBookOptions | null>(null);
     const [loading, setLoading] = useState(true);
+    const [hideUntagged, setHideUntagged] = useState(false);
 
     useEffect(() => {
         axios.get(`${BASE_URL}/get-languages`).then((response) => {
@@ -85,6 +104,14 @@ const Comparison = () => {
                     onChange={(val) => setSelectedLanguage(val)}
                     placeholder="Select a language to compare..."
                 />
+                <ToggleWrapper>
+                    <ToggleInput
+                        type="checkbox"
+                        checked={hideUntagged}
+                        onChange={(e) => setHideUntagged(e.target.checked)}
+                    />
+                    Hide untagged characters
+                </ToggleWrapper>
             </TopBar>
             <CompareContainer>
                 <CompareItem style={{ position: "relative" }}>
