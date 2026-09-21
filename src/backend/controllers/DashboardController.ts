@@ -28,6 +28,18 @@ const getBooks = async (req: Request, res: Response) => {
 
 const getBooksWithTags = async (req: Request, res: Response) => {
     try {
+        const { language } = req.query;
+        const where: any = {
+            id: {
+                [Op.in]: sequelize.literal(
+                    `(SELECT DISTINCT book_id FROM tagged_letters)`
+                ),
+            },
+            status: { [Op.in]: [2, 4] }, // In Progress or Completed
+        };
+        if (language) {
+            where.language = language;
+        }
         const books = await Books.findAll({
             attributes: [
                 "id",
@@ -38,13 +50,8 @@ const getBooksWithTags = async (req: Request, res: Response) => {
                 "printer_location",
                 "published_year",
             ],
-            where: {
-                id: {
-                    [Op.in]: sequelize.literal(
-                        `(SELECT DISTINCT book_id FROM tagged_letters)`
-                    ),
-                },
-            },
+            where,
+            order: [["name", "ASC"]],
         });
         return res.status(200).send(books);
     } catch (error) {
