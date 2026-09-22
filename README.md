@@ -39,6 +39,7 @@ Working from digitized books — many printed in the 19th century by the mission
 | ORM | Sequelize 6.x |
 | Frontend | React 18, React Router 6, styled-components 6 |
 | Design System | @adminjs/design-system |
+| OCR (Autopilot) | tesseract.js 5, loaded in the browser from jsDelivr |
 | Template Engine | Edge.js 6.x |
 | Password Hashing | Argon2 |
 | Session | express-session + express-mysql-session |
@@ -52,7 +53,7 @@ Working from digitized books — many printed in the 19th century by the mission
 
 - Node.js >= 18
 - MySQL >= 5.7
-- npm or pnpm
+- npm, plus pnpm for `npm run build` (the build script calls `pnpm`), or use the npm-only commands below
 
 ### Installation
 
@@ -83,12 +84,29 @@ The admin panel will be available at `http://localhost:8000/admin`.
 ### Build & Production
 
 ```bash
-# Build TypeScript and copy assets
+# Build TypeScript and copy assets (needs pnpm)
 npm run build
+
+# ...or the same steps with npm only
+npm run clean && npx tsc && npm run copy-files && npm run copy-env
 
 # Start production server
 npm start
 ```
+
+In production the app runs from `dist/` under PM2 (`pm2 restart type-extract` after a build).
+
+### Updating an Existing Install
+
+```bash
+git pull
+npm install
+npm run migrate:up     # apply any new migrations before restarting
+npm run build          # or the npm-only build above
+pm2 restart type-extract
+```
+
+After a build, `node dist/frontend/components/AutoTag/glyphs.check.js` runs the Autopilot self-check (letter finding, grouping, script detection, crop regions).
 
 ### Database Setup
 
@@ -144,7 +162,7 @@ src/
 │   └── utils/                    # Utility functions
 ├── frontend/
 │   ├── components.ts             # AdminJS component registrations
-│   ├── components/               # React components (28 modules)
+│   ├── components/               # React components (AutoTag/ = Autopilot panel + glyph segmentation)
 │   ├── context/                  # React context providers
 │   └── views/                    # Edge.js server-rendered views
 └── public/                       # Static assets (CSS, JS, images)
@@ -179,6 +197,7 @@ Letters ──belongsTo──> Languages
 TaggedLetters ──belongsTo──> Letters
 TaggedLetters ──belongsTo──> Books
 Books ──belongsTo──> BookStatus
+BookPageRotations ──> Books (book_id, cascade delete)
 Comments ──belongsTo──> Books
 Comments ──belongsTo──> Users
 ```
@@ -218,8 +237,8 @@ Comments ──belongsTo──> Users
 | GET | `/admin/get-letters` | List all active letters |
 | GET | `/admin/get-lettertypes` | List all active letter types |
 | GET | `/admin/get-languages` | List all languages |
-| GET | `/admin/tagged-letter` | Get tagged letters for a book |
-| POST | `/admin/save-tag` | Save a new letter tag |
+| GET | `/admin/tagged-letter` | Get tagged letters for a book (includes `page` and `box_*` source fields) |
+| POST | `/admin/save-tag` | Save a new letter tag: `{ book_id, letter_id, tagged_by, croppedImage, page?, box?: { x, y, w, h } }` |
 | DELETE | `/admin/delete-tag` | Delete a tagged letter |
 | POST | `/admin/update-tag` | Update a tag's letter assignment |
 | GET | `/admin/get-tagged-percentage` | Get tagging progress (see Workflow → Track) |
