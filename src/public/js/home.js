@@ -96,7 +96,7 @@
   }
 
   function setupTypePagination() {
-    var grid = document.querySelector(".type-grid");
+    var grid = document.querySelector("#letter-samples .type-grid");
     if (!grid) return;
     var cards = Array.prototype.slice.call(grid.querySelectorAll(".type-card"));
     var perPage = 8;

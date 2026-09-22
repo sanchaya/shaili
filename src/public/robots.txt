@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Allow: /admin/signup
+Disallow: /admin/
+
+Sitemap: https://shaili.sanchaya.net/sitemap.xml
