@@ -15,7 +15,7 @@ const UserEditAction: FC<ActionProps> = (props) => {
     const mapper = (property: BasePropertyJSON) => {
         if (
             property.name === "role" &&
-            (currentAdmin?.role === 2 || currentAdmin?.role === 3)
+            currentAdmin?.role !== 1
         ) {
             property.props = { className: "disabled-role" };
             property.availableValues = null;

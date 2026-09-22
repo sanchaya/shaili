@@ -14,43 +14,50 @@ import { Letters } from "../db/models/Letters.js";
 import Users from "../db/models/Users.js";
 import UserRoles from "../db/models/UserRoles.js";
 import RolePermissions from "../db/models/RolePermissions.js";
+import { clearPermissionCache } from "../utils/permissions.js";
 
 const AdminRouter = express.Router();
 
-AdminRouter.get("/total-pages", RetriveBookImageController.getTotalPages);
-AdminRouter.get("/fetch-page", RetriveBookImageController.renderImage);
-AdminRouter.post("/prefetch-pages", RetriveBookImageController.prefetchBookPages);
-AdminRouter.get("/book-info", RetriveBookImageController.getBookInfo);
-AdminRouter.get("/tagged-letter", TaggedLetterController.getTaggedLetter);
-AdminRouter.get("/get-letters", TaggedLetterController.getLetters);
-AdminRouter.get("/get-lettertypes", TaggedLetterController.getLetterTypes);
-AdminRouter.post("/save-tag", TaggedLetterController.saveTag);
-AdminRouter.delete("/delete-tag", TaggedLetterController.deleteTaggedLetter);
-AdminRouter.post("/update-tag", TaggedLetterController.updateTag);
-AdminRouter.get("/get-languages", CreateLetterController.getLanguages);
-AdminRouter.post("/add-letter", CreateLetterController.addUserDefinedLetter);
-AdminRouter.post("/new-letter", CreateLetterController.addLetter);
-AdminRouter.post("/edit-letter", CreateLetterController.editLetter);
-AdminRouter.get("/get-books", DashboardController.getBooks);
-AdminRouter.get("/get-books-with-tags", DashboardController.getBooksWithTags);
-AdminRouter.get("/get-tagged-letters", TaggedLetterController.getTaggedLetterByUser);
-AdminRouter.get("/get-tagged-percentage", TaggedLetterController.calculateTagPercentage);
-AdminRouter.get("/pdf-generator", PdfController.createPdf);
-AdminRouter.get("/get-comments", CommentsController.getComments);
-AdminRouter.post("/add-comment", CommentsController.addComment);
-AdminRouter.get("/get-users", CommentsController.getUsers);
-AdminRouter.post("/edit-comment", CommentsController.editComment);
-AdminRouter.get("/download-tags-zip", TaggedLetterController.downloadTags);
-AdminRouter.post("/update-letter-type-status", LetterTypeController.updateLetterTypeStatus);
-AdminRouter.get("/dashboard-stats", DashboardController.getDashboardStats);
+// Guarded per route: this router shares /admin with AdminJS, so a blanket use() would block /admin/login.
+const requireLogin = (req: any, res: any, next: any) =>
+    req.session?.adminUser ? next() : res.status(401).json({ error: "Not authenticated" });
+const requireAdmin = (req: any, res: any, next: any) =>
+    req.session?.adminUser?.role === 1 ? next() : res.status(403).json({ error: "Admin only" });
+
+AdminRouter.get("/total-pages", requireLogin, RetriveBookImageController.getTotalPages);
+AdminRouter.get("/fetch-page", requireLogin, RetriveBookImageController.renderImage);
+AdminRouter.post("/prefetch-pages", requireLogin, RetriveBookImageController.prefetchBookPages);
+AdminRouter.get("/book-info", requireLogin, RetriveBookImageController.getBookInfo);
+AdminRouter.get("/tagged-letter", requireLogin, TaggedLetterController.getTaggedLetter);
+AdminRouter.get("/get-letters", requireLogin, TaggedLetterController.getLetters);
+AdminRouter.get("/get-lettertypes", requireLogin, TaggedLetterController.getLetterTypes);
+AdminRouter.post("/save-tag", requireLogin, TaggedLetterController.saveTag);
+AdminRouter.delete("/delete-tag", requireLogin, TaggedLetterController.deleteTaggedLetter);
+AdminRouter.post("/update-tag", requireLogin, TaggedLetterController.updateTag);
+AdminRouter.get("/get-languages", requireLogin, CreateLetterController.getLanguages);
+AdminRouter.post("/add-letter", requireLogin, CreateLetterController.addUserDefinedLetter);
+AdminRouter.post("/new-letter", requireLogin, CreateLetterController.addLetter);
+AdminRouter.post("/edit-letter", requireLogin, CreateLetterController.editLetter);
+AdminRouter.get("/get-books", requireLogin, DashboardController.getBooks);
+AdminRouter.get("/get-books-with-tags", requireLogin, DashboardController.getBooksWithTags);
+AdminRouter.get("/get-tagged-letters", requireLogin, TaggedLetterController.getTaggedLetterByUser);
+AdminRouter.get("/get-tagged-percentage", requireLogin, TaggedLetterController.calculateTagPercentage);
+AdminRouter.get("/pdf-generator", requireLogin, PdfController.createPdf);
+AdminRouter.get("/get-comments", requireLogin, CommentsController.getComments);
+AdminRouter.post("/add-comment", requireLogin, CommentsController.addComment);
+AdminRouter.get("/get-users", requireLogin, CommentsController.getUsers);
+AdminRouter.post("/edit-comment", requireLogin, CommentsController.editComment);
+AdminRouter.get("/download-tags-zip", requireLogin, TaggedLetterController.downloadTags);
+AdminRouter.post("/update-letter-type-status", requireLogin, LetterTypeController.updateLetterTypeStatus);
+AdminRouter.get("/dashboard-stats", requireLogin, DashboardController.getDashboardStats);
 
 // Profile management endpoints
-AdminRouter.get("/profile", ProfileController.getProfile);
-AdminRouter.put("/profile", ProfileController.updateProfile);
-AdminRouter.post("/profile/avatar", ProfileController.uploadAvatar);
+AdminRouter.get("/profile", requireLogin, ProfileController.getProfile);
+AdminRouter.put("/profile", requireLogin, ProfileController.updateProfile);
+AdminRouter.post("/profile/avatar", requireLogin, ProfileController.uploadAvatar);
 
 // Book search and optimized fetching
-AdminRouter.get("/search-books", async (req, res) => {
+AdminRouter.get("/search-books", requireLogin, async (req, res) => {
     try {
         const { q, language, limit } = req.query;
         const books = await searchBooks(q as string, language as string, parseInt(limit as string) || 20);
@@ -60,7 +67,7 @@ AdminRouter.get("/search-books", async (req, res) => {
     }
 });
 
-AdminRouter.get("/books-by-language", async (req, res) => {
+AdminRouter.get("/books-by-language", requireLogin, async (req, res) => {
     try {
         const { language, limit, offset } = req.query;
         if (!language) return res.status(400).json({ error: "language required" });
@@ -71,7 +78,7 @@ AdminRouter.get("/books-by-language", async (req, res) => {
     }
 });
 
-AdminRouter.get("/books-for-tagging", async (req, res) => {
+AdminRouter.get("/books-for-tagging", requireLogin, async (req, res) => {
     try {
         const { language, status } = req.query;
         if (!language) return res.status(400).json({ error: "language required" });
@@ -83,7 +90,7 @@ AdminRouter.get("/books-for-tagging", async (req, res) => {
 });
 
 // Internet Archive book fetching endpoints (using job queue)
-AdminRouter.get("/ia-languages", async (req, res) => {
+AdminRouter.get("/ia-languages", requireAdmin, async (req, res) => {
     try {
         const codes = getAllLanguageCodes();
         res.json({ languages: codes });
@@ -92,7 +99,7 @@ AdminRouter.get("/ia-languages", async (req, res) => {
     }
 });
 
-AdminRouter.post("/ia-fetch-language", async (req, res) => {
+AdminRouter.post("/ia-fetch-language", requireAdmin, async (req, res) => {
     try {
         const { langCode, maxBooks = 50 } = req.body;
         if (!langCode) {
@@ -111,7 +118,7 @@ AdminRouter.post("/ia-fetch-language", async (req, res) => {
     }
 });
 
-AdminRouter.post("/ia-fetch-all", async (req, res) => {
+AdminRouter.post("/ia-fetch-all", requireAdmin, async (req, res) => {
     try {
         const { maxPerLanguage = 50, concurrency = 3 } = req.body;
         
@@ -127,7 +134,7 @@ AdminRouter.post("/ia-fetch-all", async (req, res) => {
     }
 });
 
-AdminRouter.get("/ia-status/:langCode", async (req, res) => {
+AdminRouter.get("/ia-status/:langCode", requireAdmin, async (req, res) => {
     try {
         const { langCode } = req.params;
         const { Books } = await import("../db/models/Books.js");
@@ -150,7 +157,7 @@ AdminRouter.get("/ia-status/:langCode", async (req, res) => {
 });
 
 // Job Queue endpoints
-AdminRouter.post("/jobs/fetch-books", async (req, res) => {
+AdminRouter.post("/jobs/fetch-books", requireAdmin, async (req, res) => {
     try {
         const { langCode, maxBooks = 100 } = req.body;
         if (!langCode) return res.status(400).json({ error: "langCode required" });
@@ -162,7 +169,7 @@ AdminRouter.post("/jobs/fetch-books", async (req, res) => {
     }
 });
 
-AdminRouter.post("/jobs/fetch-all-languages", async (req, res) => {
+AdminRouter.post("/jobs/fetch-all-languages", requireAdmin, async (req, res) => {
     try {
         const { maxPerLanguage = 50, concurrency = 3 } = req.body;
         const jobId = addJob("fetch-all-languages", { maxPerLanguage, concurrency });
@@ -172,7 +179,7 @@ AdminRouter.post("/jobs/fetch-all-languages", async (req, res) => {
     }
 });
 
-AdminRouter.get("/jobs/stats", async (req, res) => {
+AdminRouter.get("/jobs/stats", requireAdmin, async (req, res) => {
     try {
         const stats = getQueueStats();
         res.json(stats);
@@ -181,7 +188,7 @@ AdminRouter.get("/jobs/stats", async (req, res) => {
     }
 });
 
-AdminRouter.get("/jobs", async (req, res) => {
+AdminRouter.get("/jobs", requireAdmin, async (req, res) => {
     try {
         const jobs = getAllJobs();
         res.json(jobs);
@@ -190,7 +197,7 @@ AdminRouter.get("/jobs", async (req, res) => {
     }
 });
 
-AdminRouter.get("/jobs/:jobId", async (req, res) => {
+AdminRouter.get("/jobs/:jobId", requireAdmin, async (req, res) => {
     try {
         const job = getJob(req.params.jobId);
         if (!job) return res.status(404).json({ error: "Job not found" });
@@ -200,7 +207,7 @@ AdminRouter.get("/jobs/:jobId", async (req, res) => {
     }
 });
 
-AdminRouter.post("/backfill-unicode", async (req, res) => {
+AdminRouter.post("/backfill-unicode", requireAdmin, async (req, res) => {
     try {
         const letters = await Letters.findAll({
             attributes: ["id", "letter", "unicode"],
@@ -236,7 +243,7 @@ AdminRouter.post("/backfill-unicode", async (req, res) => {
 });
 
 // User management endpoints
-AdminRouter.get("/pending-users", async (req, res) => {
+AdminRouter.get("/pending-users", requireAdmin, async (req, res) => {
     try {
         const users = await Users.findAll({
             where: { is_active: false },
@@ -250,7 +257,7 @@ AdminRouter.get("/pending-users", async (req, res) => {
     }
 });
 
-AdminRouter.post("/approve-user", async (req, res) => {
+AdminRouter.post("/approve-user", requireAdmin, async (req, res) => {
     try {
         const { userId } = req.body;
         if (!userId) return res.status(400).json({ error: "userId required" });
@@ -261,7 +268,7 @@ AdminRouter.post("/approve-user", async (req, res) => {
     }
 });
 
-AdminRouter.post("/reject-user", async (req, res) => {
+AdminRouter.post("/reject-user", requireAdmin, async (req, res) => {
     try {
         const { userId } = req.body;
         if (!userId) return res.status(400).json({ error: "userId required" });
@@ -272,7 +279,7 @@ AdminRouter.post("/reject-user", async (req, res) => {
     }
 });
 
-AdminRouter.get("/user-stats", async (req, res) => {
+AdminRouter.get("/user-stats", requireAdmin, async (req, res) => {
     try {
         const total = await Users.count();
         const active = await Users.count({ where: { is_active: true } });
@@ -305,6 +312,32 @@ AdminRouter.get("/get-permissions", async (req: any, res) => {
             raw: true,
         });
         res.json(permissions);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+AdminRouter.get("/role-permissions-matrix", requireAdmin, async (_req, res) => {
+    try {
+        const roles = await UserRoles.findAll({ attributes: ["id", "role"], order: [["id", "ASC"]], raw: true });
+        const permissions = await RolePermissions.findAll({ attributes: ["role_id", "resource", "action", "allowed"], raw: true });
+        res.json({ roles, permissions });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+AdminRouter.post("/role-permissions-matrix", requireAdmin, async (req, res) => {
+    try {
+        const { role_id, resource, action, allowed } = req.body;
+        if (!role_id || !resource || !action) return res.status(400).json({ error: "role_id, resource, action required" });
+        const [perm, created] = await RolePermissions.findOrCreate({
+            where: { role_id, resource, action },
+            defaults: { role_id, resource, action, allowed: !!allowed } as any,
+        });
+        if (!created) await perm.update({ allowed: !!allowed });
+        clearPermissionCache(role_id);
+        res.json({ success: true });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

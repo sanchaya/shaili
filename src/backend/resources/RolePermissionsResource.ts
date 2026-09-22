@@ -1,6 +1,7 @@
 import RolePermissions from "../db/models/RolePermissions.js";
 import UserRoles from "../db/models/UserRoles.js";
 import { clearPermissionCache } from "../utils/permissions.js";
+import { Components } from "../../frontend/components.js";
 
 export const RolePermissionsResource = {
     resource: RolePermissions,
@@ -60,6 +61,7 @@ export const RolePermissionsResource = {
         actions: {
             list: {
                 isAccessible: ({ currentAdmin }) => currentAdmin?.role === 1,
+                component: Components.PermissionMatrix,
             },
             edit: {
                 isAccessible: ({ currentAdmin }) => currentAdmin?.role === 1,

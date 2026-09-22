@@ -32,6 +32,12 @@
   font-style: normal;
 }
 
+/* Fonts built from Shaili Sanchaya specimens (copied from fonts.sanchaya.net, which sends no CORS headers) */
+@font-face { font-family: "KarnataGTN"; src: url("/fonts/sanchaya/KarnataGTN-Regular.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Karnata German Mission Press"; src: url("/fonts/sanchaya/KarnataGermanMissionPressTypeface.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Karnata Wesleyan Mission Press"; src: url("/fonts/sanchaya/KarnataWesleyanMissionPress.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Karnata F Kittel"; src: url("/fonts/sanchaya/KarnataFKittel.ttf") format("truetype"); font-display: swap; }
+
 * {
   padding: 0;
   margin: 0;
@@ -595,6 +601,10 @@ nav {
   word-break: break-word;
 }
 
+.font-card { display: block; color: inherit; text-decoration: none; }
+.font-card .glyph-sample { font-size: 26px; letter-spacing: 0; }
+.font-card .type-count { color: var(--text-color1); }
+
 /* ---------- About ---------- */
 .about-section {
   background: var(--text-background);
@@ -1026,4 +1036,75 @@ nav {
   margin: 0;
   line-height: 1.6;
   font-size: 14px;
+}
+
+/* ---------- Contribute ---------- */
+.contribute-card {
+  background: linear-gradient(135deg, var(--first-color) 0%, var(--second-color) 100%);
+  color: #fff;
+  border-radius: 20px;
+  padding: 48px 40px;
+  text-align: center;
+  box-shadow: var(--card-shadow);
+}
+
+.contribute-card h2 {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.contribute-card h2 span {
+  display: block;
+  font-size: 20px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.contribute-card > p {
+  max-width: 620px;
+  margin: 0 auto 28px;
+  opacity: 0.85;
+}
+
+.contribute-points {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  max-width: 900px;
+  margin: 0 auto 32px;
+}
+
+.contribute-points li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.contribute-points i {
+  color: #8fa2ff;
+  width: 18px;
+}
+
+.contribute-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+@media only screen and (max-width: 768px) {
+  .contribute-card {
+    padding: 36px 20px;
+  }
+  .contribute-card h2 {
+    font-size: 26px;
+  }
 }

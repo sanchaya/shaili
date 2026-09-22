@@ -91,22 +91,6 @@ interface IDashboardStats {
     }>;
 }
 
-interface IUserStats {
-    total: number;
-    active: number;
-    pending: number;
-    roleBreakdown: Array<{ id: number; role: string; count: number }>;
-}
-
-interface IPendingUser {
-    id: number;
-    name: string;
-    email: string;
-    role: number;
-    created_at: string;
-    user_role?: { role: string };
-}
-
 interface IBook {
     id: number;
     name: string;
@@ -118,27 +102,24 @@ interface IBook {
 const Dashboard = () => {
     const BASE_URL = (window as any).AdminJS?.env?.BASE_URL || '';
     const [stats, setStats] = useState<IDashboardStats | null>(null);
-    const [userStats, setUserStats] = useState<IUserStats | null>(null);
-    const [pendingUsers, setPendingUsers] = useState<IPendingUser[]>([]);
+    const [pendingCount, setPendingCount] = useState(0);
+    const [currentAdmin] = useCurrentAdmin();
+    const isAdmin = currentAdmin?.role === 1;
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showAllLangs, setShowAllLangs] = useState(false);
-    const [backfilling, setBackfilling] = useState(false);
-    const [backfillResult, setBackfillResult] = useState<string | null>(null);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchStats = async () => {
             try {
                 setLoading(true);
-                const [statsRes, userStatsRes, pendingRes] = await Promise.all([
-                    axios.get(`${BASE_URL}/dashboard-stats`),
-                    axios.get(`${BASE_URL}/user-stats`),
-                    axios.get(`${BASE_URL}/pending-users`),
-                ]);
+                const statsRes = await axios.get(`${BASE_URL}/dashboard-stats`);
                 setStats(statsRes.data);
-                setUserStats(userStatsRes.data);
-                setPendingUsers(pendingRes.data);
+                if (isAdmin) {
+                    const pendingRes = await axios.get(`${BASE_URL}/pending-users`);
+                    setPendingCount(pendingRes.data.length);
+                }
             } catch (err) {
                 setError('Failed to load dashboard statistics');
                 console.error(err);
@@ -147,7 +128,7 @@ const Dashboard = () => {
             }
         };
         fetchStats();
-    }, [BASE_URL]);
+    }, [BASE_URL, isAdmin]);
 
     if (loading) {
         return (
@@ -382,184 +363,17 @@ const Dashboard = () => {
                 </Card>
             </Flex>
 
-            {/* Admin Tools */}
+            {/* Quick actions */}
             <Card style={{ marginTop: '32px' }}>
-                <CardHeader>Admin Tools</CardHeader>
+                <CardHeader>Quick Actions</CardHeader>
                 <CardBody>
-                    <Box style={{ padding: '24px' }}>
-                        {/* Backfill Unicode */}
-                        <Flex $align="center" $gap="lg" $wrap style={{ marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #e5e7eb' }}>
-                            <div>
-                                <Text weight="bold" style={{ fontSize: '14px', marginBottom: '4px' }}>
-                                    Backfill Unicode Code Points
-                                </Text>
-                                <Text size="sm" color="secondary">
-                                    Updates the unicode value for all letters based on their character.
-                                </Text>
-                            </div>
-                            <button
-                                disabled={backfilling}
-                                onClick={async () => {
-                                    setBackfilling(true);
-                                    setBackfillResult(null);
-                                    try {
-                                        const res = await axios.post(`${BASE_URL}/backfill-unicode`);
-                                        setBackfillResult(`Updated ${res.data.updated} letters (${res.data.skipped} already correct, ${res.data.total} total)`);
-                                    } catch (err) {
-                                        setBackfillResult('Failed to backfill unicode values');
-                                    } finally {
-                                        setBackfilling(false);
-                                    }
-                                }}
-                                style={{
-                                    padding: '10px 20px',
-                                    background: backfilling ? '#9ca3af' : '#3b82f6',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    cursor: backfilling ? 'not-allowed' : 'pointer',
-                                    fontWeight: 600,
-                                    fontSize: '14px',
-                                    whiteSpace: 'nowrap',
-                                }}
-                            >
-                                {backfilling ? 'Running...' : 'Backfill Unicode'}
-                            </button>
-                            {backfillResult && (
-                                <Text size="sm" style={{ color: backfillResult.startsWith('Failed') ? '#ef4444' : '#059669' }}>
-                                    {backfillResult}
-                                </Text>
-                            )}
-                        </Flex>
-
-                        {/* User Management */}
-                        <div>
-                            <Text weight="bold" style={{ fontSize: '16px', marginBottom: '16px' }}>
-                                User Management
-                            </Text>
-
-                            {userStats && (
-                                <Flex $gap="lg" $wrap style={{ marginBottom: '20px' }}>
-                                    <div style={{ padding: '12px 16px', background: '#f9fafb', borderRadius: '8px', minWidth: '120px' }}>
-                                        <Text size="sm" color="secondary">Total Users</Text>
-                                        <Text weight="bold" style={{ fontSize: '24px' }}>{userStats.total}</Text>
-                                    </div>
-                                    <div style={{ padding: '12px 16px', background: '#f0fdf4', borderRadius: '8px', minWidth: '120px' }}>
-                                        <Text size="sm" color="secondary">Active</Text>
-                                        <Text weight="bold" style={{ fontSize: '24px', color: '#059669' }}>{userStats.active}</Text>
-                                    </div>
-                                    <div style={{ padding: '12px 16px', background: '#fef3c7', borderRadius: '8px', minWidth: '120px' }}>
-                                        <Text size="sm" color="secondary">Pending Approval</Text>
-                                        <Text weight="bold" style={{ fontSize: '24px', color: '#d97706' }}>{userStats.pending}</Text>
-                                    </div>
-                                    {userStats.roleBreakdown.map((r) => (
-                                        <div key={r.id} style={{ padding: '12px 16px', background: '#f9fafb', borderRadius: '8px', minWidth: '120px' }}>
-                                            <Text size="sm" color="secondary">{r.role}</Text>
-                                            <Text weight="bold" style={{ fontSize: '24px' }}>{r.count}</Text>
-                                        </div>
-                                    ))}
-                                </Flex>
-                            )}
-
-                            {pendingUsers.length > 0 && (
-                                <div>
-                                    <Text weight="bold" style={{ fontSize: '14px', marginBottom: '12px', color: '#d97706' }}>
-                                        Pending Signup Requests ({pendingUsers.length})
-                                    </Text>
-                                    <Table style={{ width: '100%' }}>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>Name</TableCell>
-                                                <TableCell>Email</TableCell>
-                                                <TableCell>Role</TableCell>
-                                                <TableCell>Requested</TableCell>
-                                                <TableCell style={{ textAlign: 'right' }}>Actions</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {pendingUsers.map((user) => (
-                                                <TableRow key={user.id}>
-                                                    <TableCell><Text weight="medium">{user.name}</Text></TableCell>
-                                                    <TableCell>{user.email}</TableCell>
-                                                    <TableCell><Badge variant="secondary">{user.user_role?.role || 'Unknown'}</Badge></TableCell>
-                                                    <TableCell style={{ fontSize: '12px', color: '#6b7280' }}>
-                                                        {new Date(user.created_at).toLocaleDateString()}
-                                                    </TableCell>
-                                                    <TableCell style={{ textAlign: 'right' }}>
-                                                        <Flex $gap="sm" $justify="end">
-                                                            <button
-                                                                onClick={async () => {
-                                                                    try {
-                                                                        await axios.post(`${BASE_URL}/approve-user`, { userId: user.id });
-                                                                        setPendingUsers(pendingUsers.filter(u => u.id !== user.id));
-                                                                        if (userStats) setUserStats({ ...userStats, pending: userStats.pending - 1, active: userStats.active + 1 });
-                                                                    } catch (err) {
-                                                                        console.error(err);
-                                                                    }
-                                                                }}
-                                                                style={{
-                                                                    padding: '6px 12px',
-                                                                    background: '#059669',
-                                                                    color: 'white',
-                                                                    border: 'none',
-                                                                    borderRadius: '4px',
-                                                                    cursor: 'pointer',
-                                                                    fontSize: '12px',
-                                                                    fontWeight: 600,
-                                                                }}
-                                                            >
-                                                                Approve
-                                                            </button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    if (!confirm(`Reject ${user.name}? This will delete their account.`)) return;
-                                                                    try {
-                                                                        await axios.post(`${BASE_URL}/reject-user`, { userId: user.id });
-                                                                        setPendingUsers(pendingUsers.filter(u => u.id !== user.id));
-                                                                        if (userStats) setUserStats({ ...userStats, pending: userStats.pending - 1, total: userStats.total - 1 });
-                                                                    } catch (err) {
-                                                                        console.error(err);
-                                                                    }
-                                                                }}
-                                                                style={{
-                                                                    padding: '6px 12px',
-                                                                    background: '#ef4444',
-                                                                    color: 'white',
-                                                                    border: 'none',
-                                                                    borderRadius: '4px',
-                                                                    cursor: 'pointer',
-                                                                    fontSize: '12px',
-                                                                    fontWeight: 600,
-                                                                }}
-                                                            >
-                                                                Reject
-                                                            </button>
-                                                        </Flex>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            )}
-
-                            {pendingUsers.length === 0 && (
-                                <Text size="sm" color="secondary" style={{ padding: '12px 0' }}>
-                                    No pending signup requests.
-                                </Text>
-                            )}
-
-                            <Box style={{ marginTop: '16px' }}>
-                                <Text
-                                    size="sm"
-                                    style={{ color: '#3b82f6', cursor: 'pointer', fontWeight: 500 }}
-                                    onClick={() => navigate('/admin/resources/users')}
-                                >
-                                    Manage all users →
-                                </Text>
-                            </Box>
-                        </div>
-                    </Box>
+                    <Flex $gap="lg" $wrap style={{ padding: '24px' }}>
+                        <Badge variant="primary" style={{ cursor: 'pointer', padding: '10px 16px' }} onClick={() => navigate('/admin/resources/books')}>Pick a book to extract letters →</Badge>
+                        <Badge variant="primary" style={{ cursor: 'pointer', padding: '10px 16px' }} onClick={() => navigate('/admin/pages/compare')}>Compare books →</Badge>
+                        {isAdmin && pendingCount > 0 && (
+                            <Badge variant="danger" style={{ cursor: 'pointer', padding: '10px 16px' }} onClick={() => navigate('/admin/pages/admin')}>{pendingCount} pending signup{pendingCount === 1 ? '' : 's'} → Admin Tools</Badge>
+                        )}
+                    </Flex>
                 </CardBody>
             </Card>
 

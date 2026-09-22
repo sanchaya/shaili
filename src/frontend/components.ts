@@ -98,6 +98,10 @@ const Components = {
         "BookThumbnail",
         "./components/BookThumbnail/BookThumbnail"
     ),
+    PermissionMatrix: componentLoader.add(
+        "PermissionMatrix",
+        "./components/PermissionMatrix/PermissionMatrix"
+    ),
     AdminTools: componentLoader.add(
         "AdminTools",
         "./components/AdminTools/AdminTools"

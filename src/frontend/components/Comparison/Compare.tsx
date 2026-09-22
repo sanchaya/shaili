@@ -64,8 +64,14 @@ const LetterDiv = styled.li`
 const LetterImage = styled.img`
     width: 60px;
     height: 60px;
+    object-fit: contain;
+    background: #fff;
     border-radius: 5px;
 `;
+
+const MISSING_IMAGE =
+    "data:image/svg+xml," +
+    encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><text x="30" y="40" font-size="30" text-anchor="middle" fill="#9ca3af">?</text></svg>');
 
 const EmptyTag = styled.div`
     width: 60px;
@@ -579,7 +585,16 @@ const Compare = ({ languageCode }: CompareProps) => {
                                                             {consonant.image === "-" ? (
                                                                 <EmptyTag>{consonant.image}</EmptyTag>
                                                             ) : (
-                                                                <LetterImage src={consonant.image} alt={`Image for ${consonant.letter}`} />
+                                                                <LetterImage
+                                                                    src={consonant.image}
+                                                                    alt={`Image for ${consonant.letter}`}
+                                                                    onError={(e) => {
+                                                                        const img = e.currentTarget;
+                                                                        if (img.src === MISSING_IMAGE) return;
+                                                                        img.src = MISSING_IMAGE;
+                                                                        img.title = "Tag image file is missing on the server";
+                                                                    }}
+                                                                />
                                                             )}
                                                         </LetterDiv>
                                                     ))}

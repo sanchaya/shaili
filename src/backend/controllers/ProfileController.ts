@@ -7,10 +7,9 @@ import * as argon2 from "argon2";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import { fileURLToPath } from "url";
+import { STORAGE_DIR } from "../utils/storage.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const avatarDir = path.join(__dirname, "../../public/avatars");
+const avatarDir = path.join(STORAGE_DIR, "avatars");
 
 // Ensure avatar directory exists
 if (!fs.existsSync(avatarDir)) {

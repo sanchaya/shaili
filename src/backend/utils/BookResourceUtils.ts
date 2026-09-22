@@ -102,8 +102,6 @@ export const BookEditBefore = async (request: ActionRequest) => {
 
     if (request.method !== "post") return request;
 
-    payload.published_year =
-        payload.publisher_city === "" ? null : payload.published_year;
     payload.publisher_city =
         payload.publisher_city === "" ? null : payload.publisher_city;
     payload.publisher_name =

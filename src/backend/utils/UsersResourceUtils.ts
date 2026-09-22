@@ -88,12 +88,12 @@ export const UserEditHandler = async (request, response, context) => {
         return { record: record.toJSON(currentAdmin) };
     }
 
-    const newRecord = await Users.update(
-        {
-            ...request.payload,
-        },
-        { where: { id: request.payload.id } }
-    );
+    // Never trust payload.id / role / is_active: non-admins may only edit their own profile fields
+    const { id, role, is_active, ...fields } = request.payload;
+    const updates = currentAdmin.role === 1 ? { ...fields, role, is_active } : fields;
+    const newRecord = await Users.update(updates, {
+        where: { id: record.id() },
+    });
     if (newRecord) {
         return {
             redirectUrl:

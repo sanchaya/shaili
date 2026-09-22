@@ -21,6 +21,7 @@ import HomeController from "./backend/controllers/HomeController.js";
 import { setupAssociations } from "./backend/db/models/associations.js";
 import { mkdir } from "node:fs/promises";
 import fs from "fs";
+import { STORAGE_DIR } from "./backend/utils/storage.js";
 
 const PORT = 8000;
 
@@ -165,6 +166,18 @@ const start = async () => {
         createDatabaseTable: true,
     });
 
+    const sessionOptions = {
+        store: sessionStore,
+        resave: true,
+        saveUninitialized: true,
+        secret: "sessionsecret",
+        cookie: {
+            httpOnly: process.env.NODE_ENV === "production",
+            secure: process.env.NODE_ENV === "production",
+        },
+        name: "Scaff Admin JS",
+    };
+
     const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
         admin,
         {
@@ -173,22 +186,13 @@ const start = async () => {
             cookiePassword: "sessionsecrte",
         },
         null,
-        {
-            store: sessionStore,
-            resave: true,
-            saveUninitialized: true,
-            secret: "sessionsecret",
-            cookie: {
-                httpOnly: process.env.NODE_ENV === "production",
-                secure: process.env.NODE_ENV === "production",
-            },
-            name: "Scaff Admin JS",
-        }
+        sessionOptions
     );
 
     admin.watch();
     app.use(express.static(path.join(__dirname, "./public")));
-    const directoryPath = path.join(__dirname, "public", "tags");
+    app.use(express.static(STORAGE_DIR)); // /tags/*, /avatars/*
+    const directoryPath = path.join(STORAGE_DIR, "tags");
     if (!fs.existsSync(directoryPath)) {
         await mkdir(directoryPath, {
             recursive: true,
@@ -203,7 +207,8 @@ const start = async () => {
         next();
     });
     app.use("/admin", NonAdminRouter);
-    app.use("/admin", AdminRouter);
+    // Same session as AdminJS (express-session skips if already set), so custom routes see req.session.adminUser
+    app.use("/admin", session.default(sessionOptions), AdminRouter);
     app.use(admin.options.rootPath, adminRouter);
 
     app.listen(PORT, () => {

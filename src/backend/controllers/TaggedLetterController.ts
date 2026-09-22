@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { STORAGE_DIR } from "../utils/storage.js";
 import { Letters } from "../db/models/Letters.js";
 import { TaggedLetters } from "../db/models/TaggedLetters.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
@@ -6,7 +7,6 @@ import { Books } from "../db/models/Books.js";
 import { Op, Sequelize } from "sequelize";
 import fs from "fs";
 import path from "path";
-import * as url from "url";
 import { mkdir } from "node:fs/promises";
 import { Languages } from "../db/models/Languages.js";
 import archiver from "archiver";
@@ -116,34 +116,29 @@ const getTaggedLetter = async (req: Request, res: Response) => {
     }
 };
 
-const deleteTaggedLetter = async (req: Request, res: Response) => {
+// Owner, Reviewer or Admin (mirrors TagImage/TagsListModal)
+const canModifyTag = (user: any, tag: any) =>
+    !!user && (user.role === 1 || user.role === 2 || user.id == tag?.dataValues.tagged_by);
+
+const deleteTaggedLetter = async (req: any, res: Response) => {
     const taggedLetterId = Number(req.query.id);
 
     try {
-        const tagsDirectory = getTagsDirectory();
         const taggedLetter = await TaggedLetters.findOne({
             where: { id: taggedLetterId },
         });
-        const tagPath = tagsDirectory + taggedLetter?.dataValues.tag_path;
-        if (fs.existsSync(tagPath)) {
-            fs.unlink(tagPath, async (err) => {
-                if (err) {
-                    throw new Error();
-                } else {
-                    const dir = path.dirname(tagPath);
-                    const filesInDirectory = fs.readdirSync(dir);
-                    if (filesInDirectory.length === 0) {
-                        fs.rmdirSync(dir);
-                    }
-                    await TaggedLetters.destroy({
-                        where: { id: taggedLetterId },
-                    });
-                    res.status(200).json({
-                        message: "Tagged letter deleted successfully",
-                    });
-                }
-            });
+        if (!taggedLetter) return res.status(404).json({ error: "Tag not found" });
+        if (!canModifyTag(req.session?.adminUser, taggedLetter)) {
+            return res.status(403).json({ error: "Not allowed" });
         }
+        const tagPath = getTagsDirectory() + taggedLetter.dataValues.tag_path;
+        if (fs.existsSync(tagPath)) {
+            fs.unlinkSync(tagPath);
+            const dir = path.dirname(tagPath);
+            if (fs.readdirSync(dir).length === 0) fs.rmdirSync(dir);
+        }
+        await TaggedLetters.destroy({ where: { id: taggedLetterId } });
+        res.status(200).json({ message: "Tagged letter deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: "Server error" });
     }
@@ -152,6 +147,9 @@ const deleteTaggedLetter = async (req: Request, res: Response) => {
 const updateTag = async (req: any, res: Response) => {
     try {
         const { id, book_id, letter_id, tagged_by } = req.body;
+        if (!canModifyTag(req.session?.adminUser, await TaggedLetters.findOne({ where: { id } }))) {
+            return res.status(403).json({ error: "Not allowed" });
+        }
 
         const letterData = await Letters.findOne({
             where: { id: letter_id },
@@ -360,11 +358,7 @@ const updateTagImage = async (tagId, letterData) => {
     }
 };
 
-const getTagsDirectory = () => {
-    const __dirname = url.fileURLToPath(new URL(".", import.meta.url));
-    const currentDirectory = path.dirname(__dirname);
-    return path.resolve(currentDirectory, "../public");
-};
+const getTagsDirectory = () => STORAGE_DIR;
 
 const makeTagsZip = async (bookId): Promise<MakeTagsZipResult> => {
     const book = await Books.findOne({
@@ -377,9 +371,10 @@ const makeTagsZip = async (bookId): Promise<MakeTagsZipResult> => {
 
     if (bookTags.length > 0) {
         const tagsDirectory = getTagsDirectory();
-        const filesInTagsDirectory = fs.readdirSync(
-            `${tagsDirectory}/tags/${bookIdentifier}`
-        );
+        const bookDirectory = `${tagsDirectory}/tags/${bookIdentifier}`;
+        const filesInTagsDirectory = fs.existsSync(bookDirectory)
+            ? fs.readdirSync(bookDirectory)
+            : [];
 
         if (filesInTagsDirectory.length > 0) {
             const output = fs.createWriteStream(

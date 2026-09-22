@@ -11,6 +11,7 @@ import {
     toggleSidebar,
 } from "../Sidebar/SidebarContext.js";
 import { usePermissions } from "../../hooks/usePermissions.js";
+import { buildNavItems, isActive } from "../Sidebar/navItems.js";
 
 const NavBar = styled(Box)<BoxProps & { $collapsed: boolean }>`
     height: ${({ theme }) => theme.sizes.navbarHeight};
@@ -148,7 +149,6 @@ const TopBar: React.FC = () => {
     const menuRef = useRef<HTMLDivElement>(null);
     const { canAccess } = usePermissions(currentAdmin?.role || 0);
 
-    const isAdmin = currentAdmin?.role === 1;
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -172,32 +172,10 @@ const TopBar: React.FC = () => {
         navigate(href);
     }, [navigate]);
 
-    const resourceMap: Record<string, any> = {};
-    resources.forEach((r: any) => {
-        resourceMap[r.name] = r;
-    });
-
-    const menuItems: Array<{ icon: string; label: string; href: string; dividerAfter?: boolean }> = [];
-
-    menuItems.push({ icon: "Home", label: "Dashboard", href: "/admin" });
-
-    if (resourceMap["books"] && canAccess("books", "list")) menuItems.push({ icon: "Book", label: "Books", href: "/admin/resources/books" });
-    if (resourceMap["letters"] && canAccess("letters", "list")) menuItems.push({ icon: "FileText", label: "Letters", href: "/admin/resources/letters" });
-    if (resourceMap["languages"] && canAccess("languages", "list")) menuItems.push({ icon: "Globe", label: "Languages", href: "/admin/resources/languages" });
-    if (resourceMap["comments"] && canAccess("comments", "list")) {
-        menuItems.push({ icon: "MessageSquare", label: "Comments", href: "/admin/resources/comments" });
-    }
-
-    menuItems.push({ icon: "BookOpen", label: "Book Comparison", href: "/admin/pages/compare", dividerAfter: true });
-
-    if (isAdmin) {
-        if (resourceMap["users"] && canAccess("users", "list")) menuItems.push({ icon: "Users", label: "Users", href: "/admin/resources/users" });
-        if (resourceMap["user_roles"] && canAccess("user_roles", "list")) menuItems.push({ icon: "Shield", label: "User Roles", href: "/admin/resources/user_roles" });
-        if (resourceMap["role_permissions"] && canAccess("role_permissions", "list")) menuItems.push({ icon: "Key", label: "Role Permissions", href: "/admin/resources/role_permissions" });
-        if (resourceMap["letter_types"] && canAccess("letter_types", "list")) menuItems.push({ icon: "Tag", label: "Letter Types", href: "/admin/resources/letter_types" });
-        if (resourceMap["book_status"] && canAccess("book_status", "list")) menuItems.push({ icon: "CheckCircle", label: "Book Status", href: "/admin/resources/book_status" });
-        menuItems.push({ icon: "Settings", label: "Admin Tools", href: "/admin/pages/admin" });
-    }
+    const menuItems = buildNavItems(resources, canAccess, currentAdmin?.role === 1).map((item, i, all) => ({
+        ...item,
+        dividerAfter: !item.manage && all[i + 1]?.manage,
+    }));
 
     const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
 
@@ -217,7 +195,7 @@ const TopBar: React.FC = () => {
                     {menuItems.map((item) => (
                         <React.Fragment key={item.href}>
                             <MenuItem
-                                $active={currentPath === item.href}
+                                $active={isActive(item.href, currentPath)}
                                 onMouseDown={(e: any) => handleMenuNavigate(item.href, e)}
                             >
                                 <MenuIcon>

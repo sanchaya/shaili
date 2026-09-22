@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
 import axios from "axios";
+import PermissionMatrix from "../PermissionMatrix/PermissionMatrix.js";
 import {
     Box,
     Badge,
@@ -79,7 +80,7 @@ const AdminTools = () => {
         setBackfillResult(null);
         try {
             const res = await axios.post(`${BASE_URL}/backfill-unicode`);
-            setBackfillResult(res.data.message);
+            setBackfillResult(`Updated ${res.data.updated} letters (${res.data.skipped} already correct, ${res.data.total} total)`);
         } catch (err: any) {
             setBackfillResult(err.response?.data?.error || "Backfill failed");
         } finally {
@@ -181,7 +182,7 @@ const AdminTools = () => {
                                             <TableCell>{user.name || "-"}</TableCell>
                                             <TableCell>{user.email}</TableCell>
                                             <TableCell>
-                                                <Badge>{user.role_name || user.role}</Badge>
+                                                <Badge>{user.user_role?.role || user.role}</Badge>
                                             </TableCell>
                                             <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
                                             <TableCell style={{ textAlign: "right" }}>
@@ -207,6 +208,7 @@ const AdminTools = () => {
                         )}
                     </CardBody>
                 </Card>
+                <PermissionMatrix />
             </Flex>
         </Box>
     );

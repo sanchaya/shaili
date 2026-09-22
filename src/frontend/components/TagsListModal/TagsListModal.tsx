@@ -77,7 +77,7 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
         }
 
         return (
-            (currentAdmin.role === 3 && currentAdmin.id === taggedBy) ||
+            currentAdmin.id === taggedBy ||
             currentAdmin.role === 1 ||
             currentAdmin.role === 2
         );

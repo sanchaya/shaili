@@ -165,7 +165,11 @@ export const BookResource = {
             },
         },
         actions: {
-            new: { isAccessible: false },
+            new: {
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "new"),
+                before: [BookEditBefore],
+            },
             edit: {
                 isAccessible: async (context: ActionContext) =>
                     isAccessible(context, "edit"),
