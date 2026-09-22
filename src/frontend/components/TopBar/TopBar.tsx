@@ -4,8 +4,9 @@ import { LoggedIn, ReduxState, Version } from "adminjs";
 import React from "react";
 import { useSelector } from "react-redux";
 import SidebarBranding from "../SidebarBranding/SidebarBranding.js";
+import { SidebarContext } from "../Sidebar/SidebarContext.js";
 
-const NavBar = styled(Box)<BoxProps>`
+const NavBar = styled(Box)<BoxProps & { $sidebarCollapsed: boolean }>`
     height: ${({ theme }) => theme.sizes.navbarHeight};
     border-bottom: ${({ theme }) => theme.borders.default};
     background: ${({ theme }) => theme.colors.container};
@@ -14,44 +15,44 @@ const NavBar = styled(Box)<BoxProps>`
     flex-shrink: 0;
     align-items: center;
     z-index: 99;
+    margin-left: ${({ $sidebarCollapsed }) => ($sidebarCollapsed ? "60px" : "250px")};
+    transition: margin-left 0.25s ease-in-out;
 `;
 
 const LogoBox = styled(Box)<BoxProps>`
     padding: 0px 8px 0px 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
 `;
 
 NavBar.defaultProps = {
     className: cssClass("NavBar"),
 };
 
-type Props = {
-    toggleSidebar: () => void;
-};
-
-const TopBar: React.FC<Props> = (props) => {
-    const { toggleSidebar } = props;
+const TopBar: React.FC = () => {
     const session = useSelector((state: ReduxState) => state.session);
-    const paths = useSelector((state: ReduxState) => state.paths);
     const versions = useSelector((state: ReduxState) => state.versions);
     const branding = useSelector((state: ReduxState) => state.branding);
+    const { collapsed, toggleCollapse } = React.useContext(SidebarContext);
 
     return (
-        <NavBar data-css="topbar">
+        <NavBar $sidebarCollapsed={collapsed} data-css="topbar">
             <LogoBox
                 py="lg"
                 px={["default", "lg"]}
-                onClick={toggleSidebar}
+                onClick={toggleCollapse}
                 display={["block", "block", "flex", "flex", "flex"]}
-                style={{ cursor: "pointer", alignItems: "center", gap: "15px" }}
             >
                 <Icon icon="Menu" size={24} />
-                <Box display={["none", "none", "block", "block", "block"]}>
+                <Box display={collapsed ? "none" : ["none", "none", "block", "block", "block"]}>
                     <SidebarBranding branding={branding} />
                 </Box>
             </LogoBox>
             <Version versions={versions} />
             {session && session.email ? (
-                <LoggedIn session={session} paths={paths} />
+                <LoggedIn session={session} paths={{ logoutPath: "/admin/logout" }} />
             ) : (
                 ""
             )}
