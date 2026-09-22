@@ -76,7 +76,14 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
             <Box variant="container" data-css={contentTag}>
                 <LanguageCards
                     resourceId={resource.id}
-                    onLanguageSelect={(code) => storeParams({ filters: { language: code } })}
+                    onLanguageSelect={(code) =>
+                        storeParams({
+                            // Books open filtered to "In Progress" (book_status id 2)
+                            filters: resource.id === 'books'
+                                ? { language: code, status: '2' }
+                                : { language: code },
+                        })
+                    }
                 />
             </Box>
         )

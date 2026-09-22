@@ -4,7 +4,8 @@ import { Letters } from "../db/models/Letters.js";
 import { TaggedLetters } from "../db/models/TaggedLetters.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
 import { Books } from "../db/models/Books.js";
-import { Op, Sequelize } from "sequelize";
+import { Op, QueryTypes, Sequelize } from "sequelize";
+import { sequelize as db } from "../db/config/config.js";
 import fs from "fs";
 import path from "path";
 import { mkdir } from "node:fs/promises";
@@ -219,54 +220,38 @@ const getTaggedLetterByUser = async (req: Request, res: Response) => {
     }
 };
 
+// Only these letter types count towards progress
+// (Conjuncts and Custom Symbols excluded - too many uncertain combinations).
+const PROGRESS_LETTER_TYPES = ["Vowels", "Consonants", "Numerals", "Special Symbols", "Compounds"];
+
+// Returns { [bookId]: percentage } for the given books in one query.
+export const getTagPercentages = async (bookIds: number[]): Promise<Record<number, number>> => {
+    if (!bookIds.length) return {};
+    const rows: any[] = await db.query(
+        `SELECT b.id,
+            (SELECT COUNT(DISTINCT t.letter_id) FROM tagged_letters t
+                JOIN letters l ON l.id = t.letter_id
+                JOIN letter_types lt ON lt.id = l.letter_type
+                WHERE t.book_id = b.id AND l.language = b.language
+                AND lt.status = true AND lt.type IN (:types)) AS tagged,
+            (SELECT COUNT(*) FROM letters l
+                JOIN letter_types lt ON lt.id = l.letter_type
+                WHERE l.language = b.language
+                AND lt.status = true AND lt.type IN (:types)) AS total
+        FROM books b WHERE b.id IN (:bookIds)`,
+        { replacements: { types: PROGRESS_LETTER_TYPES, bookIds }, type: QueryTypes.SELECT }
+    );
+    return Object.fromEntries(
+        rows.map((r) => [r.id, Math.round((Number(r.tagged) * 100) / Math.max(Number(r.total), 1))])
+    );
+};
+
 const calculateTagPercentage = async (req: Request, res: Response) => {
-    const bookId = req.query.bookId;
+    const bookId = Number(req.query.bookId);
 
     try {
-        const bookLanguage = await Books.findOne({
-            where: { id: Number(bookId) },
-            attributes: ["language"],
-        });
-
-        // Only count these letter types for the progress percentage to avoid
-        // too many uncertain combinations (Custom Symbols, Compounds excluded).
-        const progressLetterTypeFilter = sequelize.literal(
-            `(SELECT id FROM letter_types WHERE status = true AND type IN ('Vowels', 'Consonants', 'Conjuncts', 'Numerals', 'Special Symbols'))`
-        );
-
-        const totalLettersQuery = await Letters.count({
-            where: {
-                language: bookLanguage?.dataValues.language,
-                letter_type: {
-                    [Op.in]: progressLetterTypeFilter,
-                },
-            },
-        });
-
-        const totalTagsQuery = await Letters.count({
-            distinct: true,
-            col: "id",
-            include: {
-                as: "taggedLetters",
-                model: TaggedLetters,
-                where: {
-                    letter_id: Sequelize.col("Letters.id"),
-                    book_id: bookId,
-                },
-            },
-            where: {
-                language: bookLanguage?.dataValues.language,
-                letter_type: {
-                    [Op.in]: progressLetterTypeFilter,
-                },
-            },
-        });
-
-        const tagPercentage = Math.round(
-            (totalTagsQuery * 100.0) / Math.max(totalLettersQuery, 1)
-        );
-
-        return res.status(200).json(tagPercentage);
+        const percentages = await getTagPercentages([bookId]);
+        return res.status(200).json(percentages[bookId] ?? 0);
     } catch (error) {
         res.status(500).json({ error: "Failed to calculate tag percentage" });
     }

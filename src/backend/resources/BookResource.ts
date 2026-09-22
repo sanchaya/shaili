@@ -20,6 +20,7 @@ import fs from "fs";
 import { Languages } from "../db/models/Languages.js";
 import { Op } from "sequelize";
 import { canAccess } from "../utils/permissions.js";
+import { getTagPercentages } from "../controllers/TaggedLetterController.js";
 
 const isAccessible = async (context: ActionContext, action: string) => {
     const { currentAdmin } = context;
@@ -138,7 +139,7 @@ export const BookResource = {
     options: {
         navigation: menu.Books,
         editProperties: properties,
-        listProperties: ["thumbnail", "name", "language", "author_name", "publisher_name", "published_year", "status"],
+        listProperties: ["thumbnail", "name", "language", "author_name", "publisher_name", "published_year", "status", "progress"],
         showProperties: [...properties, "thumbnail"],
         filterProperties: properties,
         timestamps: true,
@@ -153,6 +154,10 @@ export const BookResource = {
                 components: {
                     list: Components.BookThumbnail,
                 },
+            },
+            progress: {
+                type: "string",
+                isVisible: { list: true, show: false, edit: false, filter: false },
             },
             status: {
                 position: 1,
@@ -206,6 +211,15 @@ export const BookResource = {
                 isAccessible: (_: any, __: any) => true,
                 before: [async (request, context) => {
                     return request;
+                }],
+                after: [async (response) => {
+                    const percentages = await getTagPercentages(
+                        response.records.map((r) => Number(r.params.id))
+                    );
+                    for (const r of response.records) {
+                        r.params.progress = `${percentages[r.params.id] ?? 0}%`;
+                    }
+                    return response;
                 }],
             },
             ViewBook: {

@@ -56,6 +56,7 @@ const start = async () => {
         
         // Setup model associations
         setupAssociations();
+        await BookResource.afterInit();
     } catch {
         console.log("error");
     }

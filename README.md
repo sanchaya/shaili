@@ -15,6 +15,7 @@ Working from digitized books — many printed in the 19th century by the mission
 - **Book Archive** — Manages digitized books from the [Internet Archive](https://archive.org), supporting 23+ Indian languages
 - **Letter Extraction** — Crop individual letter specimens (vowels, consonants, conjuncts, numerals, symbols) directly from scanned book pages
 - **Tagging Workflow** — Classify specimens by letter type with progress tracking per book
+- **Books Admin** — Language cards open that language's *In Progress* books; the list shows status names and a per-book Progress column
 - **Side-by-Side Comparison** — Compare tagged letters across books with language filtering
 - **PDF Export** — Generate PDF reports of all tagged specimens organized by language and letter type
 - **ZIP Download** — Download tagged letter images as ZIP archives
@@ -215,7 +216,7 @@ Comments ──belongsTo──> Users
 | POST | `/admin/save-tag` | Save a new letter tag |
 | DELETE | `/admin/delete-tag` | Delete a tagged letter |
 | POST | `/admin/update-tag` | Update a tag's letter assignment |
-| GET | `/admin/get-tagged-percentage` | Get tagging progress |
+| GET | `/admin/get-tagged-percentage` | Get tagging progress (see Workflow → Track) |
 
 ### Export
 
@@ -283,7 +284,7 @@ Hindi, Bengali, Telugu, Marathi, Tamil, Urdu, Gujarati, Kannada, Malayalam, Odia
 2. **Browse** — Users select a book and page through scanned images
 3. **Extract** — Use the cropper tool to select individual letter specimens
 4. **Tag** — Classify the specimen by letter type (vowel, consonant, conjunct, etc.)
-5. **Track** — Progress bar shows tagging completion per book
+5. **Track** — Progress bar (book view) and Progress column (books list) show tagging completion per book. Progress = distinct letters tagged in the book ÷ letters in the book's language, counting only Vowels, Consonants, Numerals, Special Symbols and Compounds (Conjuncts and Custom Symbols are excluded)
 6. **Compare** — Side-by-side comparison of tagged letters across books
 7. **Export** — Generate PDF reports or download tagged images as ZIP
 
