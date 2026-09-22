@@ -303,6 +303,8 @@ Type Extract supports 23+ Indian languages with pre-seeded letter types and Unic
 
 Hindi, Bengali, Telugu, Marathi, Tamil, Urdu, Gujarati, Kannada, Malayalam, Odia, Punjabi, Assamese, Maithili, Sanskrit, Santali, Kashmiri, Nepali, Sindhi, Konkani, Dogri, Manipuri, Bodo, English
 
+Every language has Vowels, Consonants, Numerals and Special Symbols. For the 17 Indic-script languages, **Compounds** (consonant + vowel sign, anusvara, visarga, chandrabindu; bindi/tippi/addak for Gurmukhi; pulli for Tamil) and **Conjuncts** (two-consonant clusters, C + virama + C) are generated from each language's consonants by migration `20260922220000-populate-compounds-conjuncts`. Punjabi conjuncts are limited to the subjoined ਰ ਹ ਵ ਯ forms and Tamil to ஸ்ரீ. Kannada keeps its larger hand-seeded sets (including three-consonant clusters and clusters with vowel signs). Arabic-script languages (Urdu, Sindhi, Kashmiri), Santali and English have no generated compounds or conjuncts.
+
 ## Workflow
 
 1. **Ingest** — Admins fetch books from Internet Archive by language via job queue

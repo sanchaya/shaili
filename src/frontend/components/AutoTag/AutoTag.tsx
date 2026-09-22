@@ -338,10 +338,12 @@ const AutoTag: React.FC<AutoTagProps> = ({ image, page, bookId, language, onNext
 
     const remove = (id: number) => setGroups((gs) => gs.filter((g) => g.id !== id));
 
+    // Tags the selected specimens; the rest stay in the group to tag later (e.g. one at a time).
     const confirm = async (g: Group) => {
         const crops = g.crops.filter((_, k) => g.checked[k]);
         setSaving(g.id);
         let saved = 0;
+        const done = new Set<Crop>();
         for (const crop of crops) {
             try {
                 await addTag({
@@ -353,6 +355,7 @@ const AutoTag: React.FC<AutoTagProps> = ({ image, page, bookId, language, onNext
                     box: crop.box,
                 });
                 saved++;
+                done.add(crop);
             } catch {
                 // counted as failed below
             }
@@ -362,8 +365,18 @@ const AutoTag: React.FC<AutoTagProps> = ({ image, page, bookId, language, onNext
             message: `${saved} of ${crops.length} tagged as ${g.letter!.label}`,
             type: saved === crops.length ? "success" : "error",
         });
-        if (saved) remove(g.id);
+        setGroups((gs) =>
+            gs
+                .map((x) =>
+                    x.id === g.id
+                        ? { ...x, crops: x.crops.filter((c) => !done.has(c)), checked: x.checked.filter((_, k) => !done.has(x.crops[k])) }
+                        : x
+                )
+                .filter((x) => x.crops.length)
+        );
     };
+
+    const selectAll = (g: Group, on: boolean) => update(g.id, { checked: g.crops.map(() => on) });
 
     return (
         <div style={{ padding: "16px", overflowY: "auto", maxHeight: "900px" }}>
@@ -391,7 +404,7 @@ const AutoTag: React.FC<AutoTagProps> = ({ image, page, bookId, language, onNext
                 />
             </div>
             <p style={{ color: "#666", fontSize: "13px", margin: "8px 0 16px" }}>
-                {status} Click a specimen to leave it out; double-click it to redraw its outline by hand (pieces inside the new box are removed from the list).
+                {status} Click a specimen to select or leave it out (tag one at a time with None, then pick one); double-click it to redraw its outline by hand (pieces inside the new box are removed from the list).
             </p>
             {!groups.length && <Loader />}
             {groups.slice(0, visible).map((g) => {
@@ -401,6 +414,15 @@ const AutoTag: React.FC<AutoTagProps> = ({ image, page, bookId, language, onNext
                         {g.language !== language && (
                             <div style={{ fontSize: "11px", color: "#3040d6", marginBottom: "4px" }}>
                                 {languageName(g.language)}
+                            </div>
+                        )}
+                        {g.crops.length > 1 && (
+                            <div style={{ fontSize: "12px", marginBottom: "4px" }}>
+                                Select:{" "}
+                                <a style={{ cursor: "pointer" }} onClick={() => selectAll(g, true)}>All</a>
+                                {" · "}
+                                <a style={{ cursor: "pointer" }} onClick={() => selectAll(g, false)}>None</a>
+                                <span style={{ color: "#888" }}> (untagged ones stay here for later)</span>
                             </div>
                         )}
                         <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", maxHeight: "140px", overflowY: "auto" }}>

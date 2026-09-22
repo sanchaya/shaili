@@ -216,6 +216,13 @@ Languages.afterCreate(async (language) => {
             created_by: language.created_by,
             updated_by: language.updated_by,
         },
+        {
+            type: "Compounds",
+            language: language.language_code,
+            status: true,
+            created_by: language.created_by,
+            updated_by: language.updated_by,
+        },
     ];
     await LetterTypes.bulkCreate(defaultData);
 });
