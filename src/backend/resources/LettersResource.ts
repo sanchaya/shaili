@@ -22,10 +22,11 @@ import fs from "fs";
 import { LetterTypes } from "../db/models/LetterTypes.js";
 import { Languages } from "../db/models/Languages.js";
 import sequelize, { Op } from "sequelize";
+import { canAccess } from "../utils/permissions.js";
 
-const isAccessible = (context: ActionContext, role: number) => {
+const isAccessible = async (context: ActionContext, action: string) => {
     const { currentAdmin } = context;
-    return role === currentAdmin?.role;
+    return canAccess(currentAdmin?.role, "letters", action);
 };
 
 const getLetterTypeId = async (lettertype, language, currentAdmin) => {
@@ -163,8 +164,8 @@ export const LetterResource = {
         actions: {
             bulkDelete: { isAccessible: false },
             list: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "list"),
                 handler: async (request, response, context) => {
                     const PER_PAGE_LIMIT = 500;
                     const { query } = request;
@@ -287,36 +288,39 @@ export const LetterResource = {
                 },
             },
             edit: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "edit"),
                 component: Components.EditLetter,
             },
             show: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "show"),
                 before: [beforeLettersShowHook],
             },
             delete: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "delete"),
                 before: [LetterDeleteBefore],
                 handler: [LetterDeleteHandler],
+                confirm: {
+                    message: "Are you sure you want to delete this letter? This action cannot be undone.",
+                },
             },
             new: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "new"),
                 component: Components.AddLetter,
             },
             import: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "import"),
                 before: [importBefore],
                 handler: [importHandler],
                 component: Components.ImportComponentNew,
             },
             export: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "export"),
             },
         },
         properties: {
@@ -329,6 +333,7 @@ export const LetterResource = {
                 },
             },
             letter_type: {
+                reference: "letter_types",
                 components: {
                     filter: Components.LetterTypeInFilter,
                 },

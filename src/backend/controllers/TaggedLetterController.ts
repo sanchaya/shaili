@@ -28,7 +28,7 @@ export const getLetterTypes = async (req: Request, res: Response) => {
 
 export const getLetters = async (req: Request, res: Response) => {
     const letters = await Letters.findAll({
-        attributes: ["id", "letter", "language", "letter_type"],
+        attributes: ["id", "letter", "unicode", "language", "letter_type"],
         where: {
             letter_type: {
                 [Op.in]: sequelize.literal(

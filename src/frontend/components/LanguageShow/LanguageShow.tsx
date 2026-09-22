@@ -107,11 +107,12 @@ const LanguageShow: React.FC<ILanguageShowProps> = ({ record }) => {
 
         if (letters && letters.length) {
             letters.forEach((letter: any) => {
-                letter.letter_type = getLetterTypeName(letter.letter_type);
-                if (!groupedLetters[letter.letter_type]) {
-                    groupedLetters[letter.letter_type] = [];
+                letter.letter_type_name = getLetterTypeName(letter.letter_type);
+                const typeName = letter.letter_type_name || "Unknown";
+                if (!groupedLetters[typeName]) {
+                    groupedLetters[typeName] = [];
                 }
-                groupedLetters[letter.letter_type].push(letter);
+                groupedLetters[typeName].push(letter);
             });
 
             const orderedGroupedLetters: { [key: string]: ILetterType[] } = {};

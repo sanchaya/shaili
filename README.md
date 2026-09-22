@@ -19,7 +19,7 @@ Working from digitized books — many printed in the 19th century by the mission
 - **PDF Export** — Generate PDF reports of all tagged specimens organized by language and letter type
 - **ZIP Download** — Download tagged letter images as ZIP archives
 - **User Profiles** — Developer portal-style profile management with avatar upload
-- **Role-Based Access** — Admin, Reviewer, User, QA, and Developer roles
+- **Role-Based Access** — Admin, Reviewer, User, QA, Developer, Font Designer, and Font Developer roles with configurable permissions
 - **Collaborative Comments** — Add and edit comments on books
 - **Internet Archive Integration** — Fetch books by language from the IA Advanced Search API with background job queue
 
@@ -54,7 +54,7 @@ Working from digitized books — many printed in the 19th century by the mission
 
 ```bash
 # Clone the repository
-git clone https://github.com/ravenanhq/type-extract.git
+git clone https://github.com/sanchaya/shaili.git
 cd type-extract
 
 # Install dependencies
@@ -151,7 +151,8 @@ src/
 | Model | Description |
 |---|---|
 | **Users** | User accounts with profiles, roles, and preferences |
-| **UserRoles** | Role definitions (Admin, Reviewer, User, QA, Developer) |
+| **UserRoles** | Role definitions (Admin, Reviewer, User, QA, Developer, Font Designer, Font Developer) |
+| **RolePermissions** | Configurable permissions per role per resource/action |
 | **Languages** | 23+ Indian languages with Unicode/IPA metadata |
 | **LetterTypes** | Letter categories (Vowels, Consonants, Conjuncts, etc.) |
 | **Letters** | Individual letter specimens with Unicode codepoints |
@@ -165,6 +166,7 @@ src/
 
 ```
 Users ──belongsTo──> UserRoles
+UserRoles ──hasMany──> RolePermissions
 Languages ──hasMany──> LetterTypes
 Languages ──hasMany──> Books
 Letters ──belongsTo──> LetterTypes
@@ -233,15 +235,41 @@ Comments ──belongsTo──> Users
 | POST | `/admin/add-comment` | Add a comment |
 | POST | `/admin/edit-comment` | Edit a comment |
 
+### Permissions
+
+| Method | Path | Description |
+|---|---|---|
+| GET | `/admin/get-permissions` | Get current user's role permissions |
+
 ## Role-Based Access Control
 
-| Role | Permissions |
-|---|---|
-| **Admin** (1) | Full access to all resources, user management, book deletion, IA fetching |
-| **Reviewer** (2) | Edit books, view resources, limited admin access |
-| **User** (3) | Basic access, tag letters, add comments |
-| **QA** (4) | Basic access, tag letters, add comments |
-| **Developer** (5) | Basic access, tag letters, add comments |
+Access control is managed through the **Role Permissions** resource at `/admin/resources/role_permissions`. Admins can configure which resources and actions each role can access.
+
+### Default Roles
+
+| Role | ID | Default Permissions |
+|---|---|---|
+| **Admin** | 1 | Full access to all resources (bypasses permission checks) |
+| **Reviewer** | 2 | Books (list, show, edit), Comments (list, show, delete) |
+| **User** | 3 | Books (list, show) |
+| **QA** | 4 | No default permissions |
+| **Developer** | 5 | No default permissions |
+| **Font Designer** | 6 | No default permissions |
+| **Font Developer** | 7 | No default permissions |
+
+### Configurable Permissions
+
+Admins can manage permissions via the admin panel:
+
+1. Navigate to **Admin Tools > Role Permissions**
+2. For each role, configure access to each resource (Books, Letters, Languages, etc.) and action (list, show, edit, delete, new, import, export)
+3. Changes take effect immediately (cached for 30 seconds)
+
+### Permission Matrix
+
+Resources: `books`, `letters`, `languages`, `letter_types`, `book_status`, `comments`, `users`, `user_roles`, `role_permissions`
+
+Actions: `list`, `show`, `edit`, `delete`, `new`, `import`, `export`
 
 ## Supported Languages
 

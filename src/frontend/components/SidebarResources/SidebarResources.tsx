@@ -1,9 +1,10 @@
-import React, { FC, useState, useContext } from "react";
+import React, { FC, useState, useSyncExternalStore } from "react";
 import { Navigation, Box, Icon } from "@adminjs/design-system";
 import { ResourceJSON, useCurrentAdmin } from "adminjs";
 import { useNavigate } from "react-router-dom";
-import { styled } from "styled-components";
-import { SidebarContext } from "../Sidebar/SidebarContext.js";
+import { styled } from "@adminjs/design-system/styled-components";
+import { getSidebarCollapsed, subscribeSidebar } from "../Sidebar/SidebarContext.js";
+import { usePermissions } from "../../hooks/usePermissions.js";
 
 export type SidebarResourceSectionProps = {
     resources: Array<ResourceJSON>;
@@ -48,11 +49,10 @@ const SidebarResources: FC<SidebarResourceSectionProps> = ({ resources, $collaps
     const navigate = useNavigate();
     const [currentAdmin] = useCurrentAdmin();
     const [adminOpen, setAdminOpen] = useState(false);
-    const { collapsed } = useContext(SidebarContext);
-    const isCollapsed = $collapsed ?? collapsed;
+    const contextCollapsed = useSyncExternalStore(subscribeSidebar, getSidebarCollapsed);
+    const isCollapsed = $collapsed ?? contextCollapsed;
+    const { canAccess } = usePermissions(currentAdmin?.role || 0);
 
-    const isAdminOrReviewer =
-        currentAdmin?.role === 1 || currentAdmin?.role === 2;
     const isAdmin = currentAdmin?.role === 1;
 
     const makeItem = (href: string, icon: string, label: string, id: string): any => ({
@@ -77,6 +77,7 @@ const SidebarResources: FC<SidebarResourceSectionProps> = ({ resources, $collaps
     const languagesResource = resourceMap["languages"];
     const commentsResource = resourceMap["comments"];
     const usersResource = resourceMap["users"];
+    const userRolesResource = resourceMap["user_roles"];
     const letterTypesResource = resourceMap["letter_types"];
     const bookStatusResource = resourceMap["book_status"];
 
@@ -96,18 +97,20 @@ const SidebarResources: FC<SidebarResourceSectionProps> = ({ resources, $collaps
         makeItem("/admin", "Home", "Dashboard", "dashboard"),
     ];
 
-    if (booksResource) mainItems.push(makeResourceItem(booksResource));
-    if (lettersResource) mainItems.push(makeResourceItem(lettersResource));
-    if (languagesResource) mainItems.push(makeResourceItem(languagesResource));
-    if (commentsResource && isAdminOrReviewer) mainItems.push(makeResourceItem(commentsResource));
+    if (booksResource && canAccess("books", "list")) mainItems.push(makeResourceItem(booksResource));
+    if (lettersResource && canAccess("letters", "list")) mainItems.push(makeResourceItem(lettersResource));
+    if (languagesResource && canAccess("languages", "list")) mainItems.push(makeResourceItem(languagesResource));
+    if (commentsResource && canAccess("comments", "list")) mainItems.push(makeResourceItem(commentsResource));
 
     mainItems.push(makeItem("/admin/pages/compare", "BookOpen", "Book Comparison", "comparison"));
 
     if (isAdmin) {
         const adminSubItems: any[] = [];
-        if (usersResource) adminSubItems.push(makeResourceItem(usersResource));
-        if (letterTypesResource) adminSubItems.push(makeResourceItem(letterTypesResource));
-        if (bookStatusResource) adminSubItems.push(makeResourceItem(bookStatusResource));
+        if (usersResource && canAccess("users", "list")) adminSubItems.push(makeResourceItem(usersResource));
+        if (userRolesResource && canAccess("user_roles", "list")) adminSubItems.push(makeResourceItem(userRolesResource));
+        if (resourceMap["role_permissions"] && canAccess("role_permissions", "list")) adminSubItems.push(makeResourceItem(resourceMap["role_permissions"]));
+        if (letterTypesResource && canAccess("letter_types", "list")) adminSubItems.push(makeResourceItem(letterTypesResource));
+        if (bookStatusResource && canAccess("book_status", "list")) adminSubItems.push(makeResourceItem(bookStatusResource));
         adminSubItems.push(makeItem("/admin/pages/admin", "Settings", "Admin Tools Page", "admin-tools-page"));
 
         mainItems.push({

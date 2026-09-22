@@ -27,7 +27,8 @@ export class LetterTypes extends Model<
 
     static associate(models: any) {
         LetterTypes.belongsTo(Languages, {
-            foreignKey: "language_code",
+            foreignKey: "language",
+            targetKey: "language_code",
         });
 
         LetterTypes.belongsTo(models.Users, {

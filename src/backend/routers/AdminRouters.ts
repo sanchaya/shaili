@@ -10,6 +10,10 @@ import ProfileController from "../controllers/ProfileController.js";
 import { fetchBooksForLanguage, fetchAllLanguages, getAllLanguageCodes } from "../services/InternetArchiveService.js";
 import { searchBooks, getBooksByLanguage, getBooksForTagging } from "../services/BookCacheService.js";
 import { addJob, getJob, getAllJobs, getQueueStats } from "../services/JobQueue.js";
+import { Letters } from "../db/models/Letters.js";
+import Users from "../db/models/Users.js";
+import UserRoles from "../db/models/UserRoles.js";
+import RolePermissions from "../db/models/RolePermissions.js";
 
 const AdminRouter = express.Router();
 
@@ -191,6 +195,116 @@ AdminRouter.get("/jobs/:jobId", async (req, res) => {
         const job = getJob(req.params.jobId);
         if (!job) return res.status(404).json({ error: "Job not found" });
         res.json(job);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+AdminRouter.post("/backfill-unicode", async (req, res) => {
+    try {
+        const letters = await Letters.findAll({
+            attributes: ["id", "letter", "unicode"],
+        });
+
+        const getUnicodeValue = (char: string): string => {
+            if (!char || char.length === 0) return "";
+            const codePoint = char.codePointAt(0);
+            if (!codePoint) return "";
+            return "U+" + codePoint.toString(16).toUpperCase().padStart(4, "0");
+        };
+
+        let updated = 0;
+        let skipped = 0;
+
+        for (const letter of letters) {
+            const unicodeValue = getUnicodeValue(letter.letter);
+            if (!unicodeValue || letter.unicode === unicodeValue) {
+                skipped++;
+                continue;
+            }
+            await Letters.update(
+                { unicode: unicodeValue },
+                { where: { id: letter.id } }
+            );
+            updated++;
+        }
+
+        res.json({ updated, skipped, total: letters.length });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// User management endpoints
+AdminRouter.get("/pending-users", async (req, res) => {
+    try {
+        const users = await Users.findAll({
+            where: { is_active: false },
+            attributes: ["id", "name", "email", "role", "created_at"],
+            include: [{ model: UserRoles, attributes: ["role"] }],
+            order: [["created_at", "DESC"]],
+        });
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+AdminRouter.post("/approve-user", async (req, res) => {
+    try {
+        const { userId } = req.body;
+        if (!userId) return res.status(400).json({ error: "userId required" });
+        await Users.update({ is_active: true }, { where: { id: userId } });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+AdminRouter.post("/reject-user", async (req, res) => {
+    try {
+        const { userId } = req.body;
+        if (!userId) return res.status(400).json({ error: "userId required" });
+        await Users.destroy({ where: { id: userId } });
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+AdminRouter.get("/user-stats", async (req, res) => {
+    try {
+        const total = await Users.count();
+        const active = await Users.count({ where: { is_active: true } });
+        const pending = await Users.count({ where: { is_active: false } });
+        const roles = await UserRoles.findAll({ attributes: ["id", "role"] });
+        const roleBreakdown = await Promise.all(
+            roles.map(async (r) => ({
+                id: r.id,
+                role: r.role,
+                count: await Users.count({ where: { role: r.id } }),
+            }))
+        );
+        res.json({ total, active, pending, roleBreakdown });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+AdminRouter.get("/get-permissions", async (req: any, res) => {
+    try {
+        const roleId = req.session?.adminUser?.role;
+        if (!roleId) {
+            return res.status(401).json({ error: "Not authenticated" });
+        }
+        if (roleId === 1) {
+            return res.json([]);
+        }
+        const permissions = await RolePermissions.findAll({
+            where: { role_id: roleId, allowed: true },
+            raw: true,
+        });
+        res.json(permissions);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

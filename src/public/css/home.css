@@ -70,7 +70,7 @@ a {
   .slide-menu-baner {
     height: 100%;
     display: flex;
-    z-index: 2000;
+    z-index: 30000;
     position: fixed;
     top: 0;
     left: 0;
@@ -169,7 +169,19 @@ a {
   }
 
   .right-nav {
+    position: static;
     display: flex !important;
+    height: auto;
+    align-items: center;
+  }
+
+  nav {
+    justify-content: space-between;
+    padding: 10px 15px;
+  }
+
+  .center-nav {
+    align-items: center;
   }
 }
 
@@ -924,9 +936,6 @@ nav {
 }
 
 @media only screen and (max-width: 768px) {
-  .center-nav {
-    max-width: 300px;
-  }
   .nav-logo {
     height: 30px;
   }

@@ -10,16 +10,17 @@ import {
     LetterTypeEditHandler,
 } from "../utils/LetterTypesResourceUtils.js";
 import { Components } from "../../frontend/components.js";
+import { canAccess } from "../utils/permissions.js";
 
-const isAccessible = (context: ActionContext, role: number) => {
+const isAccessible = async (context: ActionContext, action: string) => {
     const { currentAdmin } = context;
-    return role === currentAdmin?.role;
+    return canAccess(currentAdmin?.role, "letter_types", action);
 };
 
 export const LetterTypesResource = {
     resource: LetterTypes,
     options: {
-        navigation: menu.LettersType,
+        navigation: menu.AdminTools,
         editProperties: ["type", "language"],
         listProperties: ["type", "language", "status"],
         showProperties: ["type", "language", "created_by", "updated_by"],
@@ -31,28 +32,28 @@ export const LetterTypesResource = {
         actions: {
             bulkDelete: { isAccessible: false },
             list: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "list"),
             },
             edit: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "edit"),
                 before: [LetterTypeEditBefore],
                 handler: [LetterTypeEditHandler],
             },
             show: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "show"),
             },
             delete: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "delete"),
                 before: [LetterTypeDeleteBefore],
                 handler: [LetterTypeDeleteHandler],
             },
             new: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "new"),
                 before: [LetterTypeCreateBefore],
                 handler: [LetterTypeCreateHandler],
             },

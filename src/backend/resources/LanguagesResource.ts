@@ -10,10 +10,11 @@ import {
     LanguageEditHandler,
 } from "../utils/LanguageResourceUtils.js";
 import { Components } from "../../frontend/components.js";
+import { canAccess } from "../utils/permissions.js";
 
-const isAccessible = (context: ActionContext, role: number) => {
+const isAccessible = async (context: ActionContext, action: string) => {
     const { currentAdmin } = context;
-    return role === currentAdmin?.role;
+    return canAccess(currentAdmin?.role, "languages", action);
 };
 
 const beforeLanguagesShowHook = (request, context) => {
@@ -94,31 +95,31 @@ export const LanguagesResource = {
         actions: {
             bulkDelete: { isAccessible: false },
             list: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "list"),
                 after: [afterLanguagesListHook],
             },
             new: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "new"),
                 before: [LanguageCreateBefore],
                 handler: [LanguageCreateHandler],
             },
             edit: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "edit"),
                 before: [LanguageEditBefore],
                 handler: [LanguageEditHandler],
             },
             delete: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "delete"),
                 before: [LanguageDeleteBefore],
                 handler: [LanguageDeleteHandler],
             },
             show: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "show"),
                 before: [beforeLanguagesShowHook],
                 component: Components.LanguageShow,
             },

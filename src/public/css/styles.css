@@ -424,3 +424,30 @@ h4.sc-ilEZps.hhnezv.sc-gXSCqU.letterTypeHeader {
 .status-toggle-label.checked {
     background: green;
 }
+
+/* Sidebar responsive layout */
+[data-css="sidebar"] ~ [data-css="content"] {
+    margin-left: 250px;
+    transition: margin-left 0.25s ease-in-out;
+}
+
+.adminjs_Sidebar {
+    position: fixed !important;
+    top: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.adminjs_NavBar {
+    transition: margin-left 0.25s ease-in-out;
+}
+
+@media (max-width: 768px) {
+    [data-css="sidebar"] ~ [data-css="content"] {
+        margin-left: 0 !important;
+    }
+
+    .adminjs_NavBar {
+        margin-left: 0 !important;
+    }
+}

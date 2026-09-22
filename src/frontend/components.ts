@@ -94,6 +94,14 @@ const Components = {
         "ProfilePage",
         "./components/Profile/ProfilePage"
     ),
+    BookThumbnail: componentLoader.add(
+        "BookThumbnail",
+        "./components/BookThumbnail/BookThumbnail"
+    ),
+    AdminTools: componentLoader.add(
+        "AdminTools",
+        "./components/AdminTools/AdminTools"
+    ),
 };
 
 export { componentLoader, Components };

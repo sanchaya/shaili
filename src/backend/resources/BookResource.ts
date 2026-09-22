@@ -19,10 +19,11 @@ import csvParser from "csv-parser";
 import fs from "fs";
 import { Languages } from "../db/models/Languages.js";
 import { Op } from "sequelize";
+import { canAccess } from "../utils/permissions.js";
 
-const isAccessible = (context: ActionContext, role: number[]) => {
+const isAccessible = async (context: ActionContext, action: string) => {
     const { currentAdmin } = context;
-    return role.includes(currentAdmin?.role);
+    return canAccess(currentAdmin?.role, "books", action);
 };
 
 const beforeBooksShowHook = (request, context) => {
@@ -137,8 +138,8 @@ export const BookResource = {
     options: {
         navigation: menu.Books,
         editProperties: properties,
-        listProperties: ["name", "language", "url", "status"],
-        showProperties: properties,
+        listProperties: ["thumbnail", "name", "language", "author_name", "publisher_name", "published_year", "status"],
+        showProperties: [...properties, "thumbnail"],
         filterProperties: properties,
         timestamps: true,
         sort: {
@@ -146,6 +147,13 @@ export const BookResource = {
             direction: "asc",
         },
         properties: {
+            thumbnail: {
+                type: "string",
+                isVisible: { list: true, show: false, edit: false, filter: false },
+                components: {
+                    list: Components.BookThumbnail,
+                },
+            },
             status: {
                 position: 1,
                 availableValues: [
@@ -159,29 +167,33 @@ export const BookResource = {
         actions: {
             new: { isAccessible: false },
             edit: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, [1, 2]),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "edit"),
                 before: [BookEditBefore],
+                isModal: true,
             },
             show: {
                 before: [beforeBooksShowHook],
             },
             delete: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, [1]),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "delete"),
                 before: [BookDeleteBefore],
                 handler: [BookDeleteHandler],
+                confirm: {
+                    message: "Are you sure you want to delete this book? This action cannot be undone and will also delete all associated tags and comments.",
+                },
             },
             import: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, [1]),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "import"),
                 before: [importBefore],
                 handler: [importHandler],
                 component: Components.ImportComponentNew,
             },
             export: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, [1]),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "export"),
             },
             bulkDelete: {
                 isAccessible: false,

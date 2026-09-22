@@ -5,4 +5,5 @@ export const menu = {
     LettersType: { icon: "Type" },
     Languages: { icon: "Globe" },
     Comments: { icon: "MessageSquare" },
+    AdminTools: { icon: "Settings" },
 };

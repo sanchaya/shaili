@@ -44,8 +44,8 @@ const EditLetterModal = ({ record, onClose, onSave }: EditLetterModalProps) => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        setLettername(record.params.letter);
-        setUniCode(record.params.unicode);
+        setLettername(record.params?.letter ?? null);
+        setUniCode(record.params?.unicode ?? "");
         const fetchData = async () => {
             try {
                 const [languagesResponse, letterTypesResponse] =
@@ -82,26 +82,22 @@ const EditLetterModal = ({ record, onClose, onSave }: EditLetterModalProps) => {
                 );
                 if (selectedLanguage) {
                     setLanguage(selectedLanguage);
-                } else {
-                    console.warn("Language not found for record:", record);
                 }
 
                 if (record.params?.letter_type) {
-                    const selectedLetterType = letterTypes[
-                        record.params.language?.toLowerCase()
-                    ]?.find(
-                        (option) =>
-                            option.value ===
-                            record.params.letter_type.toString()
+                    const ltId = typeof record.params.letter_type === 'object'
+                        ? String(record.params.letter_type.id)
+                        : String(record.params.letter_type);
+                    const langKey = (typeof record.params.letter_type === 'object'
+                        ? record.params.letter_type.language
+                        : selectedLanguage?.value
+                    )?.toLowerCase();
+                    const selectedLetterType = letterTypes[langKey]?.find(
+                        (option) => option.value === ltId
                     );
 
                     if (selectedLetterType) {
                         setLetterType(selectedLetterType);
-                    } else {
-                        console.warn(
-                            "Letter type not found for record:",
-                            record
-                        );
                     }
                 }
             } catch (error) {
@@ -112,7 +108,7 @@ const EditLetterModal = ({ record, onClose, onSave }: EditLetterModalProps) => {
             }
         };
         fetchData();
-    }, [record.params?.language, record.params?.letter_type]);
+    }, [record.params?.id, record.params?.unicode, record.params?.letter_type]);
 
     const saveLetter = async () => {
         const data = {
@@ -193,8 +189,7 @@ const EditLetterModal = ({ record, onClose, onSave }: EditLetterModalProps) => {
                         id="unicode"
                         name="unicode"
                         value={unicode ? unicode : ""}
-                        onChange={handleUniCodeChange}
-                        maxLength={5}
+                        readOnly
                     ></Input>
                 </FormGroup>
                 <FormGroup>

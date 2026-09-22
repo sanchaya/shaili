@@ -7,6 +7,7 @@ import { TaggedLetters } from "./TaggedLetters.js";
 import BookStatus from "./BookStatus.js";
 import { Comments } from "./Comments.js";
 import UserRoles from "./UserRoles.js";
+import RolePermissions from "./RolePermissions.js";
 
 const models = {
     Languages,
@@ -18,6 +19,7 @@ const models = {
     BookStatus,
     Comments,
     UserRoles,
+    RolePermissions,
 };
 
 Object.values(models).forEach((model: any) => {

@@ -1,26 +1,27 @@
 import { ActionContext } from "adminjs";
 import BookStatus from "../db/models/BookStatus.js";
 import { menu } from "../../common/menu.js";
+import { canAccess } from "../utils/permissions.js";
 
-const isAccessible = (context: ActionContext, role: number[]) => {
+const isAccessible = async (context: ActionContext, action: string) => {
     const { currentAdmin } = context;
-    return role.includes(currentAdmin?.role);
+    return canAccess(currentAdmin?.role, "book_status", action);
 };
 
 export const BookStatusResource = {
     resource: BookStatus,
     options: {
-        navigation: menu.Books,
+        navigation: menu.AdminTools,
         editProperties: ["id", "status"],
         listProperties: ["id", "status"],
         showProperties: ["id", "status"],
         filterProperties: ["status"],
         actions: {
-            new: { isAccessible: (context: ActionContext) => isAccessible(context, [1]) },
-            edit: { isAccessible: (context: ActionContext) => isAccessible(context, [1]) },
-            show: { isAccessible: (context: ActionContext) => isAccessible(context, [1]) },
-            delete: { isAccessible: (context: ActionContext) => isAccessible(context, [1]) },
-            list: { isAccessible: (context: ActionContext) => isAccessible(context, [1]) },
+            new: { isAccessible: async (context: ActionContext) => isAccessible(context, "new") },
+            edit: { isAccessible: async (context: ActionContext) => isAccessible(context, "edit") },
+            show: { isAccessible: async (context: ActionContext) => isAccessible(context, "show") },
+            delete: { isAccessible: async (context: ActionContext) => isAccessible(context, "delete") },
+            list: { isAccessible: async (context: ActionContext) => isAccessible(context, "list") },
         },
     },
 };

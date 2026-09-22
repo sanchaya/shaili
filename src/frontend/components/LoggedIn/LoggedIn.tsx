@@ -20,7 +20,7 @@ const LoggedIn: React.FC<LoggedInProps> = (props) => {
     const { translateButton } = useTranslation();
     const navigate = useNavigate();
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
-    const [email, setEmail] = useState(session.email);
+    const [name, setName] = useState(session.name || session.email);
     const [avatarUrl, setAvatarUrl] = useState(session.avatarUrl);
     const dropActions: CurrentUserNavProps["dropActions"] = [];
 
@@ -43,37 +43,25 @@ const LoggedIn: React.FC<LoggedInProps> = (props) => {
     });
 
     useEffect(() => {
-        // Fetch profile data to get avatar and updated email
         axios
             .get(`${BASE_URL}/profile`, {
                 headers: { "X-User-Id": String(session.id) },
             })
             .then((response) => {
-                if (response.data.email !== email) {
-                    setEmail(response.data.email);
+                if (response.data.name) {
+                    setName(response.data.name);
                 }
                 if (response.data.avatar_url !== avatarUrl) {
                     setAvatarUrl(response.data.avatar_url);
                 }
             })
-            .catch(() => {
-                // Fallback to the old API if profile endpoint fails
-                axios
-                    .get(
-                        `${BASE_URL}/api/resources/users/records/${session.id}/show`
-                    )
-                    .then((response) => {
-                        if (response.data.record.params.email !== email) {
-                            setEmail(response.data.record.params.email);
-                        }
-                    });
-            });
+            .catch(() => {});
     }, []);
 
     return (
         <Box flexShrink={0} data-css="logged-in" style={{ cursor: "pointer" }}>
             <CurrentUserNav
-                name={email}
+                name={name}
                 title={session.title}
                 avatarUrl={avatarUrl}
                 dropActions={dropActions}

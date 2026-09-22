@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { styled } from "styled-components";
+import { styled } from "@adminjs/design-system/styled-components";
 import { Button, Header, Icon, InfoBox, Loader, Modal, ModalProps } from "@adminjs/design-system";
 import { useNavigate } from "react-router-dom";
 import { useCurrentAdmin, useNotice } from "adminjs";
@@ -48,6 +48,7 @@ const LettersGroupedList: React.FC<ILettersGroupedListProps> = ({ languageCode }
 
     const [letters, setLetters] = useState<ILetter[] | undefined>();
     const [letterTypes, setLetterTypes] = useState<ILetterType[] | undefined>();
+    const [languageName, setLanguageName] = useState<string>(languageCode);
     const [groupedLetters, setGroupedLetters] = useState<{
         [key: string]: ILetter[];
     }>({});
@@ -56,6 +57,10 @@ const LettersGroupedList: React.FC<ILettersGroupedListProps> = ({ languageCode }
     const [modalOpen, setModalOpen] = useState<ILetter | null>(null);
 
     useEffect(() => {
+        axios.get(`${BASE_URL}/get-languages`).then((response) => {
+            const lang = response.data.find((l: any) => l.language_code === languageCode);
+            if (lang) setLanguageName(lang.language);
+        });
         axios.get(`${BASE_URL}/get-lettertypes`).then((response) => {
             const filteredLettertypes = response.data
                 .filter(
@@ -104,11 +109,12 @@ const LettersGroupedList: React.FC<ILettersGroupedListProps> = ({ languageCode }
         const groupedLetters: { [key: string]: ILetter[] } = {};
 
         letters.forEach((letter: any) => {
-            letter.letter_type = getLetterTypeName(letter.letter_type);
-            if (!groupedLetters[letter.letter_type]) {
-                groupedLetters[letter.letter_type] = [];
+            letter.letter_type_name = getLetterTypeName(letter.letter_type);
+            const typeName = letter.letter_type_name || "Unknown";
+            if (!groupedLetters[typeName]) {
+                groupedLetters[typeName] = [];
             }
-            groupedLetters[letter.letter_type].push(letter);
+            groupedLetters[typeName].push(letter);
         });
 
         const orderedGroupedLetters: { [key: string]: ILetter[] } = {};
@@ -172,7 +178,7 @@ const LettersGroupedList: React.FC<ILettersGroupedListProps> = ({ languageCode }
     return (
         <>
             <div className="language-show">
-                <Header.H3>Language : {languageCode}</Header.H3>
+                <Header.H3>Language : {languageName}</Header.H3>
                 {loading ? (
                     <Loader />
                 ) : letters && letters?.length > 0 ? (
@@ -202,7 +208,7 @@ const LettersGroupedList: React.FC<ILettersGroupedListProps> = ({ languageCode }
                 ) : (
                     <InfoBox
                         title={
-                            "There are no letters in the language " + languageCode
+                            "There are no letters in the language " + languageName
                         }
                         illustration="NotFound"
                     >

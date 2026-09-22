@@ -16,6 +16,7 @@ import { LetterTypesResource } from "./backend/resources/LetterTypesResource.js"
 import { LanguagesResource } from "./backend/resources/LanguagesResource.js";
 import { CommentsResource } from "./backend/resources/CommentsResource.js";
 import { UserRolesResource } from "./backend/resources/UserRolesResource.js";
+import { RolePermissionsResource } from "./backend/resources/RolePermissionsResource.js";
 import HomeController from "./backend/controllers/HomeController.js";
 import { setupAssociations } from "./backend/db/models/associations.js";
 import { mkdir } from "node:fs/promises";
@@ -79,6 +80,7 @@ const start = async () => {
         resources: [
             UsersResource,
             UserRolesResource,
+            RolePermissionsResource,
             LanguagesResource,
             LetterTypesResource,
             LetterResource,
@@ -96,6 +98,9 @@ const start = async () => {
             },
             profile: {
                 component: "ProfilePage",
+            },
+            admin: {
+                component: "AdminTools",
             },
         },
         assets: {

@@ -5,14 +5,14 @@ import passwordsFeature from "@adminjs/passwords";
 import { Components, componentLoader } from "../../frontend/components.js";
 import { ActionContext, CurrentAdmin, ListActionResponse } from "adminjs";
 import { UserEditHandler, hashPassword } from "../utils/UsersResourceUtils.js";
+import { canAccess } from "../utils/permissions.js";
 
-const isAccessible = (context: ActionContext, role: number) => {
-    const { currentAdmin, record, action } = context;
-    if (record?.params?.id === currentAdmin?.id && action.name === "edit") {
+const isAccessible = async (context: ActionContext, action: string) => {
+    const { currentAdmin, record } = context;
+    if (record?.params?.id === currentAdmin?.id && action === "edit") {
         return true;
-    } else {
-        return role === currentAdmin?.role;
     }
+    return canAccess(currentAdmin?.role, "users", action);
 };
 
 export const UsersResource = {
@@ -28,7 +28,7 @@ export const UsersResource = {
         }),
     ],
     options: {
-        navigation: menu.Users,
+        navigation: menu.AdminTools,
         listProperties: ["name", "email", "role", "organization", "location"],
         filterProperties: ["name", "email", "role", "organization", "location"],
         showProperties: [
@@ -111,8 +111,8 @@ export const UsersResource = {
         },
         actions: {
             list: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "list"),
                 after: async (
                     response: ListActionResponse,
                     context: { session: CurrentAdmin }
@@ -134,27 +134,25 @@ export const UsersResource = {
             },
             edit: {
                 component: Components.UserEditAction,
-                isAccessible: (context) => {
+                isAccessible: async (context) => {
                     const { record, currentAdmin } = context;
-                    return (
-                        record?.params?.id === currentAdmin.id ||
-                        currentAdmin?.role === 1
-                    );
+                    if (record?.params?.id === currentAdmin?.id) return true;
+                    return isAccessible(context, "edit");
                 },
                 before: hashPassword,
                 handler: UserEditHandler,
             },
             show: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "show"),
             },
             delete: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "delete"),
             },
             new: {
-                isAccessible: (context: ActionContext) =>
-                    isAccessible(context, 1),
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "new"),
                 before: hashPassword,
             },
             bulkDelete: {
