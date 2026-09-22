@@ -15,7 +15,10 @@ Working from digitized books — many printed in the 19th century by the mission
 - **Book Archive** — Manages digitized books from the [Internet Archive](https://archive.org), supporting 23+ Indian languages
 - **Letter Extraction** — Crop individual letter specimens (vowels, consonants, conjuncts, numerals, symbols) directly from scanned book pages
 - **Tagging Workflow** — Classify specimens by letter type with progress tracking per book
-- **Books Admin** — Language cards open that language's *In Progress* books; the list shows status names and a per-book Progress column
+- **Books Admin** — Language cards open that language's books with *In Progress* ones first; the list shows status names and a per-book Progress column
+- **Autopilot (OCR assistant)** — Finds every letter on a page, groups identical shapes, suggests the letter, and tags a whole group once a reviewer confirms (see [Autopilot](#autopilot))
+- **Page Rotation** — Rotate sideways/upside-down scans per page or for the whole book; saved for everyone
+- **Specimen Source** — Every tag stores its page and crop box; the tag list links back to where a specimen came from
 - **Side-by-Side Comparison** — Compare tagged letters across books with language filtering
 - **PDF Export** — Generate PDF reports of all tagged specimens organized by language and letter type
 - **ZIP Download** — Download tagged letter images as ZIP archives
@@ -159,7 +162,8 @@ src/
 | **Letters** | Individual letter specimens with Unicode codepoints |
 | **Books** | Digitized books with metadata from Internet Archive |
 | **BookStatus** | Book processing status (New, In Progress, Needs Review, Completed) |
-| **TaggedLetters** | Extracted letter specimens linked to books and letters |
+| **TaggedLetters** | Extracted letter specimens linked to books and letters, with source `page` and crop box (`box_x`, `box_y`, `box_w`, `box_h`, page-image pixels of the upright page) |
+| **BookPageRotations** | Clockwise rotation (0/90/180/270) per book page; page `0` is the whole-book default |
 | **Comments** | Collaborative comments on books |
 | **PasswordResetTokens** | Password reset tokens |
 
@@ -204,6 +208,8 @@ Comments ──belongsTo──> Users
 | GET | `/admin/fetch-page` | Fetch a book page image |
 | POST | `/admin/prefetch-pages` | Batch-prefetch book pages |
 | GET | `/admin/book-info` | Get book metadata |
+| GET | `/admin/page-rotations?bookId=` | Saved rotations for a book (`{ page: degrees }`, `0` = whole book) |
+| POST | `/admin/page-rotation` | Save a rotation: `{ book_id, page, rotation }`; `page: 0` sets the whole book and clears per-page ones |
 
 ### Letter Tagging
 
@@ -282,11 +288,23 @@ Hindi, Bengali, Telugu, Marathi, Tamil, Urdu, Gujarati, Kannada, Malayalam, Odia
 
 1. **Ingest** — Admins fetch books from Internet Archive by language via job queue
 2. **Browse** — Users select a book and page through scanned images
-3. **Extract** — Use the cropper tool to select individual letter specimens
+3. **Extract** — Use the cropper tool to select individual letter specimens, or turn on **Autopilot** to have letters found for you. Rotate the page first (↺ ↻) if it was scanned sideways
 4. **Tag** — Classify the specimen by letter type (vowel, consonant, conjunct, etc.)
 5. **Track** — Progress bar (book view) and Progress column (books list) show tagging completion per book. Progress = distinct letters tagged in the book ÷ letters in the book's language, counting only Vowels, Consonants, Numerals, Special Symbols and Compounds (Conjuncts and Custom Symbols are excluded)
 6. **Compare** — Side-by-side comparison of tagged letters across books
 7. **Export** — Generate PDF reports or download tagged images as ZIP
+
+## Autopilot
+
+Autopilot is an opt-in assistant on the book view (**Autopilot** button). It runs entirely in the reviewer's browser; nothing is saved until the reviewer confirms.
+
+1. **Find letters** — Connected ink shapes on the page are detected and vertically stacked parts (vowel signs, subscripts) are merged into one letter. Letters already tagged on this page are skipped.
+2. **Tell languages apart** — With more than one language selected under *Languages on this page* (default: the book's language + English), the page is OCR'd once with [tesseract.js](https://github.com/naptha/tesseract.js) and each text line is assigned a script. Lines are judged as a whole because old Indic type read by a Latin model produces confident-looking junk words.
+3. **Group** — Identical shapes are grouped per language, largest groups first, 20 at a time.
+4. **Suggest** — The letter of the closest specimen already tagged in this book ("matches this book"), otherwise a per-letter OCR guess ("OCR guess").
+5. **Review** — Click a specimen to leave it out; adjust the crop with the *Crop* slider or *Adjust sides* (↑ ↓ ← →, e.g. to take in a subscript); double-click a specimen to redraw its outline in the main cropper — every detected piece inside the new box is removed from the list. **Tag N** saves the group through the normal `/admin/save-tag` endpoint with page and box.
+
+The segmentation and matching code lives in `src/frontend/components/AutoTag/glyphs.ts`; its self-check runs with `node dist/frontend/components/AutoTag/glyphs.check.js` after a build. Tesseract is loaded from the jsDelivr CDN on first use; without it, grouping and in-book suggestions still work.
 
 ## Contributing
 

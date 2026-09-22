@@ -143,8 +143,9 @@ export const BookResource = {
         showProperties: [...properties, "thumbnail"],
         filterProperties: properties,
         timestamps: true,
+        // In Progress books first (status_order is a MySQL generated column, see migration)
         sort: {
-            sortBy: "language",
+            sortBy: "status_order",
             direction: "asc",
         },
         properties: {

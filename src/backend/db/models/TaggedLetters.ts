@@ -10,6 +10,11 @@ interface ITaggedLetters {
     letter_id: number;
     tag_path: string;
     tagged_by: string;
+    page?: number | null;
+    box_x?: number | null;
+    box_y?: number | null;
+    box_w?: number | null;
+    box_h?: number | null;
     created_at: Date;
     updated_at: Date;
 }
@@ -28,6 +33,11 @@ export class TaggedLetters extends Model<
     declare letter_id: number;
     declare tag_path: string;
     declare tagged_by: string;
+    declare page: number | null;
+    declare box_x: number | null;
+    declare box_y: number | null;
+    declare box_w: number | null;
+    declare box_h: number | null;
     declare letter: Letters;
     declare created_at: Date;
     declare updated_at: Date;
@@ -55,6 +65,26 @@ TaggedLetters.init(
         tagged_by: {
             type: DataTypes.INTEGER(),
             allowNull: false,
+        },
+        page: {
+            type: DataTypes.INTEGER(),
+            allowNull: true,
+        },
+        box_x: {
+            type: DataTypes.INTEGER(),
+            allowNull: true,
+        },
+        box_y: {
+            type: DataTypes.INTEGER(),
+            allowNull: true,
+        },
+        box_w: {
+            type: DataTypes.INTEGER(),
+            allowNull: true,
+        },
+        box_h: {
+            type: DataTypes.INTEGER(),
+            allowNull: true,
         },
         created_at: {
             type: DataTypes.DATE(),

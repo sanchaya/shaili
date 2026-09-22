@@ -44,7 +44,7 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
 }) => {
     const [currentAdmin] = useCurrentAdmin();
     const addNotice = useNotice();
-    const { tags, removeTag } = useLetterTagContext();
+    const { tags, removeTag, showSource } = useLetterTagContext();
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [itemsPerPage] = useState<number>(5);
     const [message, setMessage] = useState("");
@@ -147,6 +147,27 @@ const TagsListModal: React.FC<ITagsListModalProps> = ({
                                             }}
                                             src={taggedLetter.tag_path}
                                         />
+                                        {showSource && taggedLetter.page && (
+                                            <div>
+                                                <a
+                                                    style={{ cursor: "pointer", fontSize: "12px" }}
+                                                    onClick={() => {
+                                                        setShowTags(false);
+                                                        showSource({
+                                                            page: taggedLetter.page!,
+                                                            box: {
+                                                                x: taggedLetter.box_x!,
+                                                                y: taggedLetter.box_y!,
+                                                                w: taggedLetter.box_w!,
+                                                                h: taggedLetter.box_h!,
+                                                            },
+                                                        });
+                                                    }}
+                                                >
+                                                    Page {taggedLetter.page} ↗
+                                                </a>
+                                            </div>
+                                        )}
                                     </TableCell>
                                     <TableCell style={{ textAlign: "center" }}>
                                         <Icon

@@ -43,7 +43,7 @@ export const getLetters = async (req: Request, res: Response) => {
 
 export const saveTag = async (req: any, res: Response) => {
     try {
-        const { book_id, letter_id, tagged_by, croppedImage } = req.body;
+        const { book_id, letter_id, tagged_by, croppedImage, page, box } = req.body;
         const bookData = await Books.findOne({
             where: { id: book_id },
         });
@@ -61,6 +61,13 @@ export const saveTag = async (req: any, res: Response) => {
             letter_id,
             tagged_by,
             tag_path,
+            ...(Number.isInteger(page) && { page }),
+            ...(box && [box.x, box.y, box.w, box.h].every(Number.isFinite) && {
+                box_x: Math.round(box.x),
+                box_y: Math.round(box.y),
+                box_w: Math.round(box.w),
+                box_h: Math.round(box.h),
+            }),
         });
 
         const bookCurrentStatus = await Books.findOne({

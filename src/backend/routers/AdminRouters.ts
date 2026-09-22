@@ -7,6 +7,7 @@ import CommentsController from "../controllers/CommentsController.js";
 import PdfController from "../controllers/PdfController.js";
 import LetterTypeController from "../controllers/LetterTypeController.js";
 import ProfileController from "../controllers/ProfileController.js";
+import PageRotationController from "../controllers/PageRotationController.js";
 import { fetchBooksForLanguage, fetchAllLanguages, getAllLanguageCodes } from "../services/InternetArchiveService.js";
 import { searchBooks, getBooksByLanguage, getBooksForTagging } from "../services/BookCacheService.js";
 import { addJob, getJob, getAllJobs, getQueueStats } from "../services/JobQueue.js";
@@ -28,6 +29,8 @@ AdminRouter.get("/total-pages", requireLogin, RetriveBookImageController.getTota
 AdminRouter.get("/fetch-page", requireLogin, RetriveBookImageController.renderImage);
 AdminRouter.post("/prefetch-pages", requireLogin, RetriveBookImageController.prefetchBookPages);
 AdminRouter.get("/book-info", requireLogin, RetriveBookImageController.getBookInfo);
+AdminRouter.get("/page-rotations", requireLogin, PageRotationController.getRotations);
+AdminRouter.post("/page-rotation", requireLogin, PageRotationController.setRotation);
 AdminRouter.get("/tagged-letter", requireLogin, TaggedLetterController.getTaggedLetter);
 AdminRouter.get("/get-letters", requireLogin, TaggedLetterController.getLetters);
 AdminRouter.get("/get-lettertypes", requireLogin, TaggedLetterController.getLetterTypes);

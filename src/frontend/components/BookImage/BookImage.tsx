@@ -8,6 +8,7 @@ import React, {
 import { styled } from "@adminjs/design-system/styled-components";
 import { Loader, Icon, Button } from "@adminjs/design-system";
 import { Cropper, ReactCropperElement } from "react-cropper";
+import { ITagBox, useLetterTagContext } from "../../context/LetterTagContext.js";
 
 const CropIcon = styled.div`
     position: absolute;
@@ -51,6 +52,8 @@ const ImageInnerWrap = styled.div`
 
 interface IBookImageProps {
     image: string;
+    page: number;
+    highlight?: ITagBox | null;
     setCapturing: Dispatch<SetStateAction<boolean>>;
     capturing: boolean;
     setTag: Dispatch<SetStateAction<string>>;
@@ -58,12 +61,26 @@ interface IBookImageProps {
 
 export const BookImage = ({
     image,
+    page,
+    highlight,
     setCapturing,
     capturing,
     setTag,
 }: IBookImageProps) => {
     const cropperRef = useRef<ReactCropperElement>(null);
     const [cropperMode, setCropperMode] = useState<string>("crop");
+    const [ready, setReady] = useState(false);
+    const { setCropSource } = useLetterTagContext();
+
+    useEffect(() => setReady(false), [image]);
+
+    // "Show source": outline where a tagged specimen was cropped from.
+    useEffect(() => {
+        const cropper = cropperRef.current?.cropper;
+        if (!ready || !highlight || !cropper) return;
+        cropper.crop();
+        cropper.setData({ x: highlight.x, y: highlight.y, width: highlight.w, height: highlight.h });
+    }, [ready, highlight]);
 
     useEffect(() => {
         const handleKeyPress = (e: KeyboardEvent) => {
@@ -106,6 +123,8 @@ export const BookImage = ({
             const cropper = cropperRef.current?.cropper;
             const image = cropper.getCroppedCanvas().toDataURL();
             if (image) {
+                const { x, y, width, height } = cropper.getData(true);
+                setCropSource({ page, box: { x, y, w: width, h: height } });
                 setTag(image);
                 resetAll();
                 setCapturing(false);
@@ -256,6 +275,7 @@ export const BookImage = ({
                         restore={false}
                         wheelZoomRatio={1}
                         cropstart={onCropStart}
+                        ready={() => setReady(true)}
                         zoom={wheelZoom}
                     />
                 )}

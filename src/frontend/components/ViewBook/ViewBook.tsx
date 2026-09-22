@@ -3,7 +3,8 @@ import { styled } from "@adminjs/design-system/styled-components";
 import { Input, Button, Icon } from "@adminjs/design-system";
 import RightSideBar from "../RightSideBar/RightSideBar.js";
 import axios from "axios";
-import LetterTagProvider from "../../context/LetterTagContext.js";
+import LetterTagProvider, { ITagBox, ITagSource } from "../../context/LetterTagContext.js";
+import AutoTag from "../AutoTag/AutoTag.js";
 import { BookImage } from "../BookImage/BookImage.js";
 import TagModal from "../TagModal/TagModal.js";
 import Select from "react-select";
@@ -198,6 +199,25 @@ interface ILetterTypes {
     letterType: number;
 }
 
+// Rotate an image clockwise by 90/180/270 degrees.
+const rotateImage = (src: string, degrees: number) =>
+    new Promise<string>((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => {
+            const sideways = degrees % 180 !== 0;
+            const canvas = document.createElement("canvas");
+            canvas.width = sideways ? image.height : image.width;
+            canvas.height = sideways ? image.width : image.height;
+            const ctx = canvas.getContext("2d")!;
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate((degrees * Math.PI) / 180);
+            ctx.drawImage(image, -image.width / 2, -image.height / 2);
+            resolve(canvas.toDataURL("image/jpeg", 0.92));
+        };
+        image.onerror = reject;
+        image.src = src;
+    });
+
 const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
     const language = record.params.language;
     const bookUrl = record.params.url;
@@ -215,6 +235,13 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
     const [languages, setLanguages] = useState<any>(null);
     const [selectedLanguage, setSelectedLanguage] = useState(language);
     const [bookInfo, setBookInfo] = useState<any>(null);
+    const [autopilot, setAutopilot] = useState(false);
+    // Page image as fetched, and saved rotations ({ [page]: degrees }, 0 = whole book).
+    const [rawImg, setRawImg] = useState<{ page: number; data: string } | null>(null);
+    const [rotations, setRotations] = useState<Record<number, number>>({});
+    const [rotateAllPages, setRotateAllPages] = useState(false);
+    const rotationOf = (page: number) => rotations[page] ?? rotations[0] ?? 0;
+    const [highlight, setHighlight] = useState<ITagBox | null>(null);
 
     useEffect(() => {
         axios
@@ -226,6 +253,9 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                 loadImage(currentPage);
             });
         getLetterTypes();
+        axios
+            .get(`${BASE_URL}/page-rotations`, { params: { bookId } })
+            .then((response) => setRotations(response.data));
         axios
             .get(`${BASE_URL}/book-info`, {
                 params: { identifier: bookIdentifier },
@@ -248,11 +278,32 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                 var reader = new window.FileReader();
                 reader.readAsDataURL(response.data);
                 reader.onload = function () {
-                    var imageDataUrl = reader.result;
-                    setImg(imageDataUrl as string);
+                    setRawImg({ page, data: reader.result as string });
                     setLoading(false);
                 };
             });
+    };
+
+    // Show the page upright: everything downstream (cropper, Autopilot, saved boxes) uses the rotated image.
+    useEffect(() => {
+        if (!rawImg) return;
+        let cancelled = false;
+        const degrees = rotationOf(rawImg.page);
+        (degrees ? rotateImage(rawImg.data, degrees) : Promise.resolve(rawImg.data)).then((data) => {
+            if (!cancelled) setImg(data);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [rawImg, rotations]);
+
+    const rotate = (delta: number) => {
+        const rotation = (rotationOf(currentPage) + delta + 360) % 360;
+        const page = rotateAllPages ? 0 : currentPage;
+        axios.post(`${BASE_URL}/page-rotation`, { book_id: bookId, page, rotation }).then(() => {
+            setHighlight(null);
+            setRotations(page === 0 ? { 0: rotation } : { ...rotations, [page]: rotation });
+        });
     };
 
     const getLetterTypes = () => {
@@ -287,7 +338,17 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
         });
     };
 
+    const showSource = ({ page, box }: ITagSource) => {
+        setHighlight(box);
+        if (page !== currentPage) {
+            setImg("");
+            setCurrentPage(page);
+            loadImage(page);
+        }
+    };
+
     const handleNext = () => {
+        setHighlight(null);
         if (currentPage < totalPages) {
             setImg("");
             setCurrentPage(currentPage + 1);
@@ -296,6 +357,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
     };
 
     const handlePrev = () => {
+        setHighlight(null);
         if (currentPage > 0) {
             setImg("");
             setCurrentPage(currentPage - 1);
@@ -309,6 +371,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
 
     const handleGoToPage = (event) => {
         event.preventDefault();
+        setHighlight(null);
         setImg("");
         setCurrentPage(goToPage);
         loadImage(goToPage);
@@ -320,7 +383,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
 
     return (
         <>
-            <LetterTagProvider>
+            <LetterTagProvider onShowSource={showSource}>
                 <LettersProvider>
                     <ProgressWrap>
                         <p>% Completed</p>
@@ -471,6 +534,43 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             </NavigationArrows>
                         </NavWrapLeft>
                         <NavWrapRight>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                size="icon"
+                                disabled={!img}
+                                onClick={() => rotate(-90)}
+                                title="Rotate page left"
+                            >
+                                ↺
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                color="primary"
+                                size="icon"
+                                disabled={!img}
+                                onClick={() => rotate(90)}
+                                title="Rotate page right"
+                            >
+                                ↻
+                            </Button>
+                            <label style={{ fontSize: "12px", display: "flex", alignItems: "center", gap: "4px" }}>
+                                <input
+                                    type="checkbox"
+                                    checked={rotateAllPages}
+                                    onChange={(e) => setRotateAllPages(e.target.checked)}
+                                />
+                                All pages
+                            </label>
+                            <Button
+                                variant={autopilot ? "contained" : "outlined"}
+                                color="primary"
+                                disabled={!img}
+                                onClick={() => setAutopilot(!autopilot)}
+                                title="Find letters on this page and suggest tags for you to confirm"
+                            >
+                                Autopilot
+                            </Button>
                             <PdfGenerator
                                 bookId={bookId}
                                 loading={loading}
@@ -516,6 +616,8 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             <ImageWrap>
                                 <BookImage
                                     image={img}
+                                    page={currentPage}
+                                    highlight={highlight}
                                     setCapturing={setCapturing}
                                     capturing={capturing}
                                     setTag={setTag}
@@ -523,13 +625,28 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                             </ImageWrap>
                         </LeftSide>
                         <RightSide>
-                            <RightSideBar
-                                bookId={bookId}
-                                loading={loading}
-                                letterTypes={letterTypes}
-                                setLetterTypes={setLetterTypes}
-                                selectedLanguage={selectedLanguage}
-                            />
+                            {autopilot ? (
+                                <AutoTag
+                                    image={img}
+                                    page={currentPage}
+                                    bookId={bookId}
+                                    language={language}
+                                    onNextPage={handleNext}
+                                    onClose={() => setAutopilot(false)}
+                                    onRecrop={(box) => {
+                                        setHighlight(box);
+                                        setCapturing(true); // enables Save / Enter on the placed crop box
+                                    }}
+                                />
+                            ) : (
+                                <RightSideBar
+                                    bookId={bookId}
+                                    loading={loading}
+                                    letterTypes={letterTypes}
+                                    setLetterTypes={setLetterTypes}
+                                    selectedLanguage={selectedLanguage}
+                                />
+                            )}
                         </RightSide>
                     </Content>
                     {tag && (

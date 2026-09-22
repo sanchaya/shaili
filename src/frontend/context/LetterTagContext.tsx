@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode } from "react";
+import React, { createContext, useContext, useReducer, useRef, ReactNode } from "react";
 import { TaggedLetters } from "../../backend/db/models/TaggedLetters.js";
 import axios from "axios";
 import { useCurrentAdmin } from "adminjs";
@@ -8,11 +8,26 @@ interface ITags {
     recentLetters: TaggedLetters[];
 }
 
+export interface ITagBox {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}
+
+// Where a specimen was cropped from (page is 1-based, box in page-image pixels).
+export interface ITagSource {
+    page: number;
+    box: ITagBox;
+}
+
 interface IAddTag {
     book_id: number;
     letter_id: number | undefined;
     croppedImage: string;
     tagged_by: number | undefined;
+    page?: number;
+    box?: ITagBox;
 }
 interface IUpdateTag {
     id: number;
@@ -54,6 +69,8 @@ const LetterTagContext = createContext<
           addTag: (tag: IAddTag) => Promise<void>;
           removeTag: (letterId: number) => Promise<void>;
           updateTag: (tag: IUpdateTag) => Promise<void>;
+          setCropSource: (source: ITagSource | null) => void;
+          showSource?: (source: ITagSource) => void;
       }
     | undefined
 >(undefined);
@@ -132,9 +149,15 @@ export const useLetterTagContext = () => {
 
 interface Props {
     children: ReactNode;
+    onShowSource?: (source: ITagSource) => void;
 }
 
-const LetterTagProvider = ({ children }: Props) => {
+const LetterTagProvider = ({ children, onShowSource }: Props) => {
+    // Set by the manual cropper; used by addTag unless the caller passes its own.
+    const cropSource = useRef<ITagSource | null>(null);
+    const setCropSource = (source: ITagSource | null) => {
+        cropSource.current = source;
+    };
     const [tags, dispatch] = useReducer(letterTagReducer, {
         taggedLetters: [],
         recentLetters: [],
@@ -161,7 +184,7 @@ const LetterTagProvider = ({ children }: Props) => {
     };
 
     const addTag = async (tag: IAddTag) => {
-        const response = await axios.post(`${BASE_URL}/save-tag`, tag, {
+        const response = await axios.post(`${BASE_URL}/save-tag`, { ...cropSource.current, ...tag }, {
             headers: {
                 "Content-Type": "application/json",
             },
@@ -208,7 +231,7 @@ const LetterTagProvider = ({ children }: Props) => {
 
     return (
         <LetterTagContext.Provider
-            value={{ tags, dispatch, fetchTag, addTag, updateTag, removeTag }}
+            value={{ tags, dispatch, fetchTag, addTag, updateTag, removeTag, setCropSource, showSource: onShowSource }}
         >
             {children}
         </LetterTagContext.Provider>
