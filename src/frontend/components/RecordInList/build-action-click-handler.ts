@@ -72,10 +72,11 @@ export const buildActionClickHandler = (
         hrefParams.append(key, value)
       })
 
-      navigate({
-        pathname: url.pathname,
-        search: hrefParams.toString(),
-      })
+      // Remember the list we came from (filters/page/sort) so the target page can link back to it.
+      navigate(
+        { pathname: url.pathname, search: hrefParams.toString() },
+        { state: { from: location ? location.pathname + location.search : undefined } },
+      )
     }
   }
 

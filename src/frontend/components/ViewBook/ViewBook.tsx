@@ -14,6 +14,9 @@ import ProgressBar from "./ProgressBar.js";
 import PdfGenerator from "../PDFGenerator/PdfGenerator.js";
 import CommentsProvider from "../../context/CommentsContext.js";
 import Comments from "../Comments/Comments.js";
+import EditBookModal from "./EditBookModal.js";
+import { useCurrentAdmin } from "adminjs";
+import { usePermissions } from "../../hooks/usePermissions.js";
 
 const Content = styled.div`
     display: flex;
@@ -242,6 +245,10 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
     const [rotateAllPages, setRotateAllPages] = useState(false);
     const rotationOf = (page: number) => rotations[page] ?? rotations[0] ?? 0;
     const [highlight, setHighlight] = useState<ITagBox | null>(null);
+    const [editing, setEditing] = useState(false);
+    const languageName = (code: string | null) => languages?.find((l) => l.value === code)?.label ?? code;
+    const [currentAdmin] = useCurrentAdmin();
+    const { canAccess } = usePermissions(currentAdmin?.role || 0);
 
     useEffect(() => {
         axios
@@ -383,6 +390,19 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
 
     return (
         <>
+            {editing && (
+                <EditBookModal
+                    recordId={bookId}
+                    onClose={() => setEditing(false)}
+                    onSave={(saved) => {
+                        setEditing(false);
+                        // Page images are fetched by identifier, so a changed one needs a fresh load.
+                        if (saved.params.identifier !== bookIdentifier) return window.location.reload();
+                        setBookInfo(saved.params);
+                        setSelectedLanguage(saved.params.language);
+                    }}
+                />
+            )}
             <LetterTagProvider onShowSource={showSource}>
                 <LettersProvider>
                     <ProgressWrap>
@@ -394,6 +414,17 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                     <BookMetadata>
                         <BookTitle>
                             {bookInfo?.name || record.params.name}
+                            {canAccess("books", "edit") && (
+                                <Button
+                                    variant="outlined"
+                                    size="sm"
+                                    ml="lg"
+                                    onClick={() => setEditing(true)}
+                                >
+                                    <Icon icon="Edit" />
+                                    Edit metadata
+                                </Button>
+                            )}
                         </BookTitle>
                         {bookInfo?.author_name && (
                             <BookMetaItem>
@@ -405,7 +436,9 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
                         )}
                         <BookMetaItem>
                             <BookMetaLabel>Language</BookMetaLabel>
-                            <BookMetaValue>{selectedLanguage}</BookMetaValue>
+                            <BookMetaValue>
+                                {languageName(selectedLanguage)}
+                            </BookMetaValue>
                         </BookMetaItem>
                         {(bookInfo?.publisher_name || record.params.publisher_name) && (
                             <BookMetaItem>

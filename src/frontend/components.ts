@@ -38,6 +38,7 @@ const Components = {
         "./components/Sidebar/Sidebar"
     ),
     TopBar: componentLoader.override("TopBar", "./components/TopBar/TopBar"),
+    Breadcrumbs: componentLoader.override("Breadcrumbs", "./components/Breadcrumbs/Breadcrumbs"),
     Comparison: componentLoader.add(
         "Comparison",
         "./components/Comparison/Comparison"

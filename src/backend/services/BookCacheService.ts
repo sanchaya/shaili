@@ -113,7 +113,7 @@ export async function prefetchPages(identifier: string, pageNumbers: number[]): 
 export async function getBookMetadata(identifier: string) {
     const book = await Books.findOne({ 
         where: { identifier },
-        attributes: ["id", "name", "identifier", "language", "published_year", "publisher_name", "url"]
+        attributes: ["id", "name", "identifier", "language", "published_year", "publisher_name", "publisher_city", "author_name", "printer_name", "printer_location", "url"]
     });
     return book;
 }

@@ -180,7 +180,6 @@ export const BookResource = {
                 isAccessible: async (context: ActionContext) =>
                     isAccessible(context, "edit"),
                 before: [BookEditBefore],
-                isModal: true,
             },
             show: {
                 before: [beforeBooksShowHook],
@@ -236,9 +235,10 @@ export const BookResource = {
                     }
                 ) => {
                     const { record, currentAdmin } = context;
-                    return {
-                        record: record?.toJSON(currentAdmin),
-                    };
+                    const json = record?.toJSON(currentAdmin);
+                    // No Show/Edit/Delete header buttons here: metadata is edited in a popup, delete lives in the list.
+                    if (json) json.recordActions = json.recordActions.filter((a) => a.name === "ViewBook");
+                    return { record: json };
                 },
             },
         },
