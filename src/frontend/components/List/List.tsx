@@ -1,11 +1,13 @@
-import { Box, Pagination, Text } from '@adminjs/design-system'
-import { ActionProps, RecordsTable, useRecords, useSelectedRecords } from 'adminjs'
-import React, { useEffect } from 'react'
+import { Box, Button, Icon, Pagination, Text } from '@adminjs/design-system'
+import { ActionProps, RecordsTable, useCurrentAdmin, useRecords, useSelectedRecords } from 'adminjs'
+import React, { useEffect, useState } from 'react'
 import { useLocation } from 'react-router'
 import { getActionElementCss } from '../RecordInList/data-css-name.js'
 import { useQueryParams } from './use-query-params.js'
 import LanguageCards from '../LanguageCards/LanguageCards.js'
 import LettersGroupedList from '../Letters/LettersGroupedList.js'
+import BookFormModal from '../ViewBook/BookFormModal.js'
+import { usePermissions } from '../../hooks/usePermissions.js'
 
 const List: React.FC<ActionProps> = ({ resource, setTag }) => {
     const {
@@ -71,9 +73,33 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
 
     const contentTag = getActionElementCss(resource.id, 'list', 'table-wrapper')
 
+    // Books are added from a popup (the header "Create new" is hidden for books).
+    const [currentAdmin] = useCurrentAdmin()
+    const { canAccess } = usePermissions(currentAdmin?.role || 0)
+    const [addingBook, setAddingBook] = useState(false)
+    const addBook = resource.id === 'books' && canAccess('books', 'new') && (
+        <Box flex justifyContent="flex-end" mb="lg">
+            <Button variant="contained" onClick={() => setAddingBook(true)}>
+                <Icon icon="Plus" />
+                Add book
+            </Button>
+            {addingBook && (
+                <BookFormModal
+                    language={filters?.language as string}
+                    onClose={() => setAddingBook(false)}
+                    onSave={() => {
+                        setAddingBook(false)
+                        fetchData()
+                    }}
+                />
+            )}
+        </Box>
+    )
+
     if (showLanguageCards) {
         return (
             <Box variant="container" data-css={contentTag}>
+                {addBook}
                 <LanguageCards
                     resourceId={resource.id}
                     onLanguageSelect={(code) =>
@@ -109,6 +135,7 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
 
     return (
         <Box variant="container" data-css={contentTag}>
+            {addBook}
             {showBackToLanguages && (
                 <Box mb="lg">
                     <Text

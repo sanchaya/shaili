@@ -13,6 +13,7 @@ import { menu } from "../../common/menu.js";
 import {
     BookDeleteBefore,
     BookDeleteHandler,
+    BookBulkDeleteHandler,
     BookEditBefore,
 } from "../utils/BookResourceUtils.js";
 import csvParser from "csv-parser";
@@ -174,6 +175,7 @@ export const BookResource = {
             new: {
                 isAccessible: async (context: ActionContext) =>
                     isAccessible(context, "new"),
+                isVisible: false, // added from the "Add book" popup on the list instead
                 before: [BookEditBefore],
             },
             edit: {
@@ -205,7 +207,9 @@ export const BookResource = {
                     isAccessible(context, "export"),
             },
             bulkDelete: {
-                isAccessible: false,
+                isAccessible: async (context: ActionContext) =>
+                    isAccessible(context, "delete"),
+                handler: BookBulkDeleteHandler,
             },
             list: {
                 isAccessible: (_: any, __: any) => true,

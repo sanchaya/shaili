@@ -16,6 +16,10 @@ Working from digitized books — many printed in the 19th century by the mission
 - **Letter Extraction** — Crop individual letter specimens (vowels, consonants, conjuncts, numerals, symbols) directly from scanned book pages
 - **Tagging Workflow** — Classify specimens by letter type with progress tracking per book
 - **Books Admin** — Language cards open that language's books with *In Progress* ones first; the list shows status names and a per-book Progress column
+  - **Add book** (popup on the books list) — paste an archive.org URL and title, identifier, author, publisher, year and language are filled from archive.org for review before saving; a book already in the portal is flagged instead of duplicated
+  - **Edit metadata** (popup on the book view) — saving keeps you on the same book; the book view shows the language name, author, publisher, city, year and printer name/location
+  - **Bulk delete** — tick books in the list and delete them together (needs the `delete` permission); like a single delete, each book's tags and comments are removed and its tag images moved to `tags/deleted/`. Delete is offered only from the list, not the book view
+  - **Breadcrumbs** — a book's page reads *Dashboard / Books / ‹Language› Books / View*; the language crumb returns to the list you came from (same page and sort)
 - **Autopilot (OCR assistant)** — Finds every letter on a page, groups identical shapes, suggests the letter, and tags a whole group once a reviewer confirms (see [Autopilot](#autopilot))
 - **Page Rotation** — Rotate sideways/upside-down scans per page or for the whole book; saved for everyone
 - **Specimen Source** — Every tag stores its page and crop box; the tag list links back to where a specimen came from
@@ -223,10 +227,11 @@ Comments ──belongsTo──> Users
 | GET | `/admin/get-books-with-tags` | List books with tagged letters |
 | GET | `/admin/search-books` | Search books by name |
 | GET | `/admin/books-by-language` | Get books for a language |
-| GET | `/admin/total-pages` | Get total pages for a book |
+| GET | `/admin/total-pages` | Get total pages for a book (archive.org `imagecount`, else the BookReader page list for items without it) |
 | GET | `/admin/fetch-page` | Fetch a book page image |
 | POST | `/admin/prefetch-pages` | Batch-prefetch book pages |
 | GET | `/admin/book-info` | Get book metadata |
+| GET | `/admin/archive-metadata?url=` | Book fields from an archive.org URL or identifier, for the Add book popup; `409` if the book already exists, `404` if archive.org has no such item |
 | GET | `/admin/page-rotations?bookId=` | Saved rotations for a book (`{ page: degrees }`, `0` = whole book) |
 | POST | `/admin/page-rotation` | Save a rotation: `{ book_id, page, rotation }`; `page: 0` sets the whole book and clears per-page ones |
 
@@ -307,7 +312,7 @@ Every language has Vowels, Consonants, Numerals and Special Symbols. For the 17 
 
 ## Workflow
 
-1. **Ingest** — Admins fetch books from Internet Archive by language via job queue
+1. **Ingest** — Admins fetch books from Internet Archive by language via job queue, or add a single book with **Add book** by pasting its archive.org URL
 2. **Browse** — Users select a book and page through scanned images
 3. **Extract** — Use the cropper tool to select individual letter specimens, or turn on **Autopilot** to have letters found for you. Rotate the page first (↺ ↻) if it was scanned sideways
 4. **Tag** — Classify the specimen by letter type (vowel, consonant, conjunct, etc.)

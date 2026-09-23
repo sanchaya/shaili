@@ -204,3 +204,41 @@ export function getLanguageName(code: string): string | undefined {
 export function getAllLanguageCodes(): string[] {
     return Object.keys(LANGUAGE_MAP);
 }
+// Accepts an archive.org URL (details/download/embed) or a bare identifier.
+export function parseArchiveIdentifier(input: string): string | null {
+    const value = input.trim();
+    const id = value.match(/archive\.org\/(?:details|download|embed)\/([^/?#\s]+)/)?.[1] ?? value;
+    return /^[A-Za-z0-9._-]+$/.test(id) ? id : null;
+}
+
+// One item's metadata from archive.org, shaped as Books fields for the new-book form.
+export async function fetchArchiveBook(identifier: string) {
+    const response = await fetch(`https://archive.org/metadata/${identifier}/metadata`, {
+        signal: AbortSignal.timeout(15000),
+    });
+    if (!response.ok) throw new Error(`archive.org HTTP ${response.status}`);
+    const meta = (await response.json()).result;
+    if (!meta) return null;
+
+    // IA's language is usually ISO 639-3 ("kan"), sometimes a name ("Kannada") or several values.
+    const iaLanguages = [meta.language].flat().filter(Boolean).map((l: string) => l.toLowerCase());
+    const language = iaLanguages.length
+        ? await Languages.findOne({
+              where: {
+                  [Op.or]: ["language_code", "iso_639_1", "iso_639_2", "iso_639_3", "alt_lang_code", "language"].map(
+                      (column) => ({ [column]: { [Op.in]: iaLanguages } })
+                  ),
+              },
+          })
+        : null;
+
+    return {
+        name: normalizeField(meta.title)?.slice(0, 128) ?? "",
+        url: `https://archive.org/details/${identifier}`,
+        identifier,
+        language: language?.language_code ?? "",
+        author_name: normalizeField(meta.creator) ?? "",
+        publisher_name: normalizeField(meta.publisher) ?? "",
+        published_year: String(meta.year ?? meta.date ?? "").match(/\d{4}/)?.[0] ?? "",
+    };
+}

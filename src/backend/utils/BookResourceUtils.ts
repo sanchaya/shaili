@@ -24,47 +24,52 @@ export const BookDeleteBefore = async (
     return { request, context };
 };
 
+// Deletes a book with its tags and comments; tag images are moved to tags/deleted/, not removed.
+export const deleteBook = async (id: string | number) => {
+    const book = await Books.findOne({
+        where: {
+            id: id,
+        },
+    });
+    const bookTags = await TaggedLetters.findAll({
+        where: { book_id: id },
+    });
+    if (bookTags.length > 0) {
+        const tagsDirectory = TaggedLetterController.getTagsDirectory();
+        const bookTagDirectory = `${tagsDirectory}/tags/${book?.dataValues.identifier}/`;
+        const deletedPath = `${tagsDirectory}/tags/deleted/${getTimeStamp()}_${
+            book?.dataValues.identifier
+        }/`;
+        if (!fs.existsSync(deletedPath)) {
+            await mkdir(deletedPath, {
+                recursive: true,
+            });
+        }
+        // A book can have tag rows but no folder (e.g. a moved tags dir); don't let that abort the delete.
+        if (fs.existsSync(bookTagDirectory) && fs.readdirSync(bookTagDirectory).length > 0) {
+            await rename(bookTagDirectory, deletedPath);
+        }
+    }
+    await TaggedLetters.destroy({
+        where: { book_id: id },
+    });
+
+    await Comments.destroy({
+        where: { book: id },
+    });
+
+    await Books.destroy({
+        where: {
+            id: id,
+        },
+    });
+};
+
 export const BookDeleteHandler = async (props) => {
     const { request, context } = props;
     const { record, resource, currentAdmin, h } = context;
     if (request.params.recordId) {
-        const book = await Books.findOne({
-            where: {
-                id: request.params.recordId,
-            },
-        });
-        const bookTags = await TaggedLetters.findAll({
-            where: { book_id: request.params.recordId },
-        });
-        if (bookTags.length > 0) {
-            const tagsDirectory = TaggedLetterController.getTagsDirectory();
-            const bookTagDirectory = `${tagsDirectory}/tags/${book?.dataValues.identifier}/`;
-            const deletedPath = `${tagsDirectory}/tags/deleted/${getTimeStamp()}_${
-                book?.dataValues.identifier
-            }/`;
-            if (!fs.existsSync(deletedPath)) {
-                await mkdir(deletedPath, {
-                    recursive: true,
-                });
-            }
-            const filesInTagsDirectory = fs.readdirSync(bookTagDirectory);
-            if (filesInTagsDirectory.length > 0) {
-                await rename(bookTagDirectory, deletedPath);
-            }
-        }
-        await TaggedLetters.destroy({
-            where: { book_id: request.params.recordId },
-        });
-
-        await Comments.destroy({
-            where: { book: request.params.recordId },
-        });
-
-        await Books.destroy({
-            where: {
-                id: request.params.recordId,
-            },
-        });
+        await deleteBook(request.params.recordId);
         const deletedBook = await Books.findOne({
             where: {
                 id: request.params.recordId,
@@ -116,4 +121,23 @@ export const BookEditBefore = async (request: ActionRequest) => {
         payload.published_year === "" ? null : payload.published_year;
 
     return request;
+};
+
+// Bulk delete from the books list: same cleanup as a single delete, one book at a time.
+export const BookBulkDeleteHandler = async (request: ActionRequest, _response, context: ActionContext) => {
+    const { records = [], resource, h, currentAdmin } = context;
+    const recordsJSON = records.map((record) => record.toJSON(currentAdmin));
+    if (request.method !== "post") return { records: recordsJSON };
+
+    for (const record of records) await deleteBook(record.id());
+    return {
+        records: recordsJSON,
+        notice: {
+            message: records.length > 1 ? "successfullyBulkDeleted_plural" : "successfullyBulkDeleted",
+            options: { count: records.length },
+            resourceId: resource.id(),
+            type: "success",
+        },
+        redirectUrl: h.resourceUrl({ resourceId: resource._decorated?.id() || resource.id() }),
+    };
 };

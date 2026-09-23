@@ -62,17 +62,36 @@ export async function cachePageImage(identifier: string, pageNum: number, imageB
     return cache.pages[pageNum];
 }
 
+// Many items (e.g. newer dli.ernet uploads) have no `imagecount`; ask BookReader, which serves the
+// /page/nN images we display, how many pages its image stack has.
+async function countBookReaderPages(identifier: string, item: any): Promise<number> {
+    // ponytail: first *_jp2.zip only; multi-volume items would need one count per image stack.
+    const stack = item?.files?.find((f: { name: string }) => f.name.endsWith("_jp2.zip"))?.name;
+    if (!stack || !item.server) return 0;
+    const response = await axios.get(`https://${item.server}/BookReader/BookReaderJSIA.php`, {
+        params: {
+            id: identifier,
+            itemPath: item.dir,
+            server: item.server,
+            subPrefix: stack.slice(0, -"_jp2.zip".length),
+            format: "json",
+        },
+        timeout: 20000,
+    });
+    const spreads: unknown[][] = response.data?.data?.brOptions?.data ?? [];
+    return spreads.reduce((sum, spread) => sum + spread.length, 0);
+}
+
 export async function getTotalPagesCached(identifier: string): Promise<number> {
     const cache = await getBookFromCache(identifier);
     if (cache?.totalPages) return cache.totalPages;
     
     try {
-        // Use the archive.org metadata API which reliably provides the page count
         const metadataUrl = `https://archive.org/metadata/${identifier}`;
         const response = await axios.get(metadataUrl, { timeout: 10000 });
         const imagecount = response.data?.metadata?.imagecount;
-        const totalPages = imagecount ? Number(imagecount) : 0;
-        
+        const totalPages = imagecount ? Number(imagecount) : await countBookReaderPages(identifier, response.data);
+
         if (totalPages) {
             const newCache = await getBookFromCache(identifier) || { identifier, totalPages: 0, pages: {}, lastFetched: new Date() };
             newCache.totalPages = totalPages;

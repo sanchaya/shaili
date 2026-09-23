@@ -8,7 +8,8 @@ import PdfController from "../controllers/PdfController.js";
 import LetterTypeController from "../controllers/LetterTypeController.js";
 import ProfileController from "../controllers/ProfileController.js";
 import PageRotationController from "../controllers/PageRotationController.js";
-import { fetchBooksForLanguage, fetchAllLanguages, getAllLanguageCodes } from "../services/InternetArchiveService.js";
+import { fetchBooksForLanguage, fetchAllLanguages, getAllLanguageCodes, parseArchiveIdentifier, fetchArchiveBook } from "../services/InternetArchiveService.js";
+import { Books } from "../db/models/Books.js";
 import { searchBooks, getBooksByLanguage, getBooksForTagging } from "../services/BookCacheService.js";
 import { addJob, getJob, getAllJobs, getQueueStats } from "../services/JobQueue.js";
 import { Letters } from "../db/models/Letters.js";
@@ -29,6 +30,18 @@ AdminRouter.get("/total-pages", requireLogin, RetriveBookImageController.getTota
 AdminRouter.get("/fetch-page", requireLogin, RetriveBookImageController.renderImage);
 AdminRouter.post("/prefetch-pages", requireLogin, RetriveBookImageController.prefetchBookPages);
 AdminRouter.get("/book-info", requireLogin, RetriveBookImageController.getBookInfo);
+AdminRouter.get("/archive-metadata", requireLogin, async (req, res) => {
+    const identifier = parseArchiveIdentifier(String(req.query.url ?? ""));
+    if (!identifier) return res.status(400).json({ error: "Not an archive.org book URL" });
+    const existing = await Books.findOne({ where: { identifier }, attributes: ["id", "name"] });
+    if (existing) return res.status(409).json({ error: `Already added as "${existing.name}"`, id: existing.id });
+    try {
+        const book = await fetchArchiveBook(identifier);
+        return book ? res.json(book) : res.status(404).json({ error: "No such item on archive.org" });
+    } catch {
+        return res.status(502).json({ error: "Could not reach archive.org, try again" });
+    }
+});
 AdminRouter.get("/page-rotations", requireLogin, PageRotationController.getRotations);
 AdminRouter.post("/page-rotation", requireLogin, PageRotationController.setRotation);
 AdminRouter.get("/tagged-letter", requireLogin, TaggedLetterController.getTaggedLetter);

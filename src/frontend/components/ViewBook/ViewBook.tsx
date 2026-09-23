@@ -14,7 +14,7 @@ import ProgressBar from "./ProgressBar.js";
 import PdfGenerator from "../PDFGenerator/PdfGenerator.js";
 import CommentsProvider from "../../context/CommentsContext.js";
 import Comments from "../Comments/Comments.js";
-import EditBookModal from "./EditBookModal.js";
+import BookFormModal from "./BookFormModal.js";
 import { useCurrentAdmin } from "adminjs";
 import { usePermissions } from "../../hooks/usePermissions.js";
 
@@ -391,7 +391,7 @@ const ViewBook: React.FC<IViewBookProps> = ({ record }) => {
     return (
         <>
             {editing && (
-                <EditBookModal
+                <BookFormModal
                     recordId={bookId}
                     onClose={() => setEditing(false)}
                     onSave={(saved) => {
