@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { styled } from "@adminjs/design-system/styled-components";
-import { Icon, Modal, ModalProps, Link } from "@adminjs/design-system";
+import { Icon, ModalProps, Link } from "@adminjs/design-system";
+import Modal from "../Popup/Popup.js";
 import React from "react";
 import { useLetterTagContext } from "../../context/LetterTagContext.js";
 import { useCurrentAdmin, useNotice } from "adminjs";

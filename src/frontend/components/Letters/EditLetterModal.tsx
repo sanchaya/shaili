@@ -6,9 +6,9 @@ import {
     Input,
     Button,
     Select,
-    Modal,
     ModalProps,
 } from "@adminjs/design-system";
+import Modal from "../Popup/Popup.js";
 import axios from "axios";
 import { useCurrentAdmin, useNotice } from "adminjs";
 import { useNavigate, useParams } from "react-router-dom";

@@ -1,6 +1,7 @@
 import { ShowPropertyProps, useNotice } from "adminjs";
 import React, { useState } from "react";
-import { Modal, ModalProps } from "@adminjs/design-system";
+import { ModalProps } from "@adminjs/design-system";
+import Modal from "../Popup/Popup.js";
 import axios from "axios";
 
 const LetterTypeStatus: React.FC<ShowPropertyProps> = ({ record }) => {

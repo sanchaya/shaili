@@ -3,7 +3,8 @@ import { menu } from "../../common/menu.js";
 import * as argon2 from "argon2";
 import passwordsFeature from "@adminjs/passwords";
 import { Components, componentLoader } from "../../frontend/components.js";
-import { ActionContext, CurrentAdmin, ListActionResponse } from "adminjs";
+import { ActionContext } from "adminjs";
+import { ForeignKeyConstraintError } from "sequelize";
 import { UserEditHandler, hashPassword } from "../utils/UsersResourceUtils.js";
 import { canAccess } from "../utils/permissions.js";
 
@@ -113,24 +114,6 @@ export const UsersResource = {
             list: {
                 isAccessible: async (context: ActionContext) =>
                     isAccessible(context, "list"),
-                after: async (
-                    response: ListActionResponse,
-                    context: { session: CurrentAdmin }
-                ) => {
-                    let foundIndex = -1;
-
-                    response.records.forEach((record, index) => {
-                        if (record.params.id === context.session.adminUser.id) {
-                            foundIndex = index;
-                        }
-                    });
-
-                    if (foundIndex !== -1) {
-                        response.records.splice(foundIndex, 1);
-                        response.meta.total--;
-                    }
-                    return response;
-                },
             },
             edit: {
                 component: Components.UserEditAction,
@@ -147,8 +130,33 @@ export const UsersResource = {
                     isAccessible(context, "show"),
             },
             delete: {
+                // Listing now includes yourself; don't let anyone delete their own account.
                 isAccessible: async (context: ActionContext) =>
+                    context.record?.params?.id !== context.currentAdmin?.id &&
                     isAccessible(context, "delete"),
+                // letters/letter_types/languages/comments keep FKs to their author, so MySQL refuses the delete.
+                handler: async (request, response, context: ActionContext) => {
+                    const { record, resource, h, currentAdmin } = context;
+                    const resourceUrl = h.resourceUrl({ resourceId: resource._decorated?.id() || resource.id() });
+                    try {
+                        await resource.delete(request.params.recordId);
+                    } catch (error) {
+                        if (!(error instanceof ForeignKeyConstraintError)) throw error;
+                        return {
+                            record: record!.toJSON(currentAdmin),
+                            redirectUrl: resourceUrl,
+                            notice: {
+                                message: "This user has letters, languages or comments linked to them and can't be deleted.",
+                                type: "error",
+                            },
+                        };
+                    }
+                    return {
+                        record: record!.toJSON(currentAdmin),
+                        redirectUrl: resourceUrl,
+                        notice: { message: "successfullyDeleted", type: "success" },
+                    };
+                },
             },
             new: {
                 isAccessible: async (context: ActionContext) =>

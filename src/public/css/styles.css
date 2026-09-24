@@ -451,3 +451,32 @@ h4.sc-ilEZps.hhnezv.sc-gXSCqU.letterTypeHeader {
         margin-left: 0 !important;
     }
 }
+
+/* Users list: highlight the logged-in user's row */
+tr.current-user td {
+    background-color: rgba(48, 64, 214, 0.06);
+}
+
+.current-user-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin-left: 8px;
+    border-radius: 50%;
+    background-color: #22c55e;
+    vertical-align: middle;
+}
+
+/* Popup (native <dialog>, see components/Popup) */
+dialog.popup {
+    width: min(540px, calc(100vw - 32px));
+    max-height: 90vh;
+    padding: 0;
+    border: none;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+dialog.popup::backdrop {
+    background: rgba(0, 0, 0, 0.2);
+}

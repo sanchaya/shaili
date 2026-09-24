@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, FormGroup, Input, Label, Modal } from "@adminjs/design-system";
+import { Box, Button, FormGroup, Input, Label } from "@adminjs/design-system";
+import Modal from "../Popup/Popup.js";
 import { ApiClient, BasePropertyComponent, RecordJSON, useNotice, useRecord, useResource } from "adminjs";
 import axios from "axios";
 
@@ -55,8 +56,7 @@ const BookForm = ({ initialRecord, language, onClose, onSave }: FormProps) => {
                 { label: "Save", variant: "contained", onClick: save, disabled: loading || fetching },
             ]}
         >
-            {/* Modal pads 32px left / 24px right; +8px here evens the gutters. */}
-            <Box style={{ maxHeight: "60vh", overflowY: "auto", paddingRight: 8 }}>
+            <Box>
                 {creating && (
                     <FormGroup>
                         <Label>archive.org URL</Label>

@@ -6,6 +6,9 @@ import {
     TableCell,
     CheckBox,
     ButtonGroup,
+    Button,
+    Icon,
+    Box,
 } from "@adminjs/design-system";
 import {
     ActionJSON,
@@ -15,6 +18,7 @@ import {
     RecordJSON,
     ResourceJSON,
     useActionResponseHandler,
+    useCurrentAdmin,
     useModal,
     useTranslation,
 } from "adminjs";
@@ -25,6 +29,7 @@ import { getResourceElementCss } from "./data-css-name.js";
 import { display } from "./display.js";
 import EditLetterModal from "../Letters/EditLetterModal.js";
 import EditLetterTypeModal from "../LetterTypes/EditLetterTypeModal.js";
+import UserModal from "../Users/UserModal.js";
 
 export type RecordInListProps = {
     resource: ResourceJSON;
@@ -49,8 +54,12 @@ const RecordInList: React.FC<RecordInListProps> = (props) => {
     const location = useLocation();
     const translateFunctions = useTranslation();
     const modalFunctions = useModal();
+    const [currentAdmin] = useCurrentAdmin();
+    const isUsers = resource.id === "users";
+    const isCurrentUser = isUsers && String(record.id) === String(currentAdmin?.id);
 
     const [modalOpen, setModalOpen] = useState<RecordJSON | null>(null);
+    const [editInModal, setEditInModal] = useState(false);
 
     const handleActionCallback = useCallback(
         (actionResponse: ActionResponse) => {
@@ -96,15 +105,16 @@ const RecordInList: React.FC<RecordInListProps> = (props) => {
             event.target as HTMLElement
         ).tagName.toLowerCase();
 
-        // Open a modal popup for letters and letter_types instead of navigating
+        // Open a modal popup for letters, letter_types and users instead of navigating
         if (
-            (resource.id === "letters" || resource.id === "letter_types") &&
+            (resource.id === "letters" || resource.id === "letter_types" || isUsers) &&
             targetTagName !== "a" &&
             targetTagName !== "button" &&
             targetTagName !== "svg"
         ) {
             event.preventDefault();
             event.stopPropagation();
+            setEditInModal(false);
             setModalOpen(record);
             return;
         }
@@ -162,7 +172,7 @@ const RecordInList: React.FC<RecordInListProps> = (props) => {
     return (
         <>
             <TableRow
-                className={isSelected ? "selected" : "not-selected"}
+                className={`${isSelected ? "selected" : "not-selected"}${isCurrentUser ? " current-user" : ""}`}
                 onClick={handleClick}
                 data-id={record.id}
                 data-css={contentTag}
@@ -188,19 +198,46 @@ const RecordInList: React.FC<RecordInListProps> = (props) => {
                         {isLoading ? (
                             <Placeholder style={{ height: 14 }} />
                         ) : (
-                            <BasePropertyComponent
-                                key={property.propertyPath}
-                                where="list"
-                                property={property}
-                                resource={resource}
-                                record={record}
-                            />
+                            <>
+                                <BasePropertyComponent
+                                    key={property.propertyPath}
+                                    where="list"
+                                    property={property}
+                                    resource={resource}
+                                    record={record}
+                                />
+                                {isCurrentUser && property.isTitle && (
+                                    <span className="current-user-dot" title="You (logged in)" />
+                                )}
+                            </>
                         )}
                     </TableCell>
                 );
             })}
             <TableCell key="options" className="options">
-                {recordActions.length ? (
+                {isUsers ? (
+                    <Box flex style={{ gap: 4 }}>
+                        {recordActions.map((a) => (
+                            <Button
+                                key={a.name}
+                                type="button"
+                                size="icon"
+                                variant="text"
+                                color={a.variant === "danger" ? "danger" : undefined}
+                                title={translateFunctions.translateAction(a.label, resource.id)}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    if (a.name === "show" || a.name === "edit") {
+                                        setEditInModal(a.name === "edit");
+                                        setModalOpen(record);
+                                    } else handleActionClick(event, a);
+                                }}
+                            >
+                                <Icon icon={a.icon} />
+                            </Button>
+                        ))}
+                    </Box>
+                ) : recordActions.length ? (
                     <ButtonGroup buttons={buttons} />
                 ) : null}
             </TableCell>
@@ -217,6 +254,16 @@ const RecordInList: React.FC<RecordInListProps> = (props) => {
                         record={modalOpen}
                         onClose={() => setModalOpen(null)}
                         onSave={() => setModalOpen(null)}
+                    />
+                ) : isUsers ? (
+                    <UserModal
+                        record={modalOpen}
+                        startEditing={editInModal}
+                        onClose={() => setModalOpen(null)}
+                        onSave={() => {
+                            setModalOpen(null);
+                            actionPerformed?.({} as ActionResponse);
+                        }}
                     />
                 ) : null)}
         </>
