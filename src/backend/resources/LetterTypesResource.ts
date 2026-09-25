@@ -59,6 +59,7 @@ export const LetterTypesResource = {
             },
         },
         properties: {
+            type: { isTitle: true },
             language: {
                 reference: "languages",
             },

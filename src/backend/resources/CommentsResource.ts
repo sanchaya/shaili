@@ -22,6 +22,7 @@ export const CommentsResource = {
         showProperties: ["book", "commented_by", "comment", "created_at"],
         properties: {
             comment: {
+                isTitle: true,
                 components: {
                     list: Components.SingleCommentInList,
                     show: Components.SingleCommentInList,

@@ -41,6 +41,8 @@ export const LanguagesResource = {
     resource: Languages,
     options: {
         navigation: menu.Languages,
+        // Phones show only the title column; without one the list renders empty.
+        properties: { language: { isTitle: true } },
         editProperties: [
             "language",
             "language_code",

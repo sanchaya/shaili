@@ -13,6 +13,7 @@ export const BookStatusResource = {
     options: {
         navigation: menu.AdminTools,
         titleProperty: "status",
+        properties: { status: { isTitle: true } },
         editProperties: ["id", "status"],
         listProperties: ["id", "status"],
         showProperties: ["id", "status"],

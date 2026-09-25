@@ -9,6 +9,7 @@ export const UserRolesResource = {
                 isVisible: { list: true, show: true, edit: false, filter: true },
             },
             role: {
+                isTitle: true,
                 isVisible: { list: true, show: true, edit: true, filter: true },
                 isRequired: true,
             },

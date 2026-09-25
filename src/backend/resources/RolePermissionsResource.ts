@@ -17,6 +17,7 @@ export const RolePermissionsResource = {
                 reference: "user_roles",
             },
             resource: {
+                isTitle: true,
                 isVisible: { list: true, show: true, edit: true, filter: true },
                 isRequired: true,
                 availableValues: [

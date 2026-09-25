@@ -324,6 +324,7 @@ export const LetterResource = {
             },
         },
         properties: {
+            letter: { isTitle: true },
             language: {
                 reference: "languages",
             },
