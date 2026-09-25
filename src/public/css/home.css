@@ -1110,13 +1110,14 @@ nav {
 }
 
 /* ---------- Nav layout & flow helpers ---------- */
+/* Desktop: logo + brand name centred on top, menu centred on a row below. */
 @media only screen and (min-width: 1025px) {
   nav {
-    justify-content: flex-start;
-    padding-left: 32px;
+    flex-direction: column;
+    gap: 8px;
   }
-  .center-nav {
-    align-items: flex-start;
+  .menu-items {
+    position: static;
   }
 }
 

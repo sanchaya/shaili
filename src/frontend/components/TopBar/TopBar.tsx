@@ -1,19 +1,16 @@
 import { Box, BoxProps, Icon, cssClass } from "@adminjs/design-system";
 import { styled } from "@adminjs/design-system/styled-components";
 import { LoggedIn, ReduxState, Version } from "adminjs";
-import React, { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useCurrentAdmin } from "adminjs";
-import {
-    getSidebarCollapsed,
-    subscribeSidebar,
-    toggleSidebar,
-} from "../Sidebar/SidebarContext.js";
 import { usePermissions } from "../../hooks/usePermissions.js";
 import { buildNavItems, isActive } from "../Sidebar/navItems.js";
 
-const NavBar = styled(Box)<BoxProps & { $collapsed: boolean }>`
+// The AdminJS sidebar stays hidden (the hamburger dropdown is the menu), so the bar only
+// leaves room for the fixed 60px hamburger button.
+const NavBar = styled(Box)<BoxProps>`
     height: ${({ theme }) => theme.sizes.navbarHeight};
     border-bottom: ${({ theme }) => theme.borders.default};
     background: ${({ theme }) => theme.colors.container};
@@ -21,26 +18,26 @@ const NavBar = styled(Box)<BoxProps & { $collapsed: boolean }>`
     flex-direction: row;
     flex-shrink: 0;
     align-items: center;
+    position: relative;
     z-index: 99;
-    margin-left: ${({ $collapsed }) => ($collapsed ? "60px" : "250px")};
-    transition: margin-left 0.25s ease-in-out;
+    margin-left: 60px;
+    padding-right: 8px;
 `;
 
 NavBar.defaultProps = {
     className: cssClass("NavBar"),
 };
 
-const HamburgerButton = styled(Box)<{ $collapsed: boolean }>`
+const HamburgerButton = styled(Box)`
     position: fixed;
     top: 0;
     left: 0;
-    width: ${({ $collapsed }) => ($collapsed ? "60px" : "250px")};
+    width: 60px;
     height: ${({ theme }) => theme.sizes.navbarHeight};
     display: flex;
     align-items: center;
     z-index: 101;
     cursor: pointer;
-    transition: width 0.25s ease-in-out;
     background: ${({ theme }) => theme.colors.container};
     border-right: ${({ theme }) => theme.borders.default};
 
@@ -59,7 +56,14 @@ const HamburgerIcon = styled(Box)`
     border-right: ${({ theme }) => theme.borders.default};
 `;
 
+// Centred on the page, not the bar: the bar starts 60px in, so shift back by half of that.
 const LogoArea = styled(Box)`
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(50% - 30px);
+    transform: translateX(-50%);
+    pointer-events: none;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -80,6 +84,12 @@ const BrandName = styled(Box)`
     text-align: center;
     line-height: 1.2;
     margin-top: 2px;
+
+    @media (max-width: 1100px) {
+        & .brand-rest {
+            display: none;
+        }
+    }
 `;
 
 const MenuContainer = styled(Box)`
@@ -142,7 +152,6 @@ const TopBar: React.FC = () => {
     const versions = useSelector((state: ReduxState) => state.versions);
     const branding = useSelector((state: ReduxState) => state.branding);
     const resources = useSelector((state: ReduxState) => state.resources);
-    const collapsed = useSyncExternalStore(subscribeSidebar, getSidebarCollapsed);
     const [menuOpen, setMenuOpen] = useState(false);
     const navigate = useNavigate();
     const [currentAdmin] = useCurrentAdmin();
@@ -183,7 +192,6 @@ const TopBar: React.FC = () => {
         <>
             <MenuContainer ref={menuRef as any}>
                 <HamburgerButton
-                    $collapsed={collapsed}
                     onClick={handleHamburgerClick}
                     title="Menu"
                 >
@@ -208,8 +216,7 @@ const TopBar: React.FC = () => {
                     ))}
                 </DropdownMenu>
             </MenuContainer>
-            <NavBar $collapsed={collapsed} data-css="topbar">
-                <Box flex={1} />
+            <NavBar data-css="topbar">
                 <LogoArea>
                     {branding.logo ? (
                         <img src={branding.logo} alt={branding.companyName} />
@@ -218,7 +225,9 @@ const TopBar: React.FC = () => {
                             {branding.companyName}
                         </Box>
                     )}
-                    <BrandName>ಶೈಲಿ ಸಂಚಯ</BrandName>
+                    <BrandName>
+                        ಶೈಲಿ ಸಂಚಯ<span className="brand-rest"> - ಕನ್ನಡದ ಅಚ್ಚು ಅಕ್ಷರಶೈಲಿಗಳಿಗೊಂದು ಸಂಚಯ</span>
+                    </BrandName>
                 </LogoArea>
                 <Box flex={1} />
                 <Version versions={versions} />

@@ -1,3 +1,12 @@
+/* Kannada brand line in the admin top bar (same self-hosted font as the home page) */
+@font-face {
+  font-family: "Baloo Kannada";
+  src: url("/fonts/Baloo-kannada.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 body,
 html,
 #app {
@@ -450,6 +459,13 @@ h4.sc-ilEZps.hhnezv.sc-gXSCqU.letterTypeHeader {
     .adminjs_NavBar {
         margin-left: 0 !important;
     }
+}
+
+/* Phones: show only the avatar in the top bar so the user name doesn't run into the centred logo */
+@media (max-width: 768px) {
+  [data-css="logged-in"] section[height="navbarHeight"] > section:first-child {
+    display: none;
+  }
 }
 
 /* Users list: highlight the logged-in user's row */
