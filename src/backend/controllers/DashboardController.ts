@@ -110,11 +110,25 @@ const getDashboardStats = async (req: Request, res: Response) => {
             count: parseInt(b.count)
         }));
 
+        // Book counts per (language, script); a language's scripts are its listed ones plus any its books use.
+        const booksByScript = (await Books.findAll({
+            attributes: ['language', 'script', [sequelize.fn('COUNT', '*'), 'count']],
+            group: ['language', 'script'],
+            raw: true
+        })) as any[];
+
         const languagesWithCounts = languagesWithStats.map((l: any) => ({
             language_code: l.language_code,
             language: l.language,
             native_name: l.native_name,
             script: l.script,
+            scripts: [...new Set([
+                ...String(l.script ?? '').split(',').map((s: string) => s.trim()),
+                ...booksByScript.filter((b) => b.language === l.language_code).map((b) => b.script),
+            ])].filter(Boolean).map((name) => ({
+                name,
+                books_count: parseInt(booksByScript.find((b) => b.language === l.language_code && b.script === name)?.count ?? 0),
+            })),
             letter_types_count: l.letterTypes?.length || 0,
             letters_count: 0,
             books_count: l.books?.length || 0

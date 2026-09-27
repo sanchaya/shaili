@@ -86,6 +86,7 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
             {addingBook && (
                 <BookFormModal
                     language={filters?.language as string}
+                    script={filters?.script as string}
                     onClose={() => setAddingBook(false)}
                     onSave={() => {
                         setAddingBook(false)
@@ -133,22 +134,28 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
         )
     }
 
-    return (
+    const backLink = (label: string, param: string) => (
+        <Text
+            as="span"
+            mr="xl"
+            onClick={() => clearParams(param)}
+            style={{
+                cursor: 'pointer',
+                color: '#3040d6',
+                fontWeight: 600,
+            }}
+        >
+            ‹ {label}
+        </Text>
+    )
+
+    const recordsList = (
         <Box variant="container" data-css={contentTag}>
             {addBook}
             {showBackToLanguages && (
                 <Box mb="lg">
-                    <Text
-                        as="span"
-                        onClick={() => clearParams('filters')}
-                        style={{
-                            cursor: 'pointer',
-                            color: '#3040d6',
-                            fontWeight: 600,
-                        }}
-                    >
-                        ‹ Back to all languages
-                    </Text>
+                    {backLink('Back to all languages', 'filters')}
+                    {filters?.script && backLink('Back to scripts', 'filters.script')}
                 </Box>
             )}
             {records && (
@@ -174,6 +181,22 @@ const List: React.FC<ActionProps> = ({ resource, setTag }) => {
             </Text>
         </Box>
     )
+
+    // Books: a language written in more than one script asks for the script before listing.
+    if (resource.id === 'books' && filters?.language && !filters?.script) {
+        return (
+            <LanguageCards
+                resourceId={resource.id}
+                language={filters.language as string}
+                onScriptSelect={(script) => storeParams({ filters: { ...filters, script } })}
+                header={<>{addBook}<Box mb="lg">{backLink('Back to all languages', 'filters')}</Box></>}
+            >
+                {recordsList}
+            </LanguageCards>
+        )
+    }
+
+    return recordsList
 }
 
 export default List;

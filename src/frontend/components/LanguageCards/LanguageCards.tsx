@@ -6,7 +6,7 @@ interface LanguageCardData {
     language_code: string;
     language: string;
     native_name: string;
-    script: string;
+    scripts: { name: string; books_count: number }[];
     books_count: number;
     letters_count: number;
     letter_types_count: number;
@@ -21,9 +21,14 @@ const RESOURCE_COUNT_KEY: Record<string, string> = {
 interface LanguageCardsProps {
     resourceId: string;
     onLanguageSelect?: (languageCode: string) => void;
+    // Script step: with a language set, show its scripts instead; one script or none → render children.
+    language?: string;
+    onScriptSelect?: (script: string) => void;
+    children?: React.ReactNode;
+    header?: React.ReactNode; // shown above the script cards
 }
 
-const LanguageCards: React.FC<LanguageCardsProps> = ({ resourceId, onLanguageSelect }) => {
+const LanguageCards: React.FC<LanguageCardsProps> = ({ resourceId, onLanguageSelect, language, onScriptSelect, children, header }) => {
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const [languages, setLanguages] = useState<LanguageCardData[]>([]);
     const [loading, setLoading] = useState(true);
@@ -47,6 +52,7 @@ const LanguageCards: React.FC<LanguageCardsProps> = ({ resourceId, onLanguageSel
     };
 
     const withData = languages.filter((lang) => (lang[countKey] || 0) > 0);
+    const scripts = languages.find((lang) => lang.language_code === language)?.scripts ?? [];
 
     if (loading) {
         return (
@@ -56,8 +62,27 @@ const LanguageCards: React.FC<LanguageCardsProps> = ({ resourceId, onLanguageSel
         );
     }
 
+    if (language && scripts.length <= 1) return <>{children}</>;
+
+    const cards = language
+        ? scripts.map((script) => ({
+              key: script.name,
+              title: script.name,
+              subtitle: "Script",
+              count: script.books_count,
+              onClick: () => onScriptSelect?.(script.name),
+          }))
+        : withData.map((lang) => ({
+              key: lang.language_code,
+              title: lang.native_name || lang.language,
+              subtitle: lang.language,
+              count: lang[countKey] as number,
+              onClick: () => handleSelect(lang.language_code),
+          }));
+
     return (
         <Box variant="container" py="xl">
+            {language && header}
             <div
                 style={{
                     display: "grid",
@@ -65,13 +90,13 @@ const LanguageCards: React.FC<LanguageCardsProps> = ({ resourceId, onLanguageSel
                     gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
                 }}
             >
-                {withData.length === 0 && (
+                {cards.length === 0 && (
                     <p style={{ color: "#898a9a" }}>No data available.</p>
                 )}
-                {withData.map((lang) => (
+                {cards.map((card) => (
                     <div
-                        key={lang.language_code}
-                        onClick={() => handleSelect(lang.language_code)}
+                        key={card.key}
+                        onClick={card.onClick}
                         style={{
                             border: "1px solid #eee",
                             borderRadius: "12px",
@@ -101,26 +126,16 @@ const LanguageCards: React.FC<LanguageCardsProps> = ({ resourceId, onLanguageSel
                                 color: "#0c1e29",
                             }}
                         >
-                            {lang.native_name || lang.language}
+                            {card.title}
                         </div>
                         <div
                             style={{
                                 fontSize: "0.8rem",
                                 color: "#666",
-                                marginBottom: "8px",
-                            }}
-                        >
-                            {lang.language}
-                        </div>
-                        <div
-                            style={{
-                                fontSize: "0.75rem",
-                                color: "#888",
-                                fontStyle: "italic",
                                 marginBottom: "10px",
                             }}
                         >
-                            {lang.script}
+                            {card.subtitle}
                         </div>
                         <div
                             style={{
@@ -129,8 +144,8 @@ const LanguageCards: React.FC<LanguageCardsProps> = ({ resourceId, onLanguageSel
                                 color: "#3040d6",
                             }}
                         >
-                            {lang[countKey]} record
-                            {lang[countKey] === 1 ? "" : "s"}
+                            {card.count} record
+                            {card.count === 1 ? "" : "s"}
                         </div>
                     </div>
                 ))}

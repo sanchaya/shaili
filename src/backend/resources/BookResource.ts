@@ -43,6 +43,7 @@ const beforeBooksShowHook = (request, context) => {
 const properties = [
     "name",
     "language",
+    "script",
     "url",
     "identifier",
     "author_name",

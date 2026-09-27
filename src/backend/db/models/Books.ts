@@ -1,5 +1,6 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../config/config.js";
+import { Languages } from "./Languages.js";
 
 interface IBook {
     id: number;
@@ -7,6 +8,7 @@ interface IBook {
     url: string;
     identifier: string;
     language: string;
+    script: string | null;
     author_name: string;
     publisher_name: string;
     published_year: string;
@@ -19,6 +21,7 @@ interface IBook {
 type BookCreationAttributes = Optional<
     IBook,
     | "id"
+    | "script"
     | "author_name"
     | "publisher_name"
     | "published_year"
@@ -34,6 +37,7 @@ export class Books extends Model<IBook, BookCreationAttributes> {
     declare url: string;
     declare identifier: string;
     declare language: string;
+    declare script: string | null;
     declare publisher_name: string;
     declare published_year: string;
     declare publisher_city: string;
@@ -78,6 +82,10 @@ Books.init(
                 key: "language_code",
             },
         },
+        script: {
+            type: new DataTypes.STRING(),
+            allowNull: true,
+        },
         author_name: {
             type: new DataTypes.STRING(),
             allowNull: true,
@@ -116,3 +124,14 @@ Books.init(
         modelName: "books",
     }
 );
+
+// A book without a script gets its language's primary (first listed) script.
+const primaryScript = async (language: string) =>
+    (await Languages.findOne({ where: { language_code: language }, attributes: ["script"] }))?.script?.split(",")[0].trim() ?? null;
+
+Books.addHook("beforeSave", async (book: Books) => {
+    if (!book.script && book.language) book.script = await primaryScript(book.language);
+});
+Books.addHook("beforeBulkCreate", async (books: Books[]) => {
+    for (const book of books) if (!book.script && book.language) book.script = await primaryScript(book.language);
+});

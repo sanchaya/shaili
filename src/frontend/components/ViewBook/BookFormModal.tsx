@@ -7,6 +7,7 @@ import axios from "axios";
 interface BookFormModalProps {
     recordId?: number; // absent → create a new book
     language?: string; // preselected language when creating
+    script?: string; // preselected script when creating (else the language's primary script)
     onClose: () => void;
     onSave: (record: RecordJSON) => void;
 }
@@ -14,7 +15,7 @@ interface BookFormModalProps {
 type FormProps = Omit<BookFormModalProps, "recordId"> & { initialRecord?: RecordJSON };
 
 // Same fields as the stock AdminJS form, in a popup that keeps you where you are.
-const BookForm = ({ initialRecord, language, onClose, onSave }: FormProps) => {
+const BookForm = ({ initialRecord, language, script, onClose, onSave }: FormProps) => {
     const BASE_URL = (window as any).AdminJS.env.BASE_URL;
     const resource = useResource("books")!;
     const { record, handleChange, submit, loading } = useRecord(initialRecord, "books");
@@ -25,6 +26,7 @@ const BookForm = ({ initialRecord, language, onClose, onSave }: FormProps) => {
 
     useEffect(() => {
         if (creating && language) handleChange("language", language);
+        if (creating && script) handleChange("script", script);
     }, []);
 
     const fetchFromArchive = (url: string) => {
