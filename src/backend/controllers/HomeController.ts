@@ -6,6 +6,7 @@ import { Letters } from "../db/models/Letters.js";
 import { LetterTypes } from "../db/models/LetterTypes.js";
 import { Languages } from "../db/models/Languages.js";
 import { TaggedLetters } from "../db/models/TaggedLetters.js";
+import { pickLang, menuFor, uiLanguages } from "../utils/homeI18n.js";
 
 const INVALID_YEARS = new Set(["", "NA", "NULL", "null"]);
 
@@ -64,6 +65,8 @@ const renderHome = async (req: Request, res: Response) => {
                 "printer_name",
                 "printer_location",
             ],
+            // Filter in SQL: NULL years sort first in MySQL and would fill the whole window.
+            where: { published_year: { [Op.ne]: null, [Op.notIn]: [...INVALID_YEARS] } } as any,
             order: [["published_year", "ASC"]],
             limit: 120,
         });
@@ -127,7 +130,13 @@ const renderHome = async (req: Request, res: Response) => {
             ? featuredBooks[0].published_year
             : null;
 
+        const lang = pickLang(req.query.lang, req.headers.cookie);
+        if (req.query.lang === lang) res.cookie("lang", lang, { maxAge: 365 * 24 * 3600 * 1000, sameSite: "lax" });
+
         const html = await edge.render("Pages::Home", {
+            lang,
+            t: menuFor(lang),
+            uiLanguages,
             stats: {
                 books: bookCount,
                 letters: letterCount,

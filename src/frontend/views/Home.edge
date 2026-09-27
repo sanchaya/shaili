@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
 
 <head>
   <meta charset="UTF-8">
@@ -45,26 +45,30 @@
         <i class="fa fa-times fa-2x close-btn" id="slide-menu-close" aria-hidden="true"></i>
       </div>
       <ul class="slide-menu-item">
-        <li class="active"><a href="/">ಮುಖಪುಟ</a></li>
-        <li><a href="/admin">ಸಂಗ್ರಹ ನಿರ್ವಹಣೆ</a></li>
-        <li><a href="#about" data-close-menu>ಯೋಜನೆಯ ಬಗ್ಗೆ</a></li>
-        <li><a href="#how" data-close-menu>ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ</a></li>
-        <li><a href="#fonts" data-close-menu>ಸಂಚಯ ಫಾಂಟ್‌ಗಳು</a></li>
-        <li><a href="#letter-samples" data-close-menu>ಅಕ್ಷರಶೈಲಿಗಳು</a></li>
-        <li><a href="#books" data-close-menu>ಪುಸ್ತಕಗಳು</a></li>
-        <li><a href="#contribute" data-close-menu>ಕೈಜೋಡಿಸಿ</a></li>
-        <li class="menu-group">ಸಂಗ್ರಹ</li>
-        <li><a href="/admin/resources/books">ಪುಸ್ತಕಗಳ ಪಟ್ಟಿ</a></li>
-        <li><a href="/admin/resources/letters">ಅಕ್ಷರಗಳು</a></li>
-        <li><a href="/admin/pages/compare">ಪುಸ್ತಕ ಹೋಲಿಕೆ</a></li>
-        <li><a href="/admin/login">ಲಾಗಿನ್</a></li>
-        <li><a href="/admin/signup">ನೋಂದಣಿ</a></li>
-        <li class="menu-group">ಸಂಚಯ</li>
-        <li><a href="https://sanchaya.org" target="_blank">ಸಂಚಯ</a></li>
-        <li><a href="https://sanchifoundation.org" target="_blank">ಸಂಚಿ ಫೌಂಡೇಶನ್</a></li>
-        <li><a href="https://fonts.sanchaya.net" target="_blank">ಫಾಂಟ್ಸ್ ಸಂಚಯ</a></li>
+        <li class="active"><a href="/">{{ t.home }}</a></li>
+        <li><a href="/admin">{{ t.manage }}</a></li>
+        <li><a href="#about" data-close-menu>{{ t.about }}</a></li>
+        <li><a href="#how" data-close-menu>{{ t.how }}</a></li>
+        <li><a href="#fonts" data-close-menu>{{ t.fonts }}</a></li>
+        <li><a href="#letter-samples" data-close-menu>{{ t.letterStyles }}</a></li>
+        <li><a href="#books" data-close-menu>{{ t.books }}</a></li>
+        <li><a href="#contribute" data-close-menu>{{ t.contribute }}</a></li>
+        <li class="menu-group">{{ t.collection }}</li>
+        <li><a href="/admin/resources/books">{{ t.bookList }}</a></li>
+        <li><a href="/admin/resources/letters">{{ t.letters }}</a></li>
+        <li><a href="/admin/pages/compare">{{ t.compare }}</a></li>
+        <li><a href="/admin/login">{{ t.login }}</a></li>
+        <li><a href="/admin/signup">{{ t.signup }}</a></li>
+        <li class="menu-group">{{ t.sanchaya }}</li>
+        <li><a href="https://sanchaya.org" target="_blank">{{ t.sanchaya }}</a></li>
+        <li><a href="https://sanchifoundation.org" target="_blank">{{ t.sanchi }}</a></li>
+        <li><a href="https://fonts.sanchaya.net" target="_blank">{{ t.fontsSanchaya }}</a></li>
         <li><a href="https://typetest.sanchaya.net" target="_blank">TypeTest</a></li>
-        <li><a href="https://converter.sanchaya.net" target="_blank">ಅಕ್ಷರರೂಪ ಪರಿವರ್ತಕ</a></li>
+        <li><a href="https://converter.sanchaya.net" target="_blank">{{ t.converter }}</a></li>
+        <li class="menu-group">{{ t.language }}</li>
+        @each(l in uiLanguages)
+          <li><a href="?lang={{ l.code }}" lang="{{ l.code }}" hreflang="{{ l.code }}">{{ l.name }}</a></li>
+        @end
       </ul>
     </div>
     <div class="gap-filler" data-close-menu></div>
@@ -76,39 +80,47 @@
       <div class="nav-tagline">ಶೈಲಿ ಸಂಚಯ - ಕನ್ನಡದ ಅಚ್ಚು ಅಕ್ಷರಶೈಲಿಗಳಿಗೊಂದು ಸಂಚಯ</div>
     </div>
     <div class="menu-items">
-      <a href="/" class="active">ಮುಖಪುಟ</a>
+      <a href="/" class="active">{{ t.home }}</a>
       <div class="dropdown">
-        <a class="dropbtn" href="#about">ಪರಿಚಯ <i class="fas fa-caret-down"></i></a>
+        <a class="dropbtn" href="#about">{{ t.intro }} <i class="fas fa-caret-down"></i></a>
         <div class="dropdown-content">
-          <a href="#about">ಯೋಜನೆಯ ಬಗ್ಗೆ</a>
-          <a href="#how">ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ</a>
-          <a href="#fonts">ಸಂಚಯ ಫಾಂಟ್‌ಗಳು</a>
-          <a href="#letter-samples">ಅಕ್ಷರಶೈಲಿಗಳು</a>
-          <a href="#books">ಪುಸ್ತಕಗಳು</a>
-          <a href="#contribute">ಕೈಜೋಡಿಸಿ</a>
+          <a href="#about">{{ t.about }}</a>
+          <a href="#how">{{ t.how }}</a>
+          <a href="#fonts">{{ t.fonts }}</a>
+          <a href="#letter-samples">{{ t.letterStyles }}</a>
+          <a href="#books">{{ t.books }}</a>
+          <a href="#contribute">{{ t.contribute }}</a>
         </div>
       </div>
       <div class="dropdown">
-        <a class="dropbtn" href="/admin">ಸಂಗ್ರಹ <i class="fas fa-caret-down"></i></a>
+        <a class="dropbtn" href="/admin">{{ t.collection }} <i class="fas fa-caret-down"></i></a>
         <div class="dropdown-content">
-          <a href="/admin">ಸಂಗ್ರಹ ನಿರ್ವಹಣೆ</a>
-          <a href="/admin/resources/books">ಪುಸ್ತಕಗಳ ಪಟ್ಟಿ</a>
-          <a href="/admin/resources/letters">ಅಕ್ಷರಗಳು</a>
-          <a href="/admin/pages/compare">ಪುಸ್ತಕ ಹೋಲಿಕೆ</a>
+          <a href="/admin">{{ t.manage }}</a>
+          <a href="/admin/resources/books">{{ t.bookList }}</a>
+          <a href="/admin/resources/letters">{{ t.letters }}</a>
+          <a href="/admin/pages/compare">{{ t.compare }}</a>
         </div>
       </div>
       <div class="dropdown">
-        <a class="dropbtn">ಸಂಚಯ <i class="fas fa-caret-down"></i></a>
+        <a class="dropbtn">{{ t.sanchaya }} <i class="fas fa-caret-down"></i></a>
         <div class="dropdown-content">
-          <a href="https://sanchaya.org" target="_blank">ಸಂಚಯ</a>
-          <a href="https://sanchifoundation.org" target="_blank">ಸಂಚಿ ಫೌಂಡೇಶನ್</a>
-          <a href="https://fonts.sanchaya.net" target="_blank">ಫಾಂಟ್ಸ್ ಸಂಚಯ</a>
+          <a href="https://sanchaya.org" target="_blank">{{ t.sanchaya }}</a>
+          <a href="https://sanchifoundation.org" target="_blank">{{ t.sanchi }}</a>
+          <a href="https://fonts.sanchaya.net" target="_blank">{{ t.fontsSanchaya }}</a>
           <a href="https://typetest.sanchaya.net" target="_blank">TypeTest</a>
-          <a href="https://converter.sanchaya.net" target="_blank">ಅಕ್ಷರರೂಪ ಪರಿವರ್ತಕ</a>
+          <a href="https://converter.sanchaya.net" target="_blank">{{ t.converter }}</a>
         </div>
       </div>
-      <a href="/admin/login">ಲಾಗಿನ್</a>
-      <a href="/admin/signup" class="nav-signup">ನೋಂದಣಿ</a>
+      <div class="dropdown">
+        <a class="dropbtn" aria-label="{{ t.language }}"><i class="fas fa-language"></i> {{ t.name }} <i class="fas fa-caret-down"></i></a>
+        <div class="dropdown-content">
+          @each(l in uiLanguages)
+            <a href="?lang={{ l.code }}" lang="{{ l.code }}" hreflang="{{ l.code }}">{{ l.name }}</a>
+          @end
+        </div>
+      </div>
+      <a href="/admin/login">{{ t.login }}</a>
+      <a href="/admin/signup" class="nav-signup">{{ t.signup }}</a>
     </div>
     <div class="right-nav">
       <i class="fa fa-bars fa-lg hamburger-icon" id="hamburger-icon" aria-hidden="true"></i>
@@ -364,11 +376,11 @@
         <span>ಶೈಲಿ ಸಂಚಯ · ಒಂದು ಸಂಚಯ ಯೋಜನೆ</span>
       </div>
       <div class="footer-links">
-        <a href="/">ಮುಖಪುಟ</a>
-        <a href="/admin">ಸಂಗ್ರಹ ನಿರ್ವಹಣೆ</a>
-        <a href="https://sanchaya.org" target="_blank">ಸಂಚಯ</a>
-        <a href="https://sanchifoundation.org" target="_blank">ಸಂಚಿ ಫೌಂಡೇಶನ್</a>
-        <a href="https://fonts.sanchaya.net" target="_blank">ಫಾಂಟ್ಸ್ ಸಂಚಯ</a>
+        <a href="/">{{ t.home }}</a>
+        <a href="/admin">{{ t.manage }}</a>
+        <a href="https://sanchaya.org" target="_blank">{{ t.sanchaya }}</a>
+        <a href="https://sanchifoundation.org" target="_blank">{{ t.sanchi }}</a>
+        <a href="https://fonts.sanchaya.net" target="_blank">{{ t.fontsSanchaya }}</a>
       </div>
       <div class="footer-copyright">
         &copy; 2026 ಶೈಲಿ ಸಂಚಯ, ಸಂಚಯ ಮತ್ತು ಸಂಚಿ ಫೌಂಡೇಶನ್
